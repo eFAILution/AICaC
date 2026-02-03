@@ -1,0 +1,8 @@
+{
+  "name": "AICaC",
+  "image": "mcr.microsoft.com/devcontainers/python:3",
+  "postCreateCommand": "pip install --no-cache-dir -r validation/requirements.txt",
+  "remoteEnv": {
+    "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}"
+  }
+}

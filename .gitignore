@@ -1,0 +1,34 @@
+# Experiments (generated test data)
+experiments/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test/Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# Results (keep examples, ignore user-generated)
+results*.json
+!validation/examples/EXAMPLE_RESULTS.md
