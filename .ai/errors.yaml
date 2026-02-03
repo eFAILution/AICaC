@@ -1,0 +1,147 @@
+version: '1.0'
+errors:
+  YAML_PARSE_ERROR:
+    symptom: 'yaml.scanner.ScannerError or similar when loading .ai/ files'
+    common_causes:
+      - 'Incorrect indentation (YAML is whitespace-sensitive)'
+      - 'Missing quotes around special characters'
+      - 'Tab characters instead of spaces'
+      - 'Unclosed quotes or brackets'
+    solutions:
+      - 'Use YAML linter: pip install yamllint && yamllint .ai/'
+      - 'Check indentation is consistent (2 spaces recommended)'
+      - 'Validate with: python -c "import yaml; yaml.safe_load(open(\'.ai/context.yaml\'))"'
+      - 'Use online validator: https://www.yamllint.com/'
+    example: |
+      # Wrong:
+      project:
+        name: My Project  # Contains unquoted special chars
+      # Right:
+      project:
+        name: 'My Project'
+
+  MODULE_NOT_FOUND_PYYAML:
+    symptom: 'ModuleNotFoundError: No module named "yaml"'
+    common_causes:
+      - 'PyYAML not installed'
+      - 'Wrong Python environment active'
+    solutions:
+      - 'Install PyYAML: pip install pyyaml'
+      - 'Check virtual environment is activated'
+      - 'Verify with: pip list | grep PyYAML'
+    reference: '.github/actions/aicac-adoption/action.yml (shows required deps)'
+
+  MODULE_NOT_FOUND_ANTHROPIC:
+    symptom: 'ModuleNotFoundError: No module named "anthropic"'
+    common_causes:
+      - 'Anthropic SDK not installed'
+      - 'Running validation script without dependencies'
+    solutions:
+      - 'Install: pip install anthropic tiktoken'
+      - 'See requirements in: validation/docs/quick-start.md'
+    applies_to: 'validation/scripts/token_measurement.py'
+
+  API_KEY_MISSING:
+    symptom: 'anthropic.APIKeyError or environment variable not found'
+    common_causes:
+      - 'ANTHROPIC_API_KEY not set in environment'
+      - 'API key expired or invalid'
+    solutions:
+      - 'Set environment variable: export ANTHROPIC_API_KEY=your_key'
+      - 'Get API key from: https://console.anthropic.com/'
+      - 'Test with: echo $ANTHROPIC_API_KEY (should show key)'
+    security_note: 'Never commit API keys to version control'
+
+  GITHUB_ACTION_PERMISSION_ERROR:
+    symptom: 'GitHub Actions is not permitted to create or approve pull requests'
+    common_causes:
+      - 'Repository workflow permissions not configured'
+      - 'GITHUB_TOKEN lacks pull-requests: write permission'
+    solutions:
+      - 'Go to: Settings > Actions > General > Workflow permissions'
+      - 'Enable: "Allow GitHub Actions to create and approve pull requests"'
+      - 'Ensure workflow has: permissions.pull-requests: write'
+    reference: '.github/workflows/validate-aicac.yml (shows required permissions)'
+
+  PYTEST_COVERAGE_BELOW_THRESHOLD:
+    symptom: 'FAILED: coverage below 80% threshold'
+    common_causes:
+      - 'New code added without tests'
+      - 'Edge cases not covered'
+    solutions:
+      - 'Run: pytest --cov=scripts --cov-report=html'
+      - 'Open htmlcov/index.html to see missed lines'
+      - 'Add tests for uncovered code paths'
+      - 'See: .github/actions/aicac-adoption/tests/ for examples'
+    threshold: '80% minimum (configured in pytest.ini)'
+
+  VALIDATION_CONTEXT_INVALID:
+    symptom: 'context.yaml validation failed'
+    common_causes:
+      - 'Missing required fields (version, project, entrypoints, common_tasks)'
+      - 'Empty values for required fields'
+      - 'Invalid YAML structure'
+    solutions:
+      - 'Ensure all required fields present'
+      - 'Check: version, project.name, project.type, project.description'
+      - 'Verify entrypoints and common_tasks are not empty'
+      - 'Run validator: python .github/actions/aicac-adoption/scripts/validate.py .'
+    reference: 'ai-context-as-code-whitepaper.md (section 4.1 - context.yaml spec)'
+
+  BADGE_NOT_UPDATING:
+    symptom: 'AICaC badge in README.md not updating automatically'
+    common_causes:
+      - 'Workflow not triggered on .ai/ changes'
+      - 'update-badge input set to false'
+      - 'README.md file not found'
+    solutions:
+      - 'Check workflow triggers in .github/workflows/validate-aicac.yml'
+      - 'Ensure update-badge: true in action inputs'
+      - 'Manually update: python .github/actions/aicac-adoption/scripts/update_badge.py <level>'
+      - 'Verify README.md exists in repo root'
+
+  WRONG_COMPLIANCE_LEVEL:
+    symptom: 'Badge shows lower compliance level than expected'
+    common_causes:
+      - 'Optional files not detected'
+      - 'Files have invalid content'
+      - 'context.yaml validation failing'
+    solutions:
+      - 'Run validation: python .github/actions/aicac-adoption/scripts/validate.py .'
+      - 'Check for validation errors in output'
+      - 'Ensure optional files (architecture.yaml, etc.) have valid YAML'
+      - 'Verify file names match exactly (case-sensitive)'
+    compliance_requirements:
+      Minimal: 'context.yaml only'
+      Standard: 'context.yaml + 2 of [architecture, workflows, decisions, errors].yaml'
+      Comprehensive: 'All 5 files: context, architecture, workflows, decisions, errors'
+
+  IMPORT_ERROR_PYTEST:
+    symptom: 'ModuleNotFoundError when running pytest'
+    common_causes:
+      - 'Python path not configured'
+      - 'Running pytest from wrong directory'
+      - 'pytest.ini not found'
+    solutions:
+      - 'Run from repo root: cd .github/actions/aicac-adoption && pytest'
+      - 'Check pytest.ini pythonpath setting'
+      - 'Install pytest: pip install pytest pytest-cov'
+    reference: 'pytest.ini (shows pythonpath configuration)'
+
+troubleshooting_workflow:
+  - step: 'Identify the error message'
+    action: 'Read full error output, note exact message'
+  - step: 'Check this file'
+    action: 'Search .ai/errors.yaml for matching error'
+  - step: 'Verify environment'
+    action: 'Check Python version, dependencies, API keys'
+  - step: 'Run validator'
+    action: 'python .github/actions/aicac-adoption/scripts/validate.py .'
+  - step: 'Check GitHub Issues'
+    action: 'Search: https://github.com/eFAILution/AICaC/issues'
+  - step: 'Ask for help'
+    action: 'Open issue with: error message, steps to reproduce, environment details'
+
+support:
+  github_issues: 'https://github.com/eFAILution/AICaC/issues'
+  discussions: 'https://github.com/eFAILution/AICaC/discussions'

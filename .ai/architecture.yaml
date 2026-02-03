@@ -1,0 +1,74 @@
+version: '1.0'
+components:
+  specification:
+    description: 'Core AICaC specification and whitepaper'
+    location: 'ai-context-as-code-whitepaper.md'
+    purpose: 'Defines the .ai/ directory convention and structured documentation approach'
+    dependencies: []
+
+  validation_framework:
+    description: 'Empirical validation and token measurement scripts'
+    location: 'validation/'
+    purpose: 'Measure token efficiency and validate AICaC claims'
+    key_files:
+      - 'validation/scripts/token_measurement.py'
+      - 'validation/docs/testing-framework.md'
+      - 'validation/docs/quick-start.md'
+    dependencies:
+      - anthropic
+      - tiktoken
+
+  adoption_action:
+    description: 'GitHub Action for automated AICaC adoption and maintenance'
+    location: '.github/actions/aicac-adoption/'
+    purpose: 'Bootstrap .ai/ directories and validate compliance'
+    key_files:
+      - '.github/actions/aicac-adoption/action.yml'
+      - '.github/actions/aicac-adoption/scripts/bootstrap.py'
+      - '.github/actions/aicac-adoption/scripts/validate.py'
+      - '.github/actions/aicac-adoption/scripts/update_badge.py'
+    dependencies:
+      - pyyaml
+
+  badging_system:
+    description: 'Badge generation and compliance levels'
+    location: 'BADGES.md'
+    purpose: 'Provide visual indicators of AICaC adoption level'
+    compliance_levels:
+      - 'None: No .ai/ directory'
+      - 'Minimal: context.yaml only'
+      - 'Standard: context.yaml + 2 optional files'
+      - 'Comprehensive: All core files present'
+
+  documentation:
+    description: 'Supporting documentation and examples'
+    location: 'validation/docs/'
+    purpose: 'Guide researchers and developers'
+    key_files:
+      - 'README.md'
+      - 'BADGES.md'
+      - 'validation/docs/publication-roadmap.md'
+
+layers:
+  - name: 'Specification Layer'
+    components: ['specification', 'documentation']
+    description: 'Defines what AICaC is and how to implement it'
+
+  - name: 'Validation Layer'
+    components: ['validation_framework']
+    description: 'Empirically validates AICaC effectiveness'
+
+  - name: 'Tooling Layer'
+    components: ['adoption_action', 'badging_system']
+    description: 'Tools to adopt and maintain AICaC compliance'
+
+integration_points:
+  github_actions:
+    description: 'Workflow automation for AICaC maintenance'
+    file: '.github/workflows/validate-aicac.yml'
+    triggers: ['push to main', 'pull requests', 'manual dispatch']
+
+  pytest:
+    description: 'Test suite for adoption action scripts'
+    file: 'pytest.ini'
+    coverage_threshold: '80%'
