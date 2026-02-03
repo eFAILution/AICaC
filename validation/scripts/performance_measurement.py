@@ -6,22 +6,23 @@ Measures AI response quality and speed across documentation formats.
 Unlike token_measurement.py (free), this CALLS AI APIs and costs money.
 
 Supported providers:
-  - anthropic: Claude (requires ANTHROPIC_API_KEY)
-  - openai: GPT-4 (requires OPENAI_API_KEY)
-  - ollama: Local models (free, requires Ollama running)
+  - ollama: Local models (FREE, requires Ollama running)
+  - groq: Cloud models (FREE tier, requires GROQ_API_KEY)
+  - anthropic: Claude (paid, requires ANTHROPIC_API_KEY)
+  - openai: GPT-4 (paid, requires OPENAI_API_KEY)
 
 Usage:
-    # Estimate cost first (no API calls)
-    python performance_measurement.py --estimate-cost
+    # Run with local Ollama (free)
+    python performance_measurement.py --provider ollama --trials 5
 
-    # Run with Claude
+    # Run with Groq (free, cloud, very fast)
+    python performance_measurement.py --provider groq --trials 5
+
+    # Run with Claude (paid)
     python performance_measurement.py --provider anthropic --trials 3
 
-    # Run with local Ollama (free)
-    python performance_measurement.py --provider ollama --model llama3
-
     # Run specific format only
-    python performance_measurement.py --provider anthropic --format AICAC_SELECTIVE
+    python performance_measurement.py --provider groq --format AICAC_SELECTIVE
 """
 
 import argparse
@@ -52,12 +53,19 @@ try:
 except ImportError:
     HAS_OLLAMA = False
 
+try:
+    from groq import Groq
+    HAS_GROQ = True
+except ImportError:
+    HAS_GROQ = False
+
 
 # Approximate costs per 1M tokens (as of 2026)
 COST_PER_1M_TOKENS = {
     "anthropic": {"input": 3.00, "output": 15.00},  # Claude Sonnet
     "openai": {"input": 2.50, "output": 10.00},     # GPT-4o
     "ollama": {"input": 0.00, "output": 0.00},      # Local, free
+    "groq": {"input": 0.00, "output": 0.00},        # Free tier
 }
 
 # Default models per provider
@@ -65,6 +73,7 @@ DEFAULT_MODELS = {
     "anthropic": "claude-sonnet-4-20250514",
     "openai": "gpt-4o",
     "ollama": "llama3",
+    "groq": "llama-3.3-70b-versatile",
 }
 
 
@@ -318,12 +327,42 @@ class OllamaProvider(AIProvider):
         }
 
 
+class GroqProvider(AIProvider):
+    """Groq API (free tier, very fast)"""
+
+    def __init__(self, model: str = None):
+        super().__init__(model or DEFAULT_MODELS["groq"])
+        self.client = Groq()
+
+    def query(self, context: str, question: str) -> dict:
+        start = time.time()
+
+        response = self.client.chat.completions.create(
+            model=self.model,
+            max_tokens=500,
+            messages=[
+                {"role": "system", "content": f"You are answering questions about a codebase. Use ONLY the provided documentation to answer. Be concise.\n\n{context}"},
+                {"role": "user", "content": question}
+            ]
+        )
+
+        elapsed_ms = int((time.time() - start) * 1000)
+
+        return {
+            "answer": response.choices[0].message.content,
+            "input_tokens": response.usage.prompt_tokens,
+            "output_tokens": response.usage.completion_tokens,
+            "response_time_ms": elapsed_ms,
+        }
+
+
 def get_provider(name: str, model: str = None) -> AIProvider:
     """Factory for AI providers"""
     providers = {
         "anthropic": (HAS_ANTHROPIC, AnthropicProvider, "pip install anthropic"),
         "openai": (HAS_OPENAI, OpenAIProvider, "pip install openai"),
         "ollama": (HAS_OLLAMA, OllamaProvider, "pip install ollama"),
+        "groq": (HAS_GROQ, GroqProvider, "pip install groq"),
     }
 
     if name not in providers:
@@ -495,7 +534,7 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("--repo-path", type=Path, default=Path("../../experiments/aicac-full"))
-    parser.add_argument("--provider", choices=["anthropic", "openai", "ollama"], default="anthropic")
+    parser.add_argument("--provider", choices=["anthropic", "openai", "ollama", "groq"], default="anthropic")
     parser.add_argument("--model", help="Model name (uses provider default if not specified)")
     parser.add_argument("--format", choices=["README_ONLY", "AICAC_SELECTIVE"])
     parser.add_argument("--trials", type=int, default=1)
@@ -518,8 +557,8 @@ def main():
         print(f"\nNote: {estimate['note']}")
         return 0
 
-    # Confirm before running (unless using free Ollama)
-    if args.provider != "ollama":
+    # Confirm before running (unless using free providers)
+    if args.provider not in ("ollama", "groq"):
         estimate = estimate_cost(formats, args.trials, args.provider)
         print(f"⚠️  This will make {estimate['total_api_calls']} API calls")
         print(f"   Estimated cost: ${estimate['estimated_cost_usd']:.4f}")

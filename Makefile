@@ -15,9 +15,10 @@ help:
 	@echo "  make measure-all      Run with selective loading comparison"
 	@echo "  make measure-full     Full experiment (30 trials, all modes)"
 	@echo ""
-	@echo "Performance Measurement (uses AI API - costs money):"
+	@echo "Performance Measurement:"
 	@echo "  make perf-estimate    Show cost estimate (no API calls)"
 	@echo "  make perf-ollama      Run with Ollama (FREE, local)"
+	@echo "  make perf-groq        Run with Groq (FREE, cloud, fast)"
 	@echo "  make perf-claude      Run with Claude (requires ANTHROPIC_API_KEY)"
 	@echo "  make perf-openai      Run with OpenAI (requires OPENAI_API_KEY)"
 	@echo ""
@@ -91,6 +92,14 @@ perf-ollama: prepare
 		--provider ollama \
 		--trials 5 \
 		--output ../../experiments/perf_ollama.json
+
+perf-groq: prepare
+	@echo "Running performance test with Groq (free, cloud)..."
+	@cd validation/scripts && python performance_measurement.py \
+		--repo-path ../../experiments/aicac-full \
+		--provider groq \
+		--trials 5 \
+		--output ../../experiments/perf_groq.json
 
 perf-claude: prepare
 	@echo "Running performance test with Claude (requires ANTHROPIC_API_KEY)..."

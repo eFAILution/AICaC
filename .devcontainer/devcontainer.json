@@ -5,6 +5,7 @@
   "remoteEnv": {
     "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
     "OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}",
+    "GROQ_API_KEY": "${localEnv:GROQ_API_KEY}",
     "OLLAMA_HOST": "http://host.docker.internal:11434"
   },
   "customizations": {
