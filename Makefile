@@ -9,17 +9,20 @@ help:
 	@echo "Setup:"
 	@echo "  make setup            Install dependencies"
 	@echo ""
-	@echo "Testing:"
+	@echo "Token Measurement (free):"
 	@echo "  make prepare          Create test variants from sample project"
 	@echo "  make measure          Run token measurement (reality only)"
 	@echo "  make measure-all      Run with selective loading comparison"
 	@echo "  make measure-full     Full experiment (30 trials, all modes)"
 	@echo ""
+	@echo "Performance Measurement (uses AI API - costs money):"
+	@echo "  make perf-estimate    Show cost estimate (no API calls)"
+	@echo "  make perf-ollama      Run with Ollama (FREE, local)"
+	@echo "  make perf-claude      Run with Claude (requires ANTHROPIC_API_KEY)"
+	@echo "  make perf-openai      Run with OpenAI (requires OPENAI_API_KEY)"
+	@echo ""
 	@echo "Utilities:"
 	@echo "  make clean            Remove generated files"
-	@echo ""
-	@echo "Note: Results show BOTH the reality (more tokens) AND"
-	@echo "      the potential (fewer tokens with tool evolution)"
 
 setup:
 	pip install -r validation/requirements.txt
@@ -74,6 +77,36 @@ measure-full: prepare
 		--include-selective \
 		--trials 30 \
 		--output ../../experiments/full_results.json
+
+# Performance measurement (uses AI APIs)
+perf-estimate: prepare
+	@cd validation/scripts && python performance_measurement.py \
+		--repo-path ../../experiments/aicac-full \
+		--estimate-cost
+
+perf-ollama: prepare
+	@echo "Running performance test with Ollama (free, local)..."
+	@cd validation/scripts && python performance_measurement.py \
+		--repo-path ../../experiments/aicac-full \
+		--provider ollama \
+		--trials 3 \
+		--output ../../experiments/perf_ollama.json
+
+perf-claude: prepare
+	@echo "Running performance test with Claude (requires ANTHROPIC_API_KEY)..."
+	@cd validation/scripts && python performance_measurement.py \
+		--repo-path ../../experiments/aicac-full \
+		--provider anthropic \
+		--trials 3 \
+		--output ../../experiments/perf_claude.json
+
+perf-openai: prepare
+	@echo "Running performance test with OpenAI (requires OPENAI_API_KEY)..."
+	@cd validation/scripts && python performance_measurement.py \
+		--repo-path ../../experiments/aicac-full \
+		--provider openai \
+		--trials 3 \
+		--output ../../experiments/perf_openai.json
 
 clean:
 	rm -rf experiments/
