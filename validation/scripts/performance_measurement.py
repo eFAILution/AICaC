@@ -86,7 +86,10 @@ class PerformanceMeasurement:
 
 
 # Questions with expected answers for validation
+# Categories: IR=Information Retrieval, AU=Architectural Understanding,
+#             CW=Common Workflows, ER=Error Resolution
 TEST_QUESTIONS = [
+    # Information Retrieval (IR) - Facts from context.yaml
     {
         "id": "IR-001",
         "question": "What command starts the development server?",
@@ -94,11 +97,39 @@ TEST_QUESTIONS = [
         "category": "information_retrieval"
     },
     {
+        "id": "IR-002",
+        "question": "What Python version is required?",
+        "expected_keywords": ["3.11", "python"],
+        "category": "information_retrieval"
+    },
+    {
+        "id": "IR-003",
+        "question": "Where is the main entry point for the API?",
+        "expected_keywords": ["main.py", "src/taskflow"],
+        "category": "information_retrieval"
+    },
+
+    # Architectural Understanding (AU) - From decisions.yaml/architecture.yaml
+    {
         "id": "AU-001",
         "question": "Why was FastAPI chosen over Flask?",
         "expected_keywords": ["openapi", "pydantic", "async", "validation", "type"],
         "category": "architectural_understanding"
     },
+    {
+        "id": "AU-002",
+        "question": "Where should business logic be placed?",
+        "expected_keywords": ["services", "not", "api", "routes"],
+        "category": "architectural_understanding"
+    },
+    {
+        "id": "AU-003",
+        "question": "What database is used and why might you change it?",
+        "expected_keywords": ["sqlite", "postgresql", "production"],
+        "category": "architectural_understanding"
+    },
+
+    # Common Workflows (CW) - From workflows.yaml
     {
         "id": "CW-001",
         "question": "How do I add a new API endpoint?",
@@ -106,9 +137,35 @@ TEST_QUESTIONS = [
         "category": "common_workflows"
     },
     {
+        "id": "CW-002",
+        "question": "How do I run tests with coverage?",
+        "expected_keywords": ["pytest", "cov", "coverage"],
+        "category": "common_workflows"
+    },
+    {
+        "id": "CW-003",
+        "question": "How do I format the code?",
+        "expected_keywords": ["black", "src", "tests"],
+        "category": "common_workflows"
+    },
+
+    # Error Resolution (ER) - From errors.yaml
+    {
         "id": "ER-001",
         "question": "How do I fix a 'port already in use' error?",
         "expected_keywords": ["kill", "port", "8000", "lsof"],
+        "category": "error_resolution"
+    },
+    {
+        "id": "ER-002",
+        "question": "How do I fix 'Import error: taskflow'?",
+        "expected_keywords": ["pip", "install", "venv", "activate"],
+        "category": "error_resolution"
+    },
+    {
+        "id": "ER-003",
+        "question": "What causes 'Database locked' and how do I fix it?",
+        "expected_keywords": ["sqlite", "concurrent", "restart", "lsof"],
         "category": "error_resolution"
     },
 ]

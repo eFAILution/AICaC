@@ -89,7 +89,7 @@ perf-ollama: prepare
 	@cd validation/scripts && python performance_measurement.py \
 		--repo-path ../../experiments/aicac-full \
 		--provider ollama \
-		--trials 3 \
+		--trials 5 \
 		--output ../../experiments/perf_ollama.json
 
 perf-claude: prepare
