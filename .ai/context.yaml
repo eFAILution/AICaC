@@ -1,0 +1,19 @@
+version: '1.0'
+project:
+  name: 'AICaC'
+  type: specification
+  description: 'AI Context as Code - A structured approach to AI-readable project documentation using YAML-based .ai/ directory convention'
+  repository: 'https://github.com/eFAILution/AICaC'
+  languages:
+    - python
+    - markdown
+    - yaml
+entrypoints:
+  whitepaper: 'ai-context-as-code-whitepaper.md'
+  validation_scripts: 'validation/scripts/token_measurement.py'
+  adoption_action: '.github/actions/aicac-adoption/action.yml'
+  badge_guide: 'BADGES.md'
+common_tasks:
+  test: 'cd .github/actions/aicac-adoption && pytest'
+  validate: 'python validation/scripts/token_measurement.py --all-formats'
+  lint: 'python -m pylint validation/scripts/ .github/actions/aicac-adoption/scripts/'

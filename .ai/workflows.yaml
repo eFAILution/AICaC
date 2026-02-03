@@ -1,0 +1,97 @@
+version: '1.0'
+workflows:
+  run_validation_experiment:
+    description: 'Run token efficiency measurements'
+    steps:
+      - action: install_dependencies
+        command: 'pip install anthropic tiktoken'
+      - action: run_measurement
+        command: 'python validation/scripts/token_measurement.py --all-formats --trials 10'
+      - action: analyze_results
+        location: 'Output printed to console with token counts'
+    estimated_time: '30-60 minutes'
+    prerequisites:
+      - 'Anthropic API key in environment'
+      - 'Python 3.8+'
+
+  run_tests:
+    description: 'Run pytest suite for adoption action'
+    steps:
+      - action: install_dependencies
+        command: 'pip install pytest pytest-cov pyyaml'
+      - action: run_tests
+        command: 'cd .github/actions/aicac-adoption && pytest'
+      - action: check_coverage
+        note: 'Coverage must be ≥80%'
+    reference: '.github/actions/aicac-adoption/TESTING.md'
+
+  adopt_aicac_in_project:
+    description: 'Add AICaC to an external project'
+    steps:
+      - action: create_ai_directory
+        command: 'mkdir .ai'
+      - action: copy_template
+        command: 'cp validation/examples/sample-project/.ai/context.yaml .ai/'
+      - action: customize_context
+        file: '.ai/context.yaml'
+        note: 'Fill in project-specific details'
+      - action: add_optional_files
+        files: ['architecture.yaml', 'workflows.yaml', 'decisions.yaml', 'errors.yaml']
+        note: 'Add as needed for higher compliance'
+      - action: add_badge
+        file: 'README.md'
+        badge: '[![AICaC](https://img.shields.io/badge/AICaC-Minimal-green.svg)](https://github.com/eFAILution/AICaC)'
+      - action: commit
+        command: 'git add .ai/ README.md && git commit -m "chore: adopt AICaC standard"'
+    reference: 'README.md#getting-started'
+
+  update_badge_level:
+    description: 'Update badge when adding more files'
+    steps:
+      - action: run_validator
+        command: 'python .github/actions/aicac-adoption/scripts/validate.py .'
+      - action: update_badge
+        command: 'python .github/actions/aicac-adoption/scripts/update_badge.py <LEVEL>'
+        note: 'Replace <LEVEL> with: Minimal, Standard, or Comprehensive'
+
+  contribute_to_spec:
+    description: 'Contribute to AICaC specification'
+    steps:
+      - action: fork_repo
+        command: 'gh repo fork eFAILution/AICaC'
+      - action: create_branch
+        command: 'git checkout -b feature/my-contribution'
+      - action: make_changes
+        note: 'Edit specification or validation scripts'
+      - action: run_tests
+        command: 'cd .github/actions/aicac-adoption && pytest'
+      - action: commit
+        command: 'git commit -m "feat: add <feature>"'
+      - action: create_pr
+        command: 'gh pr create --title "feat: add <feature>"'
+
+  prepare_publication:
+    description: 'Prepare for academic publication'
+    steps:
+      - action: review_whitepaper
+        file: 'ai-context-as-code-whitepaper.md'
+      - action: check_validation_results
+        location: 'validation/examples/EXAMPLE_RESULTS.md'
+      - action: review_publication_roadmap
+        file: 'validation/docs/publication-roadmap.md'
+      - action: format_for_venue
+        note: 'Follow specific conference/journal templates'
+    reference: 'validation/docs/publication-roadmap.md'
+
+common_issues:
+  import_errors:
+    symptom: 'ModuleNotFoundError when running scripts'
+    solution: 'Install dependencies: pip install -r requirements.txt'
+
+  api_key_missing:
+    symptom: 'Anthropic API key not found'
+    solution: 'Set environment variable: export ANTHROPIC_API_KEY=your_key'
+
+  pytest_not_found:
+    symptom: 'pytest command not recognized'
+    solution: 'Install pytest: pip install pytest pytest-cov'

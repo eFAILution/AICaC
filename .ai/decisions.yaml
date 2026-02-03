@@ -1,0 +1,157 @@
+version: '1.0'
+decisions:
+  ADR001_yaml_over_json:
+    date: '2026-01'
+    status: accepted
+    context: 'Need structured format for .ai/ directory that is both machine-readable and human-friendly'
+    decision: 'Use YAML as primary format instead of JSON'
+    rationale:
+      - 'More human-readable with comments support'
+      - 'Less verbose than JSON (fewer tokens)'
+      - 'Native multi-line string support'
+      - 'Standard in many DevOps workflows'
+    consequences:
+      positive:
+        - 'Easier for developers to read and edit'
+        - 'Better token efficiency than JSON'
+        - 'Supports inline documentation with comments'
+      negative:
+        - 'Indentation-sensitive (can cause errors)'
+        - 'Requires YAML parser library'
+    alternatives_considered:
+      - 'JSON: More strict but verbose'
+      - 'TOML: Good but less widespread'
+      - 'Markdown tables: Not machine-parseable enough'
+
+  ADR002_dot_ai_directory:
+    date: '2026-01'
+    status: accepted
+    context: 'Need dedicated location for AI-specific context that does not conflict with existing conventions'
+    decision: 'Use .ai/ as the standard directory name'
+    rationale:
+      - 'Clearly signals AI-specific content'
+      - 'Dot-prefix follows Unix convention for config'
+      - 'Does not conflict with existing standards'
+      - 'Easy to .gitignore if needed'
+    consequences:
+      positive:
+        - 'Clear separation from human docs'
+        - 'Standard location for AI tools to look'
+        - 'Follows established patterns'
+      negative:
+        - 'Hidden by default in some file explorers'
+        - 'Requires documentation of purpose'
+    alternatives_considered:
+      - 'ai/: Visible but might conflict with code'
+      - '.aicac/: More specific but longer'
+      - 'docs/ai/: Mixed with human documentation'
+
+  ADR003_compliance_levels:
+    date: '2026-01'
+    status: accepted
+    context: 'Need way to measure and communicate degree of AICaC adoption'
+    decision: 'Define four compliance levels: None, Minimal, Standard, Comprehensive'
+    rationale:
+      - 'Encourages gradual adoption'
+      - 'Allows projects to start small'
+      - 'Provides clear upgrade path'
+      - 'Enables badge system'
+    consequences:
+      positive:
+        - 'Lowers barrier to entry'
+        - 'Visual progress indicator via badges'
+        - 'Clear requirements for each level'
+      negative:
+        - 'May encourage minimal compliance'
+        - 'Requires maintenance of multiple examples'
+    levels:
+      None: 'No .ai/ directory'
+      Minimal: 'context.yaml only'
+      Standard: 'context.yaml + 2 optional files'
+      Comprehensive: 'All 5 core files (context, architecture, workflows, decisions, errors)'
+
+  ADR004_github_action_automation:
+    date: '2026-01'
+    status: accepted
+    context: 'Manual adoption and maintenance is time-consuming and error-prone'
+    decision: 'Provide GitHub Action for automated bootstrap and validation'
+    rationale:
+      - 'Reduces friction for adoption'
+      - 'Ensures consistent structure'
+      - 'Automates badge updates'
+      - 'CI integration for validation'
+    consequences:
+      positive:
+        - 'One-click adoption for GitHub projects'
+        - 'Automatic validation in CI'
+        - 'Keeps badges up-to-date'
+      negative:
+        - 'GitHub-specific (not GitLab/Bitbucket)'
+        - 'Requires maintenance of action code'
+    implementation: '.github/actions/aicac-adoption/'
+
+  ADR005_dual_license_structure:
+    date: '2026-01'
+    status: accepted
+    context: 'Need to balance open source ethos with academic attribution and prevent proprietary standard forks'
+    decision: 'Use dual license: MIT for code, CC BY-SA 4.0 for documentation'
+    rationale:
+      - 'MIT allows maximum tool integration'
+      - 'CC BY-SA prevents proprietary standard forks'
+      - 'Academic attribution via CC BY-SA'
+      - 'Standard approach for specifications'
+    consequences:
+      positive:
+        - 'Code can be integrated into any project'
+        - 'Specification remains open and attributed'
+        - 'Derivatives must remain open'
+      negative:
+        - 'Two licenses to manage'
+        - 'Potential confusion for contributors'
+    files:
+      code: 'validation/scripts/, .github/actions/ - MIT'
+      docs: 'whitepaper, README, validation docs - CC BY-SA 4.0'
+
+  ADR006_validation_methodology:
+    date: '2026-01'
+    status: accepted
+    context: 'Claims of token efficiency need empirical backing'
+    decision: 'Build controlled experiments measuring token counts across formats'
+    rationale:
+      - 'Provides scientific rigor'
+      - 'Enables publication in academic venues'
+      - 'Demonstrates real-world value'
+      - 'Allows community to replicate'
+    consequences:
+      positive:
+        - 'Credible efficiency claims'
+        - 'Publishable research'
+        - 'Transparent methodology'
+      negative:
+        - 'Time-intensive to execute'
+        - 'Requires API access and costs'
+    implementation: 'validation/scripts/token_measurement.py'
+    reference: 'validation/docs/testing-framework.md'
+
+  ADR007_graceful_degradation:
+    date: '2026-01'
+    status: accepted
+    context: 'AICaC should complement, not replace existing documentation conventions'
+    decision: 'Design .ai/ to work alongside README.md and AGENTS.md'
+    rationale:
+      - 'Existing conventions are valuable'
+      - 'Allows gradual migration'
+      - 'Different audiences (human vs AI)'
+      - 'Reduces adoption friction'
+    consequences:
+      positive:
+        - 'No breaking changes to existing projects'
+        - 'Can reference between formats'
+        - 'Works with current tooling'
+      negative:
+        - 'Potential for duplication'
+        - 'Requires cross-referencing strategy'
+    strategy:
+      - 'README.md: Human-facing intro'
+      - 'AGENTS.md: Cross-tool AI instructions, references .ai/'
+      - '.ai/: Structured machine-readable data'
