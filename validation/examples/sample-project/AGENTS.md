@@ -1,51 +1,50 @@
 # AI Assistant Instructions
 
-Instructions for AI coding assistants working with this codebase.
+This project uses **AI Context as Code (AICaC)** - structured YAML in `.ai/` for efficient context loading.
 
-## Structured Context Available
+## Context Selection Guide
 
-This project uses **AI Context as Code (AICaC)** for efficient documentation.
-Tools that support structured context should read `.ai/` directory files.
+**IMPORTANT: Load ONLY the file(s) relevant to your current task.**
 
-- **Project overview**: `.ai/context.yaml`
-- **Architecture**: `.ai/architecture.yaml`
-- **Workflows**: `.ai/workflows.yaml`
-- **Decisions**: `.ai/decisions.yaml`
-- **Error solutions**: `.ai/errors.yaml`
+| Query Type | Load This File | Skip These |
+|------------|----------------|------------|
+| Project overview, setup, dependencies | `.ai/context.yaml` | architecture, workflows, decisions, errors |
+| Architecture, components, data flow | `.ai/architecture.yaml` | context, workflows, decisions, errors |
+| How-to, commands, adding features | `.ai/workflows.yaml` | context, architecture, decisions, errors |
+| Why decisions were made, trade-offs | `.ai/decisions.yaml` | context, architecture, workflows, errors |
+| Errors, debugging, troubleshooting | `.ai/errors.yaml` | context, architecture, workflows, decisions |
+
+**Examples:**
+- "How do I add an endpoint?" → Load `.ai/workflows.yaml` only
+- "Why FastAPI over Flask?" → Load `.ai/decisions.yaml` only
+- "Fix port in use error" → Load `.ai/errors.yaml` only
 
 ## Quick Reference
 
-### Project Type
-Python REST API using FastAPI with SQLite storage.
+**Project:** TaskFlow - Task Management REST API
+**Stack:** Python 3.11+, FastAPI, SQLite
+**Entry:** `src/taskflow/main.py`
 
-### Key Directories
-- `src/taskflow/` - Main source code
-- `src/taskflow/api/` - Route handlers
-- `src/taskflow/models/` - Pydantic models
-- `src/taskflow/services/` - Business logic
-- `tests/` - Test suite
-
-### Common Tasks
-
-**Run tests:**
 ```bash
-pytest
+taskflow serve --reload  # Dev server
+pytest                   # Tests
+black src/ tests/        # Format
 ```
 
-**Start dev server:**
-```bash
-taskflow serve --reload
+## Directory Structure
+
+```
+src/taskflow/
+├── main.py        # FastAPI app
+├── api/           # Route handlers
+├── models/        # Pydantic models
+├── services/      # Business logic
+└── db/            # Database
 ```
 
-**Add new endpoint:**
-1. Create router in `src/taskflow/api/`
-2. Add models in `src/taskflow/models/`
-3. Add service in `src/taskflow/services/`
-4. Register in `src/taskflow/main.py`
-5. Add tests
+## Code Style
 
-### Code Style
-- Python 3.11+
 - Type hints required
-- Black for formatting
+- Black formatting
 - Pydantic for validation
+- Business logic in services/, not routes
