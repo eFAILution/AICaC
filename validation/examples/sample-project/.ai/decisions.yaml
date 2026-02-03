@@ -1,0 +1,44 @@
+# .ai/decisions.yaml - Architectural Decisions
+decisions:
+  - id: "ADR-001"
+    title: "FastAPI over Flask"
+    status: "accepted"
+    context: "Choosing a web framework for the REST API"
+    decision: "Use FastAPI"
+    rationale:
+      - "Built-in OpenAPI documentation"
+      - "Automatic request validation with Pydantic"
+      - "Async support out of the box"
+      - "Type hints enforced"
+    consequences:
+      positive:
+        - "Less boilerplate code"
+        - "Self-documenting API"
+      negative:
+        - "Smaller ecosystem than Flask"
+
+  - id: "ADR-002"
+    title: "SQLite as default database"
+    status: "accepted"
+    context: "Need simple storage that works without setup"
+    decision: "SQLite default, PostgreSQL optional"
+    rationale:
+      - "Zero configuration for development"
+      - "Single file, easy to backup"
+      - "Good enough for small deployments"
+    consequences:
+      positive:
+        - "Easy to get started"
+        - "No database server needed"
+      negative:
+        - "Not suitable for high concurrency"
+
+  - id: "ADR-003"
+    title: "Service layer pattern"
+    status: "accepted"
+    context: "Organizing business logic"
+    decision: "Business logic in services/, not in API routes"
+    rationale:
+      - "Testable without HTTP"
+      - "Reusable across endpoints"
+      - "Clear separation of concerns"

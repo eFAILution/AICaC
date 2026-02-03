@@ -1,0 +1,60 @@
+# .ai/workflows.yaml - Common Tasks
+workflows:
+  add_endpoint:
+    description: "Add a new API endpoint"
+    steps:
+      - action: create_file
+        location: "src/taskflow/api/{resource}.py"
+        template: |
+          from fastapi import APIRouter
+          router = APIRouter(prefix="/{resource}s", tags=["{resource}s"])
+
+          @router.get("/")
+          def list_{resource}s():
+              pass
+
+          @router.post("/")
+          def create_{resource}():
+              pass
+      - action: create_file
+        location: "src/taskflow/models/{resource}.py"
+        template: |
+          from pydantic import BaseModel
+
+          class {Resource}(BaseModel):
+              id: int
+              name: str
+
+          class {Resource}Create(BaseModel):
+              name: str
+      - action: modify_file
+        file: "src/taskflow/main.py"
+        add_import: "from taskflow.api import {resource}"
+        add_line: "app.include_router({resource}.router)"
+      - action: create_file
+        location: "tests/test_{resource}.py"
+    reference: "src/taskflow/api/tasks.py"
+
+  run_tests:
+    description: "Run test suite"
+    command: "pytest"
+    options:
+      verbose: "pytest -v"
+      coverage: "pytest --cov=taskflow"
+      single: "pytest {file}"
+
+  start_server:
+    description: "Start development server"
+    command: "taskflow serve --reload"
+    options:
+      production: "uvicorn taskflow.main:app"
+      custom_port: "taskflow serve --port {port}"
+
+  format_code:
+    description: "Format code"
+    command: "black src/ tests/"
+
+common_commands:
+  dev: "taskflow serve --reload"
+  test: "pytest"
+  format: "black src/ tests/"

@@ -1,0 +1,54 @@
+# .ai/errors.yaml - Common Errors and Solutions
+error_patterns:
+  - pattern: "Task not found"
+    context: "Accessing a task that doesn't exist"
+    solutions:
+      - description: "Check task ID exists"
+        code: "GET /tasks to list all tasks"
+      - description: "Task may have been deleted"
+
+  - pattern: "Validation error"
+    context: "Request body doesn't match expected schema"
+    solutions:
+      - description: "Check required fields"
+        required_fields:
+          - title: "string, required"
+          - priority: "low|medium|high, optional"
+      - description: "See /docs for schema"
+
+  - pattern: "Database locked"
+    context: "SQLite concurrent access issue"
+    solutions:
+      - description: "Check for other connections"
+        command: "lsof tasks.db"
+      - description: "Restart the server"
+      - description: "Use PostgreSQL for production"
+
+  - pattern: "Port already in use"
+    context: "Server can't start"
+    solutions:
+      - description: "Kill existing process"
+        command: "lsof -ti:8000 | xargs kill"
+      - description: "Use different port"
+        command: "taskflow serve --port 8080"
+
+  - pattern: "Import error: taskflow"
+    context: "Package not installed"
+    solutions:
+      - description: "Install in dev mode"
+        command: "pip install -e ."
+      - description: "Activate virtualenv"
+        command: "source venv/bin/activate"
+
+common_fixes:
+  reset_database:
+    description: "Start fresh"
+    command: "rm tasks.db && taskflow serve"
+
+  reinstall:
+    description: "Clean reinstall"
+    commands:
+      - "rm -rf venv"
+      - "python -m venv venv"
+      - "source venv/bin/activate"
+      - "pip install -e .[dev]"

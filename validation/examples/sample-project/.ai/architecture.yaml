@@ -1,0 +1,67 @@
+# .ai/architecture.yaml - Component Relationships
+components:
+  - name: api
+    location: "src/taskflow/api/"
+    purpose: "HTTP route handlers"
+    files:
+      - tasks.py: "Task CRUD endpoints"
+      - projects.py: "Project endpoints"
+    depends_on:
+      - services
+      - models
+
+  - name: models
+    location: "src/taskflow/models/"
+    purpose: "Pydantic models for validation"
+    files:
+      - task.py: "Task, TaskCreate, TaskUpdate"
+      - project.py: "Project, ProjectCreate"
+
+  - name: services
+    location: "src/taskflow/services/"
+    purpose: "Business logic layer"
+    files:
+      - task_service.py: "Task operations"
+    depends_on:
+      - db
+      - models
+
+  - name: db
+    location: "src/taskflow/db/"
+    purpose: "Database connection and queries"
+    files:
+      - database.py: "SQLAlchemy setup"
+
+interfaces:
+  Task:
+    location: "src/taskflow/models/task.py"
+    attributes:
+      - id: "int"
+      - title: "str"
+      - description: "str | None"
+      - priority: "Priority enum"
+      - status: "Status enum"
+      - due_date: "datetime | None"
+      - project_id: "int | None"
+
+data_flow:
+  create_task:
+    - step: 1
+      component: api
+      action: "Receive POST /tasks"
+    - step: 2
+      component: models
+      action: "Validate with TaskCreate"
+    - step: 3
+      component: services
+      action: "Create task in database"
+    - step: 4
+      component: api
+      action: "Return Task response"
+
+extension_points:
+  - name: "New endpoint"
+    location: "src/taskflow/api/"
+    registration: "src/taskflow/main.py"
+  - name: "New model"
+    location: "src/taskflow/models/"
