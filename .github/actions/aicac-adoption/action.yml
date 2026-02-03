@@ -1,0 +1,202 @@
+name: 'AICaC Adoption & Maintenance'
+description: 'Bootstrap AICaC adoption with PR creation and maintain compliance with automatic badge updates'
+branding:
+  icon: 'cpu'
+  color: 'blue'
+
+inputs:
+  mode:
+    description: 'Operation mode: "setup" to bootstrap AICaC, "maintain" to validate and update badge'
+    required: false
+    default: 'maintain'
+
+  github-token:
+    description: 'GitHub token for creating PRs (required for setup mode)'
+    required: false
+    default: ${{ github.token }}
+
+  project-path:
+    description: 'Path to the project directory'
+    required: false
+    default: '.'
+
+  with-ai:
+    description: 'Use AI assistance to populate .ai/ files (future feature)'
+    required: false
+    default: 'false'
+
+  ai-service:
+    description: 'AI service to use: github-copilot, openai, anthropic'
+    required: false
+    default: 'github-copilot'
+
+  update-badge:
+    description: 'Automatically update badge in README.md (maintain mode)'
+    required: false
+    default: 'true'
+
+outputs:
+  compliance-level:
+    description: 'Compliance level: None, Minimal, Standard, Comprehensive'
+    value: ${{ steps.check-compliance.outputs.level }}
+
+  badge-url:
+    description: 'Recommended badge URL'
+    value: ${{ steps.check-compliance.outputs.badge }}
+
+  pr-number:
+    description: 'PR number if created (setup mode)'
+    value: ${{ steps.create-pr.outputs.pr-number }}
+
+  setup-needed:
+    description: 'Whether .ai/ directory needs to be created'
+    value: ${{ steps.check-existing.outputs.needs-setup }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        pip install pyyaml
+
+    - name: Make scripts executable
+      shell: bash
+      run: |
+        chmod +x ${{ github.action_path }}/scripts/bootstrap.py
+        chmod +x ${{ github.action_path }}/scripts/validate.py
+        chmod +x ${{ github.action_path }}/scripts/update_badge.py
+
+    - name: Check if .ai/ exists
+      id: check-existing
+      shell: bash
+      env:
+        PROJECT_PATH: ${{ inputs.project-path }}
+      run: |
+        if [ -d "$PROJECT_PATH/.ai" ]; then
+          echo "needs-setup=false" >> $GITHUB_OUTPUT
+          echo "✅ .ai/ directory exists"
+        else
+          echo "needs-setup=true" >> $GITHUB_OUTPUT
+          echo "⚠️  .ai/ directory not found"
+        fi
+
+    # SETUP MODE - Bootstrap AICaC
+    - name: Bootstrap AICaC structure
+      if: inputs.mode == 'setup' && steps.check-existing.outputs.needs-setup == 'true'
+      shell: bash
+      env:
+        PROJECT_PATH: ${{ inputs.project-path }}
+        WITH_AI: ${{ inputs.with-ai }}
+        AI_SERVICE: ${{ inputs.ai-service }}
+      run: |
+        cd "$PROJECT_PATH"
+        if [ "$WITH_AI" = "true" ]; then
+          python ${{ github.action_path }}/scripts/bootstrap.py . --with-ai --ai-service=$AI_SERVICE
+        else
+          python ${{ github.action_path }}/scripts/bootstrap.py .
+        fi
+
+    - name: Generate PR body
+      if: inputs.mode == 'setup' && steps.check-existing.outputs.needs-setup == 'true'
+      id: pr-body
+      shell: bash
+      env:
+        PROJECT_PATH: ${{ inputs.project-path }}
+      run: |
+        cd "$PROJECT_PATH"
+        PR_BODY=$(python ${{ github.action_path }}/scripts/bootstrap.py . --pr-body)
+        echo "pr-body<<EOF" >> $GITHUB_OUTPUT
+        echo "$PR_BODY" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+    - name: Create Pull Request
+      if: inputs.mode == 'setup' && steps.check-existing.outputs.needs-setup == 'true'
+      id: create-pr
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ inputs.github-token }}
+        commit-message: 'chore: adopt AICaC standard for AI-readable documentation'
+        title: '🤖 Adopt AICaC (AI Context as Code)'
+        body: ${{ steps.pr-body.outputs.pr-body }}
+        branch: aicac/bootstrap
+        delete-branch: true
+        labels: documentation, enhancement, aicac
+
+    # MAINTAIN MODE - Validate and update
+    - name: Check AICaC compliance
+      if: inputs.mode == 'maintain' || inputs.mode == 'validate'
+      id: check-compliance
+      shell: bash
+      env:
+        PROJECT_PATH: ${{ inputs.project-path }}
+      run: |
+        cd "$PROJECT_PATH"
+
+        if ! python ${{ github.action_path }}/scripts/validate.py . > validation_output.txt 2>&1; then
+          echo "level=None" >> $GITHUB_OUTPUT
+          echo "badge=https://img.shields.io/badge/AICaC-Not%20Adopted-red.svg" >> $GITHUB_OUTPUT
+          echo "❌ AICaC not adopted"
+          cat validation_output.txt
+          exit 1
+        fi
+
+        # Extract compliance level from output
+        LEVEL=$(grep "Compliance Level:" validation_output.txt | awk '{print $3}')
+        echo "level=$LEVEL" >> $GITHUB_OUTPUT
+
+        # Set badge URL
+        case $LEVEL in
+          "Comprehensive")
+            echo "badge=https://img.shields.io/badge/AICaC-Comprehensive-success.svg" >> $GITHUB_OUTPUT
+            ;;
+          "Standard")
+            echo "badge=https://img.shields.io/badge/AICaC-Standard-brightgreen.svg" >> $GITHUB_OUTPUT
+            ;;
+          "Minimal")
+            echo "badge=https://img.shields.io/badge/AICaC-Minimal-green.svg" >> $GITHUB_OUTPUT
+            ;;
+          *)
+            echo "badge=https://img.shields.io/badge/AICaC-Unknown-lightgrey.svg" >> $GITHUB_OUTPUT
+            ;;
+        esac
+
+        cat validation_output.txt
+
+    - name: Update badge in README
+      if: (inputs.mode == 'maintain' && inputs.update-badge == 'true')
+      shell: bash
+      env:
+        PROJECT_PATH: ${{ inputs.project-path }}
+        LEVEL: ${{ steps.check-compliance.outputs.level }}
+      run: |
+        cd "$PROJECT_PATH"
+        python ${{ github.action_path }}/scripts/update_badge.py "$LEVEL" --project-path=.
+
+    - name: Check for badge changes
+      if: inputs.mode == 'maintain' && inputs.update-badge == 'true'
+      id: badge-changes
+      shell: bash
+      env:
+        PROJECT_PATH: ${{ inputs.project-path }}
+      run: |
+        cd "$PROJECT_PATH"
+        if git diff --quiet README.md; then
+          echo "changed=false" >> $GITHUB_OUTPUT
+          echo "✅ Badge already accurate"
+        else
+          echo "changed=true" >> $GITHUB_OUTPUT
+          echo "📝 Badge updated in README.md"
+        fi
+
+    - name: Commit badge update
+      if: inputs.mode == 'maintain' && inputs.update-badge == 'true' && steps.badge-changes.outputs.changed == 'true'
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: 'docs: update AICaC badge to reflect ${{ steps.check-compliance.outputs.level }} compliance'
+        file_pattern: README.md

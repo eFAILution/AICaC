@@ -5,6 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/)
 [![Status: Draft](https://img.shields.io/badge/Status-Draft-yellow.svg)]()
+[![AICaC](https://img.shields.io/badge/AICaC-Comprehensive-success.svg)](BADGES.md)
 
 ## Overview
 
@@ -50,9 +51,21 @@ Tokens: ~30 (40% reduction)
 ```
 AICaC/
 ├── README.md                          # This file
-├── ai-context-as-code-whitepaper.md                   # Complete specification (23KB)
+├── BADGES.md                          # Badge usage guide
+├── ai-context-as-code-whitepaper.md   # Complete specification (23KB)
 ├── LICENSE-CODE                       # MIT License (for code)
 ├── LICENSE-DOCS                       # CC BY-SA 4.0 (for documentation)
+├── .github/                           # GitHub integrations
+│   ├── actions/
+│   │   └── aicac-adoption/            # Adoption & maintenance action
+│   │       ├── scripts/               # Action scripts
+│   │       │   ├── bootstrap.py       # Bootstrap .ai/ structure
+│   │       │   ├── validate.py        # Validate compliance
+│   │       │   └── update_badge.py    # Update README badge
+│   │       └── tests/                 # Pytest test suite
+│   └── workflows/
+│       └── validate-aicac.yml         # CI validation for this repo
+├── pytest.ini                         # Pytest configuration
 └── validation/                        # Empirical validation suite
     ├── README.md                      # Validation overview
     ├── docs/
@@ -98,6 +111,7 @@ Implement AICaC in your project:
      test: "npm test"
    ```
 3. Reference from `AGENTS.md`
+4. Add an AICaC badge to your README (see [BADGES.md](BADGES.md))
 
 See [ai-context-as-code-whitepaper.md](ai-context-as-code-whitepaper.md) Section 4 for complete specification.
 
