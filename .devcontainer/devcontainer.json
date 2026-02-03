@@ -4,7 +4,8 @@
   "postCreateCommand": "pip install --no-cache-dir -r validation/requirements.txt",
   "remoteEnv": {
     "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
-    "OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}"
+    "OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}",
+    "OLLAMA_HOST": "http://host.docker.internal:11434"
   },
   "customizations": {
     "vscode": {
