@@ -58,12 +58,24 @@ class AICaCValidator:
         # Get badge recommendation
         badge = self._get_badge_recommendation(compliance_level)
 
+        error_message = None
+        recommendation = None
+        if compliance_level == 'None':
+            if self.errors:
+                error_message = 'Validation failed; see reasons below'
+                recommendation = 'Fix the items above or see BADGES.md'
+            else:
+                error_message = 'AICaC requirements not met'
+                recommendation = 'See BADGES.md'
+
         return {
             'valid': compliance_level != 'None',
             'compliance_level': compliance_level,
             'found_files': found_files,
             'context_valid': context_valid,
             'errors': self.errors,
+            'error': error_message,
+            'recommendation': recommendation,
             'badge': badge,
             'badge_markdown': self._get_badge_markdown(compliance_level)
         }
@@ -170,6 +182,10 @@ class AICaCValidator:
         if not results['valid']:
             print("❌ AICaC NOT ADOPTED")
             print(f"   {results.get('error', 'Unknown error')}")
+            if results.get('errors'):
+                print("\nReasons:")
+                for error in results['errors']:
+                    print(f"  • {error}")
             print()
             print(f"Recommendation: {results.get('recommendation', 'See BADGES.md')}")
             return
