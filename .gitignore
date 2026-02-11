@@ -1,3 +1,6 @@
+# Node (release-it tooling)
+node_modules/
+
 # Experiments (generated test data)
 experiments/
 

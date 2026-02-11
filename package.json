@@ -1,0 +1,16 @@
+{
+  "name": "aicac",
+  "version": "0.1.1",
+  "private": true,
+  "description": "AI Context as Code — structured, machine-optimized AI-readable documentation",
+  "scripts": {
+    "test": "npm ci || npm install",
+    "release": "release-it",
+    "release:dry": "release-it --dry-run"
+  },
+  "devDependencies": {
+    "release-it": "^19.2.4",
+    "@release-it/conventional-changelog": "^10.0.5",
+    "@j-ulrich/release-it-regex-bumper": "^5.3.0"
+  }
+}

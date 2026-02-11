@@ -1,0 +1,97 @@
+{
+  "$schema": "https://unpkg.com/release-it/schema/release-it.json",
+  "name": "aicac",
+  "version": "0.1.0",
+  "description": "AI Context as Code — structured, machine-optimized AI-readable documentation",
+  "git": {
+    "commitMessage": "chore(release): ${version}",
+    "tagName": "${version}",
+    "requireCleanWorkingDir": false,
+    "requireUpstream": true,
+    "addUntrackedFiles": false,
+    "addFiles": [
+      "CHANGELOG.md"
+    ]
+  },
+  "github": {
+    "release": true,
+    "releaseName": "Release ${version}",
+    "releaseNotes": null,
+    "autoGenerate": false,
+    "draft": false,
+    "preRelease": false,
+    "assets": []
+  },
+  "npm": {
+    "publish": false,
+    "ignoreVersion": false
+  },
+  "hooks": {
+    "before:init": [
+      "npm test"
+    ],
+    "after:git:release": "echo 'Git tag ${tagName} created'",
+    "after:github:release": "echo 'GitHub release ${version} published'",
+    "after:release": "echo 'Release ${version} completed successfully!'"
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": {
+        "name": "conventionalcommits",
+        "types": [
+          {
+            "type": "feat",
+            "section": "Features"
+          },
+          {
+            "type": "fix",
+            "section": "Bug Fixes"
+          },
+          {
+            "type": "chore",
+            "section": "Maintenance",
+            "hidden": false
+          },
+          {
+            "type": "docs",
+            "section": "Documentation"
+          },
+          {
+            "type": "style",
+            "section": "Styles"
+          },
+          {
+            "type": "refactor",
+            "section": "Code Refactoring"
+          },
+          {
+            "type": "perf",
+            "section": "Performance Improvements"
+          },
+          {
+            "type": "test",
+            "section": "Tests"
+          },
+          {
+            "type": "build",
+            "section": "Build System"
+          },
+          {
+            "type": "ci",
+            "section": "Continuous Integration"
+          }
+        ]
+      },
+      "infile": "CHANGELOG.md",
+      "header": "# Changelog\n\nAll notable changes to this project will be documented in this file.\n\nThe format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),\nand this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).\n\n",
+      "ignoreRecommendedBump": false,
+      "strictSemVer": true
+    },
+    "@j-ulrich/release-it-regex-bumper": {
+      "in": "version.yaml",
+      "out": [
+        "version.yaml"
+      ]
+    }
+  }
+}
