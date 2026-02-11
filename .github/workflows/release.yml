@@ -47,7 +47,7 @@ jobs:
       - name: Release dry run
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx release-it --ci --dry-run
+        run: npm run release:dry -- --ci
 
   release:
     if: github.event_name == 'workflow_dispatch'
@@ -78,7 +78,7 @@ jobs:
           INCREMENT: ${{ inputs.increment }}
         run: |
           if [ -n "$INCREMENT" ]; then
-            npx release-it "$INCREMENT" --ci
+            npm run release -- "$INCREMENT" --ci
           else
-            npx release-it --ci
+            npm run release -- --ci
           fi
