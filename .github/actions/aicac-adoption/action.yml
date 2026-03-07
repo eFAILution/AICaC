@@ -35,6 +35,16 @@ inputs:
     required: false
     default: 'true'
 
+  generate-toon:
+    description: 'Generate .toon files from .ai/ YAML sources (maintain mode)'
+    required: false
+    default: 'false'
+
+  suggest-toon:
+    description: 'Suggest TOON migration via GitHub issue with opt-in checkbox (maintain mode)'
+    required: false
+    default: 'false'
+
 outputs:
   compliance-level:
     description: 'Compliance level: None, Minimal, Standard, Comprehensive'
@@ -62,8 +72,14 @@ runs:
 
     - name: Install dependencies
       shell: bash
+      env:
+        GENERATE_TOON: ${{ inputs.generate-toon }}
+        SUGGEST_TOON: ${{ inputs.suggest-toon }}
       run: |
         pip install pyyaml
+        if [ "$GENERATE_TOON" = "true" ] || [ "$SUGGEST_TOON" = "true" ]; then
+          pip install git+https://github.com/toon-format/toon-python.git
+        fi
 
     - name: Make scripts executable
       shell: bash
@@ -71,6 +87,8 @@ runs:
         chmod +x ${{ github.action_path }}/scripts/bootstrap.py
         chmod +x ${{ github.action_path }}/scripts/validate.py
         chmod +x ${{ github.action_path }}/scripts/update_badge.py
+        chmod +x ${{ github.action_path }}/scripts/generate_toon.py
+        chmod +x ${{ github.action_path }}/scripts/toon_migration.py
 
     - name: Check if .ai/ exists
       id: check-existing
@@ -200,3 +218,162 @@ runs:
       with:
         commit_message: 'docs: update AICaC badge to reflect ${{ steps.check-compliance.outputs.level }} compliance'
         file_pattern: README.md
+
+    # TOON GENERATION - Generate .toon files from .ai/ YAML sources
+    - name: Generate TOON files
+      if: inputs.mode == 'maintain' && inputs.generate-toon == 'true'
+      id: generate-toon
+      shell: bash
+      env:
+        PROJECT_PATH: ${{ inputs.project-path }}
+      run: |
+        cd "$PROJECT_PATH"
+        python ${{ github.action_path }}/scripts/generate_toon.py .
+
+    - name: Check for TOON changes
+      if: inputs.mode == 'maintain' && inputs.generate-toon == 'true'
+      id: toon-changes
+      shell: bash
+      env:
+        PROJECT_PATH: ${{ inputs.project-path }}
+      run: |
+        cd "$PROJECT_PATH"
+        if git diff --quiet .ai/*.toon 2>/dev/null && ! git ls-files --others --exclude-standard .ai/*.toon | grep -q .; then
+          echo "changed=false" >> $GITHUB_OUTPUT
+          echo "✅ TOON files already up to date"
+        else
+          echo "changed=true" >> $GITHUB_OUTPUT
+          echo "📝 TOON files updated"
+        fi
+
+    - name: Commit TOON files
+      if: inputs.mode == 'maintain' && inputs.generate-toon == 'true' && steps.toon-changes.outputs.changed == 'true'
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: 'chore: regenerate .ai/ TOON files from YAML sources'
+        file_pattern: '.ai/*.toon'
+
+    # TOON MIGRATION - Issue-based opt-in workflow
+    - name: Check if TOON migration needed
+      if: inputs.mode == 'maintain' && inputs.suggest-toon == 'true'
+      id: migration-needed
+      shell: bash
+      env:
+        PROJECT_PATH: ${{ inputs.project-path }}
+      run: |
+        cd "$PROJECT_PATH"
+        if python ${{ github.action_path }}/scripts/toon_migration.py . --needs-migration; then
+          echo "needed=true" >> $GITHUB_OUTPUT
+          echo "📋 Project eligible for TOON migration"
+        else
+          echo "needed=false" >> $GITHUB_OUTPUT
+          echo "✅ TOON migration not needed (already migrated or no .ai/)"
+        fi
+
+    - name: Check for existing migration issue
+      if: inputs.mode == 'maintain' && inputs.suggest-toon == 'true' && steps.migration-needed.outputs.needed == 'true'
+      id: migration-issue
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: |
+        # Search for open migration issue
+        OPEN_ISSUE=$(gh issue list --label "aicac-toon-migration" --state open --json number,body --jq '.[0]' 2>/dev/null || echo "")
+        if [ -n "$OPEN_ISSUE" ] && [ "$OPEN_ISSUE" != "null" ]; then
+          ISSUE_NUMBER=$(echo "$OPEN_ISSUE" | jq -r '.number')
+          ISSUE_BODY=$(echo "$OPEN_ISSUE" | jq -r '.body')
+          echo "state=open" >> $GITHUB_OUTPUT
+          echo "number=$ISSUE_NUMBER" >> $GITHUB_OUTPUT
+          # Write body to file to avoid shell escaping issues
+          echo "$ISSUE_BODY" > /tmp/migration_issue_body.txt
+          echo "📋 Found open migration issue #$ISSUE_NUMBER"
+        else
+          # Check for closed issue (user declined)
+          CLOSED_ISSUE=$(gh issue list --label "aicac-toon-migration" --state closed --json number --jq '.[0].number' 2>/dev/null || echo "")
+          if [ -n "$CLOSED_ISSUE" ] && [ "$CLOSED_ISSUE" != "null" ]; then
+            echo "state=declined" >> $GITHUB_OUTPUT
+            echo "number=$CLOSED_ISSUE" >> $GITHUB_OUTPUT
+            echo "🚫 Migration previously declined (issue #$CLOSED_ISSUE closed)"
+          else
+            echo "state=none" >> $GITHUB_OUTPUT
+            echo "number=" >> $GITHUB_OUTPUT
+            echo "📝 No existing migration issue found"
+          fi
+        fi
+
+    - name: Create migration issue
+      if: >-
+        inputs.mode == 'maintain' && inputs.suggest-toon == 'true'
+        && steps.migration-needed.outputs.needed == 'true'
+        && steps.migration-issue.outputs.state == 'none'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PROJECT_PATH: ${{ inputs.project-path }}
+      run: |
+        cd "$PROJECT_PATH"
+        ISSUE_BODY=$(python ${{ github.action_path }}/scripts/toon_migration.py . --issue-body)
+        gh issue create \
+          --title "Migrate .ai/ to include TOON for efficient AI context" \
+          --body "$ISSUE_BODY" \
+          --label "aicac-toon-migration,enhancement"
+        echo "✅ Created TOON migration issue"
+
+    - name: Check migration approval
+      if: >-
+        inputs.mode == 'maintain' && inputs.suggest-toon == 'true'
+        && steps.migration-needed.outputs.needed == 'true'
+        && steps.migration-issue.outputs.state == 'open'
+      id: migration-approved
+      shell: bash
+      env:
+        PROJECT_PATH: ${{ inputs.project-path }}
+      run: |
+        cd "$PROJECT_PATH"
+        ISSUE_BODY=$(cat /tmp/migration_issue_body.txt)
+        if python ${{ github.action_path }}/scripts/toon_migration.py . --check-approval "$ISSUE_BODY"; then
+          echo "approved=true" >> $GITHUB_OUTPUT
+          echo "✅ Migration approved by checkbox"
+        else
+          echo "approved=false" >> $GITHUB_OUTPUT
+          echo "⏳ Migration checkbox not yet checked"
+        fi
+
+    - name: Generate TOON files for migration PR
+      if: >-
+        inputs.mode == 'maintain' && inputs.suggest-toon == 'true'
+        && steps.migration-approved.outputs.approved == 'true'
+      shell: bash
+      env:
+        PROJECT_PATH: ${{ inputs.project-path }}
+      run: |
+        cd "$PROJECT_PATH"
+        python ${{ github.action_path }}/scripts/generate_toon.py .
+
+    - name: Create migration PR
+      if: >-
+        inputs.mode == 'maintain' && inputs.suggest-toon == 'true'
+        && steps.migration-approved.outputs.approved == 'true'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PROJECT_PATH: ${{ inputs.project-path }}
+        ISSUE_NUMBER: ${{ steps.migration-issue.outputs.number }}
+      run: |
+        cd "$PROJECT_PATH"
+
+        # Create branch, stage, and commit
+        BRANCH="aicac/toon-migration"
+        git checkout -b "$BRANCH" 2>/dev/null || git checkout "$BRANCH"
+        git add .ai/*.toon
+        git commit -m "feat: add TOON-encoded .ai/ files for efficient AI context"
+        git push origin "$BRANCH" --force-with-lease
+
+        # Generate PR body and create PR
+        PR_BODY=$(python ${{ github.action_path }}/scripts/toon_migration.py . --pr-body "$ISSUE_NUMBER")
+        gh pr create \
+          --title "Add TOON-encoded .ai/ files" \
+          --body "$PR_BODY" \
+          --head "$BRANCH" \
+          --label "aicac-toon-migration,enhancement"
+        echo "✅ Created TOON migration PR (closes #$ISSUE_NUMBER)"

@@ -1,7 +1,7 @@
 # AICaC Validation Makefile
 # Run `make help` for available commands
 
-.PHONY: help setup test measure clean prepare
+.PHONY: help setup test measure clean prepare generate-toon check-toon clean-toon
 
 help:
 	@echo "AICaC Validation Framework"
@@ -22,6 +22,11 @@ help:
 	@echo "  make perf-groq        Run with Groq (FREE, cloud, fast)"
 	@echo "  make perf-claude      Run with Claude (requires ANTHROPIC_API_KEY)"
 	@echo "  make perf-openai      Run with OpenAI (requires OPENAI_API_KEY)"
+	@echo ""
+	@echo "TOON Generation:"
+	@echo "  make generate-toon    Generate .toon files from .ai/ YAML"
+	@echo "  make check-toon       Check if .toon files are up to date"
+	@echo "  make clean-toon       Remove generated .toon files"
 	@echo ""
 	@echo "Utilities:"
 	@echo "  make clean            Remove generated files"
@@ -131,6 +136,19 @@ perf-openai: prepare
 		--provider openai \
 		--trials 3 \
 		--output ../../experiments/perf_openai.json
+
+# TOON generation from .ai/ YAML sources
+generate-toon:
+	@echo "Generating TOON files from .ai/ YAML sources..."
+	python .github/actions/aicac-adoption/scripts/generate_toon.py .
+
+check-toon:
+	@echo "Checking TOON files are up to date..."
+	python .github/actions/aicac-adoption/scripts/generate_toon.py . --check
+
+clean-toon:
+	@echo "Removing generated .toon files..."
+	python .github/actions/aicac-adoption/scripts/generate_toon.py . --clean
 
 clean:
 	rm -rf experiments/
