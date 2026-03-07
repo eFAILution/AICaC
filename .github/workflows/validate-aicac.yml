@@ -30,7 +30,13 @@ jobs:
           pip install git+https://github.com/toon-format/toon-python.git
 
       - name: Lint YAML files
-        run: yamllint -d "{extends: relaxed, rules: {line-length: {max: 150}}}" .ai/ validation/examples/sample-project/.ai/
+        run: |
+          yamllint -d '{extends: relaxed, rules: {line-length: {max: 150}}}' .ai/ validation/examples/sample-project/.ai/
+
+      - name: Lint GitHub Actions workflows
+        run: |
+          bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          ./actionlint
 
       - name: Run action tests
         run: pytest .github/actions/aicac-adoption/tests/ -v --no-header -o "addopts="
