@@ -12,11 +12,11 @@ on:
         required: false
         type: choice
         options:
-          - ''
+          - auto
           - patch
           - minor
           - major
-        default: ''
+        default: 'auto'
 
 permissions:
   contents: write
@@ -78,7 +78,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           INCREMENT: ${{ inputs.increment }}
         run: |
-          if [ -n "$INCREMENT" ]; then
+          if [ "$INCREMENT" != "auto" ]; then
             npm run release -- "$INCREMENT" --ci
           else
             npm run release -- --ci
