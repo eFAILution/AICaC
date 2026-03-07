@@ -14,8 +14,13 @@ try:
         generate_issue_body,
         check_approval,
         generate_pr_body,
+        check_rebase_requested,
+        uncheck_rebase,
+        mark_rebase_failed,
         APPROVAL_CHECKBOX,
         PENDING_CHECKBOX,
+        REBASE_CHECKBOX,
+        REBASE_PENDING_CHECKBOX,
         MIGRATION_LABEL,
     )
     from toon_format import encode as toon_encode
@@ -169,6 +174,83 @@ class TestGeneratePrBody:
     def test_suggests_gitattributes(self):
         body = generate_pr_body(1)
         assert "linguist-generated" in body
+
+
+class TestCheckRebaseRequested:
+    def test_checked_rebase_is_requested(self):
+        body = f"Some text\n\n{REBASE_CHECKBOX}\n\nMore text"
+        assert check_rebase_requested(body) is True
+
+    def test_unchecked_rebase_is_not_requested(self):
+        body = f"Some text\n\n{REBASE_PENDING_CHECKBOX}\n\nMore text"
+        assert check_rebase_requested(body) is False
+
+    def test_empty_body_is_not_requested(self):
+        assert check_rebase_requested("") is False
+
+    def test_no_checkbox_is_not_requested(self):
+        assert check_rebase_requested("Just a PR body without checkboxes") is False
+
+    def test_real_pr_body_defaults_unchecked(self):
+        body = generate_pr_body(42)
+        assert check_rebase_requested(body) is False
+
+    def test_real_pr_body_checked(self):
+        body = generate_pr_body(42)
+        checked = body.replace(REBASE_PENDING_CHECKBOX, REBASE_CHECKBOX)
+        assert check_rebase_requested(checked) is True
+
+
+class TestUncheckRebase:
+    def test_unchecks_rebase_checkbox(self):
+        body = f"Header\n\n{REBASE_CHECKBOX}\n\nFooter"
+        result = uncheck_rebase(body)
+        assert REBASE_PENDING_CHECKBOX in result
+        assert REBASE_CHECKBOX not in result
+
+    def test_preserves_other_content(self):
+        body = f"Header\n\n{REBASE_CHECKBOX}\n\nFooter"
+        result = uncheck_rebase(body)
+        assert "Header" in result
+        assert "Footer" in result
+
+    def test_noop_when_already_unchecked(self):
+        body = f"Header\n\n{REBASE_PENDING_CHECKBOX}\n\nFooter"
+        result = uncheck_rebase(body)
+        assert result == body
+
+
+class TestMarkRebaseFailed:
+    def test_unchecks_and_adds_failure_notice(self):
+        body = f"Header\n\n{REBASE_CHECKBOX}\n\nFooter"
+        result = mark_rebase_failed(body, "Something went wrong")
+        assert REBASE_CHECKBOX not in result
+        assert REBASE_PENDING_CHECKBOX in result
+        assert "Rebase failed" in result
+        assert "Something went wrong" in result
+
+    def test_includes_recovery_instructions(self):
+        body = f"Header\n\n{REBASE_CHECKBOX}\n\nFooter"
+        result = mark_rebase_failed(body, "error")
+        assert "close this pr" in result.lower()
+        assert "aicac/toon-migration" in result
+
+    def test_preserves_other_content(self):
+        body = f"Header\n\n{REBASE_CHECKBOX}\n\nFooter"
+        result = mark_rebase_failed(body, "error")
+        assert "Header" in result
+        assert "Footer" in result
+
+
+class TestGeneratePrBodyRebaseCheckbox:
+    def test_pr_body_contains_rebase_checkbox(self):
+        body = generate_pr_body(42)
+        assert REBASE_PENDING_CHECKBOX in body
+
+    def test_pr_body_explains_rebase(self):
+        body = generate_pr_body(42)
+        assert "regenerate" in body.lower()
+        assert "resets automatically" in body.lower()
 
 
 class TestMigrationLabel:

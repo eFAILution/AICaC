@@ -33,6 +33,9 @@ MIGRATION_LABEL = "aicac-toon-migration"
 APPROVAL_CHECKBOX = "- [x] Migrate my `.ai/` directory to include TOON files"
 PENDING_CHECKBOX = "- [ ] Migrate my `.ai/` directory to include TOON files"
 
+REBASE_CHECKBOX = "- [x] Rebase/regenerate this PR"
+REBASE_PENDING_CHECKBOX = "- [ ] Rebase/regenerate this PR"
+
 
 def needs_migration(project_path: Path) -> bool:
     """Check if project has .ai/ YAML files but no .toon files."""
@@ -181,11 +184,46 @@ when AI coding assistants consume your project context.
   .ai/*.toon linguist-generated=true
   ```
 
+### Maintenance
+
+{REBASE_PENDING_CHECKBOX}
+
+> Check the box above to regenerate TOON files from the current YAML sources. \
+The checkbox resets automatically after the update.
+
 Closes #{issue_number}
 
 ---
 _This PR was created by the [AICaC Adoption Action](https://github.com/eFAILution/AICaC)._
 """
+
+
+def check_rebase_requested(pr_body: str) -> bool:
+    """Check if the rebase/regenerate checkbox is checked in the PR body."""
+    return REBASE_CHECKBOX in pr_body
+
+
+def uncheck_rebase(pr_body: str) -> str:
+    """Return the PR body with the rebase checkbox unchecked."""
+    return pr_body.replace(REBASE_CHECKBOX, REBASE_PENDING_CHECKBOX)
+
+
+def mark_rebase_failed(pr_body: str, error_message: str) -> str:
+    """Return the PR body with the rebase checkbox unchecked and a failure notice."""
+    updated = uncheck_rebase(pr_body)
+
+    failure_notice = (
+        "\n> **Rebase failed:** " + error_message + "\n"
+        "> To recover, close this PR and delete the `aicac/toon-migration` branch. "
+        "The action will recreate both on its next run.\n"
+    )
+
+    # Insert failure notice after the rebase checkbox line
+    updated = updated.replace(
+        REBASE_PENDING_CHECKBOX,
+        REBASE_PENDING_CHECKBOX + "\n" + failure_notice,
+    )
+    return updated
 
 
 def main():
@@ -212,6 +250,18 @@ def main():
         "--pr-body", metavar="ISSUE_NUMBER", type=int,
         help="Print the migration PR body to stdout",
     )
+    parser.add_argument(
+        "--check-rebase", metavar="PR_BODY",
+        help="Check if rebase checkbox is checked (exit 0=requested, 1=not)",
+    )
+    parser.add_argument(
+        "--uncheck-rebase", action="store_true",
+        help="Read PR body from stdin, print with rebase checkbox unchecked",
+    )
+    parser.add_argument(
+        "--rebase-failed", metavar="ERROR_MESSAGE",
+        help="Read PR body from stdin, print with failure notice added",
+    )
 
     args = parser.parse_args()
     project_path = Path(args.project_path)
@@ -228,6 +278,19 @@ def main():
 
     if args.pr_body is not None:
         print(generate_pr_body(args.pr_body))
+        sys.exit(0)
+
+    if args.check_rebase is not None:
+        sys.exit(0 if check_rebase_requested(args.check_rebase) else 1)
+
+    if args.uncheck_rebase:
+        pr_body = sys.stdin.read()
+        print(uncheck_rebase(pr_body))
+        sys.exit(0)
+
+    if args.rebase_failed is not None:
+        pr_body = sys.stdin.read()
+        print(mark_rebase_failed(pr_body, args.rebase_failed))
         sys.exit(0)
 
     parser.print_help()
