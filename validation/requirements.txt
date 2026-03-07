@@ -7,6 +7,9 @@ openai>=1.0.0
 ollama>=0.1.0
 groq>=0.4.0
 
+# TOON encoding (Token-Oriented Object Notation)
+toon_format @ git+https://github.com/toon-format/toon-python.git
+
 # Analysis
 pandas>=2.0.0
 scipy>=1.10.0

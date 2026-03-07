@@ -1,7 +1,7 @@
 # AICaC Validation Makefile
 # Run `make help` for available commands
 
-.PHONY: help setup test measure clean prepare
+.PHONY: help setup test measure clean prepare generate-toon check-toon clean-toon
 
 help:
 	@echo "AICaC Validation Framework"
@@ -13,6 +13,7 @@ help:
 	@echo "  make prepare          Create test variants from sample project"
 	@echo "  make measure          Run token measurement (reality only)"
 	@echo "  make measure-all      Run with selective loading comparison"
+	@echo "  make measure-toon     Run with TOON encoding comparison"
 	@echo "  make measure-full     Full experiment (30 trials, all modes)"
 	@echo ""
 	@echo "Performance Measurement:"
@@ -21,6 +22,11 @@ help:
 	@echo "  make perf-groq        Run with Groq (FREE, cloud, fast)"
 	@echo "  make perf-claude      Run with Claude (requires ANTHROPIC_API_KEY)"
 	@echo "  make perf-openai      Run with OpenAI (requires OPENAI_API_KEY)"
+	@echo ""
+	@echo "TOON Generation:"
+	@echo "  make generate-toon    Generate .toon files from .ai/ YAML"
+	@echo "  make check-toon       Check if .toon files are up to date"
+	@echo "  make clean-toon       Remove generated .toon files"
 	@echo ""
 	@echo "Utilities:"
 	@echo "  make clean            Remove generated files"
@@ -55,6 +61,19 @@ measure: prepare
 		--trials 5 \
 		--output ../../experiments/results.json
 
+# Include TOON encoding comparison
+measure-toon: prepare
+	@echo ""
+	@echo "Running token measurement (YAML vs TOON comparison)..."
+	@echo ""
+	cd validation/scripts && python token_measurement.py \
+		--repo-path ../../experiments/aicac-full \
+		--all-formats \
+		--include-selective \
+		--include-toon \
+		--trials 5 \
+		--output ../../experiments/toon_results.json
+
 # Include selective loading comparison
 measure-all: prepare
 	@echo ""
@@ -70,12 +89,13 @@ measure-all: prepare
 # Full statistical experiment
 measure-full: prepare
 	@echo ""
-	@echo "Running full experiment (30 trials, all modes)..."
+	@echo "Running full experiment (30 trials, all modes including TOON)..."
 	@echo ""
 	cd validation/scripts && python token_measurement.py \
 		--repo-path ../../experiments/aicac-full \
 		--all-formats \
 		--include-selective \
+		--include-toon \
 		--trials 30 \
 		--output ../../experiments/full_results.json
 
@@ -116,6 +136,19 @@ perf-openai: prepare
 		--provider openai \
 		--trials 3 \
 		--output ../../experiments/perf_openai.json
+
+# TOON generation from .ai/ YAML sources
+generate-toon:
+	@echo "Generating TOON files from .ai/ YAML sources..."
+	python .github/actions/aicac-adoption/scripts/generate_toon.py .
+
+check-toon:
+	@echo "Checking TOON files are up to date..."
+	python .github/actions/aicac-adoption/scripts/generate_toon.py . --check
+
+clean-toon:
+	@echo "Removing generated .toon files..."
+	python .github/actions/aicac-adoption/scripts/generate_toon.py . --clean
 
 clean:
 	rm -rf experiments/
