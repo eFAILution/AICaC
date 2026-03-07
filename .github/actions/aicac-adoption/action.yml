@@ -43,9 +43,9 @@ inputs:
     default: 'false'
 
   suggest-toon:
-    description: 'Suggest TOON migration via GitHub issue with opt-in checkbox (maintain mode)'
+    description: 'Suggest TOON migration via GitHub issue with opt-in checkbox (maintain mode). Set to false to disable.'
     required: false
-    default: 'false'
+    default: 'true'
 
 outputs:
   compliance-level:
