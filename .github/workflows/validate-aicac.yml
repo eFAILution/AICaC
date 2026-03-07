@@ -30,7 +30,7 @@ jobs:
           pip install git+https://github.com/toon-format/toon-python.git
 
       - name: Run action tests
-        run: pytest .github/actions/aicac-adoption/tests/ -v --no-header
+        run: pytest .github/actions/aicac-adoption/tests/ -v --no-header -o "addopts="
 
       - name: Run validation tests
         run: pytest validation/scripts/tests/ -v --no-header -o "addopts="
@@ -52,15 +52,12 @@ jobs:
           pip install pyyaml
           pip install git+https://github.com/toon-format/toon-python.git
 
-      # Test 1: validate.py runs against sample project and detects field mismatch
-      - name: 'Integration: validate detects issues'
+      # Test 1: validate.py passes on sample project (common_commands accepted)
+      - name: 'Integration: validate sample project'
         run: |
-          # Sample project uses common_commands instead of common_tasks,
-          # so validator correctly reports an error. Verify it runs and
-          # produces structured output (not a crash).
-          OUTPUT=$(python .github/actions/aicac-adoption/scripts/validate.py validation/examples/sample-project 2>&1 || true)
+          OUTPUT=$(python .github/actions/aicac-adoption/scripts/validate.py validation/examples/sample-project)
           echo "$OUTPUT"
-          echo "$OUTPUT" | grep -q "AICaC"
+          echo "$OUTPUT" | grep -q "Compliance Level: Comprehensive"
 
       # Test 2: validate.py passes on a well-formed project
       - name: 'Integration: validate passes valid project'

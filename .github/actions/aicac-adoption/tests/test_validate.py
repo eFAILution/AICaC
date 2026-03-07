@@ -123,6 +123,22 @@ class TestAICaCValidator:
         assert validator._validate_context() is False
         assert any('entrypoint' in err for err in validator.errors)
 
+    def test_validate_context_accepts_common_commands(self, aicac_project):
+        """Test validation accepts common_commands as alias for common_tasks."""
+        ai_dir = aicac_project / '.ai'
+        context_path = ai_dir / 'context.yaml'
+
+        with open(context_path, 'w') as f:
+            yaml.dump({
+                'version': '1.0',
+                'project': {'name': 'test', 'type': 'app'},
+                'entrypoints': {'main': 'index.js'},
+                'common_commands': {'dev': 'npm run dev'}
+            }, f)
+
+        validator = AICaCValidator(str(aicac_project))
+        assert validator._validate_context() is True
+
     def test_validate_context_invalid_yaml(self, aicac_project):
         """Test validation handles invalid YAML."""
         ai_dir = aicac_project / '.ai'

@@ -124,8 +124,8 @@ class AICaCValidator:
                 self.errors.append("context.yaml: at least one 'entrypoint' is required")
                 return False
 
-            # Check for at least one common task
-            common_tasks = context.get('common_tasks', {})
+            # Check for at least one common task (accept common_tasks or common_commands)
+            common_tasks = context.get('common_tasks') or context.get('common_commands') or {}
             if not common_tasks:
                 self.errors.append("context.yaml: at least one 'common_task' is required")
                 return False
