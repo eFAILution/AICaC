@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -52,7 +52,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -135,7 +135,9 @@ jobs:
       # Test 7: check-approval detects checkbox state
       - name: 'Integration: checkbox approval detection'
         run: |
+          # shellcheck disable=SC2016
           CHECKED='- [x] Migrate my `.ai/` directory to include TOON files'
+          # shellcheck disable=SC2016
           UNCHECKED='- [ ] Migrate my `.ai/` directory to include TOON files'
 
           python .github/actions/aicac-adoption/scripts/toon_migration.py . --check-approval "$CHECKED"
@@ -182,16 +184,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Check if .ai directory exists
         id: check-aicac
         run: |
           if [ -d ".ai" ]; then
-            echo "mode=maintain" >> $GITHUB_OUTPUT
+            echo "mode=maintain" >> "$GITHUB_OUTPUT"
             echo "📁 .ai/ directory found - running in maintain mode"
           else
-            echo "mode=setup" >> $GITHUB_OUTPUT
+            echo "mode=setup" >> "$GITHUB_OUTPUT"
             echo "🚀 .ai/ directory not found - running in setup mode"
           fi
 
