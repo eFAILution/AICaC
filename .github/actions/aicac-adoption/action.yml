@@ -1,5 +1,7 @@
 name: 'AICaC Adoption & Maintenance'
-description: 'Bootstrap AICaC adoption with PR creation and maintain compliance with automatic badge updates'
+description: >-
+  Bootstrap AICaC adoption with PR creation and maintain compliance with automatic badge updates.
+  Required workflow permissions: contents:write, pull-requests:write, issues:write (if suggest-toon enabled).
 branding:
   icon: 'cpu'
   color: 'blue'
@@ -301,6 +303,19 @@ runs:
           fi
         fi
 
+    - name: Ensure migration label exists
+      if: >-
+        inputs.mode == 'maintain' && inputs.suggest-toon == 'true'
+        && steps.migration-needed.outputs.needed == 'true'
+        && steps.migration-issue.outputs.state == 'none'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: |
+        gh label create "aicac-toon-migration" \
+          --description "AICaC TOON migration tracking" \
+          --color "0075ca" 2>/dev/null || true
+
     - name: Create migration issue
       if: >-
         inputs.mode == 'maintain' && inputs.suggest-toon == 'true'
@@ -316,7 +331,7 @@ runs:
         gh issue create \
           --title "Migrate .ai/ to include TOON for efficient AI context" \
           --body "$ISSUE_BODY" \
-          --label "aicac-toon-migration,enhancement"
+          --label "aicac-toon-migration"
         echo "✅ Created TOON migration issue"
 
     - name: Check migration approval
@@ -375,5 +390,5 @@ runs:
           --title "Add TOON-encoded .ai/ files" \
           --body "$PR_BODY" \
           --head "$BRANCH" \
-          --label "aicac-toon-migration,enhancement"
+          --label "aicac-toon-migration"
         echo "✅ Created TOON migration PR (closes #$ISSUE_NUMBER)"

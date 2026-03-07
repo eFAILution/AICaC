@@ -15,8 +15,9 @@ jobs:
   aicac:
     runs-on: ubuntu-latest
     permissions:
-      contents: write        # Needed to commit badge updates
+      contents: write        # Needed to commit badge updates and push branches
       pull-requests: write   # Needed to create PRs
+      issues: write          # Needed to create/read migration issues
 
     steps:
       - name: Checkout repository
