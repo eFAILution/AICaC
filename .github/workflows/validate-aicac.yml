@@ -26,8 +26,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pyyaml pytest pytest-cov tiktoken
+          pip install pyyaml pytest pytest-cov tiktoken yamllint
           pip install git+https://github.com/toon-format/toon-python.git
+
+      - name: Lint YAML files
+        run: yamllint -d "{extends: relaxed, rules: {line-length: {max: 150}}}" .ai/ validation/examples/sample-project/.ai/
 
       - name: Run action tests
         run: pytest .github/actions/aicac-adoption/tests/ -v --no-header -o "addopts="
