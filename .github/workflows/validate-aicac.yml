@@ -12,7 +12,152 @@ on:
   workflow_dispatch:  # Allow manual triggering
 
 jobs:
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml pytest
+          pip install git+https://github.com/toon-format/toon-python.git
+
+      - name: Run action tests
+        run: pytest .github/actions/aicac-adoption/tests/ -v
+
+      - name: Run validation tests
+        run: |
+          pip install tiktoken
+          pytest validation/scripts/tests/ -v
+
+  integration:
+    name: Action Integration Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml
+          pip install git+https://github.com/toon-format/toon-python.git
+
+      # Test 1: validate.py produces correct compliance for sample project
+      - name: 'Integration: validate sample project'
+        run: |
+          OUTPUT=$(python .github/actions/aicac-adoption/scripts/validate.py validation/examples/sample-project)
+          echo "$OUTPUT"
+          echo "$OUTPUT" | grep -q "Compliance Level: Comprehensive"
+
+      # Test 2: generate_toon.py converts all YAML files
+      - name: 'Integration: generate TOON files'
+        run: |
+          python .github/actions/aicac-adoption/scripts/generate_toon.py validation/examples/sample-project
+          # Verify .toon files were created for every .yaml file
+          for yaml in validation/examples/sample-project/.ai/*.yaml; do
+            toon="${yaml%.yaml}.toon"
+            if [ ! -f "$toon" ]; then
+              echo "FAIL: Expected $toon to exist"
+              exit 1
+            fi
+            echo "OK: $toon exists"
+          done
+
+      # Test 3: generate_toon.py is idempotent
+      - name: 'Integration: TOON generation is idempotent'
+        run: |
+          OUTPUT=$(python .github/actions/aicac-adoption/scripts/generate_toon.py validation/examples/sample-project)
+          echo "$OUTPUT"
+          echo "$OUTPUT" | grep -q "Generated: 0"
+
+      # Test 4: toon_migration.py detects migration need correctly
+      - name: 'Integration: migration detection'
+        run: |
+          # Clean up .toon files first
+          python .github/actions/aicac-adoption/scripts/generate_toon.py validation/examples/sample-project --clean
+
+          # Should need migration (has YAML, no TOON)
+          python .github/actions/aicac-adoption/scripts/toon_migration.py validation/examples/sample-project --needs-migration
+          echo "OK: needs-migration returned true for YAML-only project"
+
+          # Generate TOON files
+          python .github/actions/aicac-adoption/scripts/generate_toon.py validation/examples/sample-project
+
+          # Should NOT need migration (has both YAML and TOON)
+          if python .github/actions/aicac-adoption/scripts/toon_migration.py validation/examples/sample-project --needs-migration; then
+            echo "FAIL: needs-migration should return false after TOON generation"
+            exit 1
+          fi
+          echo "OK: needs-migration returned false for migrated project"
+
+      # Test 5: issue body contains real savings data
+      - name: 'Integration: migration issue body'
+        run: |
+          python .github/actions/aicac-adoption/scripts/generate_toon.py validation/examples/sample-project --clean
+          BODY=$(python .github/actions/aicac-adoption/scripts/toon_migration.py validation/examples/sample-project --issue-body)
+          echo "$BODY"
+
+          # Verify it contains savings table with actual files
+          echo "$BODY" | grep -q "context.yaml"
+          echo "$BODY" | grep -q "architecture.yaml"
+          echo "$BODY" | grep -q "Reduction"
+          echo "$BODY" | grep -q "\- \[ \] Migrate"
+          echo "OK: issue body contains savings table and checkbox"
+
+      # Test 6: check-approval detects checkbox state
+      - name: 'Integration: checkbox approval detection'
+        run: |
+          CHECKED='- [x] Migrate my `.ai/` directory to include TOON files'
+          UNCHECKED='- [ ] Migrate my `.ai/` directory to include TOON files'
+
+          python .github/actions/aicac-adoption/scripts/toon_migration.py . --check-approval "$CHECKED"
+          echo "OK: checked box detected as approved"
+
+          if python .github/actions/aicac-adoption/scripts/toon_migration.py . --check-approval "$UNCHECKED"; then
+            echo "FAIL: unchecked box should not be approved"
+            exit 1
+          fi
+          echo "OK: unchecked box detected as not approved"
+
+      # Test 7: update_badge.py works on sample project
+      - name: 'Integration: badge update'
+        run: |
+          python .github/actions/aicac-adoption/scripts/update_badge.py Comprehensive \
+            --project-path=validation/examples/sample-project
+          grep -q "AICaC-Comprehensive" validation/examples/sample-project/README.md
+          echo "OK: badge updated to Comprehensive"
+
+      # Test 8: bootstrap.py creates .ai/ structure
+      - name: 'Integration: bootstrap new project'
+        run: |
+          mkdir -p /tmp/test-project
+          echo '{"name": "test-app"}' > /tmp/test-project/package.json
+          python .github/actions/aicac-adoption/scripts/bootstrap.py /tmp/test-project
+          test -f /tmp/test-project/.ai/context.yaml
+          test -f /tmp/test-project/.ai/README.md
+          echo "OK: bootstrap created .ai/ structure"
+
+      # Cleanup generated files
+      - name: Cleanup
+        if: always()
+        run: |
+          python .github/actions/aicac-adoption/scripts/generate_toon.py validation/examples/sample-project --clean 2>/dev/null || true
+          git checkout -- validation/examples/sample-project/README.md 2>/dev/null || true
+
   aicac:
+    name: AICaC Action
     runs-on: ubuntu-latest
     permissions:
       contents: write        # Needed to commit badge updates and push branches
