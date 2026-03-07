@@ -59,6 +59,11 @@ try:
 except ImportError:
     HAS_GROQ = False
 
+try:
+    from yaml_to_toon import convert_selective, HAS_TOON
+except ImportError:
+    HAS_TOON = False
+
 
 # Approximate costs per 1M tokens (as of 2026)
 COST_PER_1M_TOKENS = {
@@ -193,6 +198,11 @@ class DocumentationLoader:
         elif format == "AICAC_SELECTIVE":
             q_type = question_id.split("-")[0] if question_id else "IR"
             return self._load_selective(q_type)
+        elif format == "AICAC_TOON_SELECTIVE":
+            if not HAS_TOON:
+                raise RuntimeError("toon_format not available for AICAC_TOON_SELECTIVE")
+            q_type = question_id.split("-")[0] if question_id else "IR"
+            return self._load_toon_selective(q_type)
         else:
             raise ValueError(f"Unknown format: {format}")
 
@@ -228,6 +238,35 @@ class DocumentationLoader:
                 content += f"# From .ai/{filename}\n\n"
                 content += filepath.read_text() + "\n\n"
                 files.append(f".ai/{filename}")
+
+        return content, files
+
+    def _load_toon_selective(self, question_type: str) -> tuple[str, List[str]]:
+        """Load AGENTS.md + relevant .ai/ files encoded as TOON"""
+        content = ""
+        files = []
+
+        agents = self.repo_path / "AGENTS.md"
+        if agents.exists():
+            content += agents.read_text() + "\n\n"
+            files.append("AGENTS.md")
+
+        file_mapping = {
+            "IR": ["context.yaml"],
+            "AU": ["architecture.yaml", "decisions.yaml"],
+            "CW": ["workflows.yaml"],
+            "ER": ["errors.yaml"],
+        }
+
+        relevant = file_mapping.get(question_type, ["context.yaml"])
+        ai_dir = self.repo_path / ".ai"
+        if ai_dir.exists():
+            toon_content = convert_selective(ai_dir, relevant)
+            if toon_content:
+                content += toon_content + "\n\n"
+                for filename in relevant:
+                    if (ai_dir / filename).exists():
+                        files.append(f".ai/{filename} (TOON)")
 
         return content, files
 
@@ -520,7 +559,7 @@ def print_summary(results: List[PerformanceMeasurement]):
     print(f"\n{'Format':<20} {'Response Time':>15} {'Accuracy':>12} {'Tokens':>10}")
     print("-" * 60)
 
-    for fmt in ["README_ONLY", "AICAC_SELECTIVE"]:
+    for fmt in ["README_ONLY", "AICAC_SELECTIVE", "AICAC_TOON_SELECTIVE"]:
         if fmt in summary:
             s = summary[fmt]
             print(f"{fmt:<20} {s['avg_response_time_ms']:>12.0f}ms {s['accuracy_pct']:>11.1f}% {s['avg_total_tokens']:>10.0f}")
@@ -536,14 +575,14 @@ def main():
     parser.add_argument("--repo-path", type=Path, default=Path("../../experiments/aicac-full"))
     parser.add_argument("--provider", choices=["anthropic", "openai", "ollama", "groq"], default="anthropic")
     parser.add_argument("--model", help="Model name (uses provider default if not specified)")
-    parser.add_argument("--format", choices=["README_ONLY", "AICAC_SELECTIVE"])
+    parser.add_argument("--format", choices=["README_ONLY", "AICAC_SELECTIVE", "AICAC_TOON_SELECTIVE"])
     parser.add_argument("--trials", type=int, default=1)
     parser.add_argument("--output", type=Path, default=Path("performance_results.json"))
     parser.add_argument("--estimate-cost", action="store_true", help="Show cost estimate without running")
 
     args = parser.parse_args()
 
-    formats = [args.format] if args.format else ["README_ONLY", "AICAC_SELECTIVE"]
+    formats = [args.format] if args.format else ["README_ONLY", "AICAC_SELECTIVE", "AICAC_TOON_SELECTIVE"]
 
     if args.estimate_cost:
         estimate = estimate_cost(formats, args.trials, args.provider)

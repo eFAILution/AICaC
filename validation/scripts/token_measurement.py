@@ -42,6 +42,11 @@ try:
 except ImportError:
     HAS_ANTHROPIC = False
 
+try:
+    from yaml_to_toon import convert_ai_directory, convert_selective, HAS_TOON
+except ImportError:
+    HAS_TOON = False
+
 
 @dataclass
 class TokenMeasurement:
@@ -179,6 +184,77 @@ class DocumentationLoader:
 
         return content, files
 
+    def load_aicac_toon(self) -> tuple[str, List[str]]:
+        """
+        Load ALL documentation with .ai/ files encoded as TOON.
+
+        Same as AICAC full but .ai/ YAML files are converted to TOON
+        format for more compact token representation. README and AGENTS.md
+        remain as-is (they're prose, not structured data).
+        """
+        if not HAS_TOON:
+            raise RuntimeError("toon_format not available for AICAC_TOON format")
+
+        files = []
+        content = ""
+
+        readme = self.repo_path / "README.md"
+        if readme.exists():
+            content += readme.read_text() + "\n\n"
+            files.append("README.md")
+
+        agents = self.repo_path / "AGENTS.md"
+        if agents.exists():
+            content += agents.read_text() + "\n\n"
+            files.append("AGENTS.md")
+
+        ai_dir = self.repo_path / ".ai"
+        if ai_dir.exists():
+            toon_content = convert_ai_directory(ai_dir)
+            if toon_content:
+                content += "\n" + toon_content + "\n"
+                for filepath in sorted(ai_dir.glob("*.yaml")):
+                    files.append(f".ai/{filepath.name} (TOON)")
+
+            ai_readme = ai_dir / "README.md"
+            if ai_readme.exists():
+                content += f"\n# From .ai/README.md\n\n"
+                content += ai_readme.read_text()
+                files.append(".ai/README.md")
+
+        return content, files
+
+    def load_aicac_toon_selective(self, question_type: str) -> tuple[str, List[str]]:
+        """
+        Load AGENTS.md + relevant .ai/ files encoded as TOON.
+
+        Combines selective loading (only relevant files) with TOON encoding
+        for maximum token efficiency.
+        """
+        if not HAS_TOON:
+            raise RuntimeError("toon_format not available for AICAC_TOON_SELECTIVE format")
+
+        files = []
+        content = ""
+
+        agents = self.repo_path / "AGENTS.md"
+        if agents.exists():
+            content += agents.read_text() + "\n\n"
+            files.append("AGENTS.md")
+
+        relevant_files = QUESTION_FILE_MAPPING.get(question_type, ["context.yaml"])
+
+        ai_dir = self.repo_path / ".ai"
+        if ai_dir.exists():
+            toon_content = convert_selective(ai_dir, relevant_files)
+            if toon_content:
+                content += toon_content + "\n\n"
+                for filename in relevant_files:
+                    if (ai_dir / filename).exists():
+                        files.append(f".ai/{filename} (TOON)")
+
+        return content, files
+
 
 class TokenCounter:
     """Counts tokens using different tokenizers"""
@@ -267,6 +343,13 @@ class TokenExperiment:
         elif format == "AICAC_SELECTIVE":
             content, files = self.loader.load_aicac_selective(question_type)
             notes = f"AGENTS.md + relevant .ai/ file for {question_type} (works if AI follows guidance)"
+            measurement_type = "selective"
+        elif format == "AICAC_TOON":
+            content, files = self.loader.load_aicac_toon()
+            notes = "All documentation loaded with .ai/ files as TOON encoding"
+        elif format == "AICAC_TOON_SELECTIVE":
+            content, files = self.loader.load_aicac_toon_selective(question_type)
+            notes = f"AGENTS.md + relevant .ai/ file for {question_type} in TOON encoding"
             measurement_type = "selective"
         else:
             raise ValueError(f"Unknown format: {format}")
@@ -409,6 +492,25 @@ class TokenExperiment:
                     "But this requires AI tools to evolve - not available today"
                 )
 
+        # TOON findings
+        if "AICAC_TOON" in by_format and "AICAC" in by_format:
+            toon_mean = statistics.mean(by_format["AICAC_TOON"])
+            aicac_mean = statistics.mean(by_format["AICAC"])
+            if toon_mean < aicac_mean:
+                reduction = ((aicac_mean - toon_mean) / aicac_mean) * 100
+                summary["key_findings"].append(
+                    f"TOON encoding reduces AICAC tokens by {reduction:.0f}% vs YAML"
+                )
+
+        if "AICAC_TOON_SELECTIVE" in by_format and "AICAC_SELECTIVE" in by_format:
+            toon_sel_mean = statistics.mean(by_format["AICAC_TOON_SELECTIVE"])
+            sel_mean = statistics.mean(by_format["AICAC_SELECTIVE"])
+            if toon_sel_mean < sel_mean:
+                reduction = ((sel_mean - toon_sel_mean) / sel_mean) * 100
+                summary["key_findings"].append(
+                    f"TOON + selective loading reduces tokens by {reduction:.0f}% vs YAML selective"
+                )
+
         return summary
 
     def analyze_results(self):
@@ -441,7 +543,12 @@ class TokenExperiment:
         print("-" * 70)
 
         readme_mean = None
-        for fmt in ["README_ONLY", "AGENTS_ONLY", "AICAC", "AICAC_SELECTIVE"]:
+        format_order = [
+            "README_ONLY", "AGENTS_ONLY",
+            "AICAC", "AICAC_SELECTIVE",
+            "AICAC_TOON", "AICAC_TOON_SELECTIVE",
+        ]
+        for fmt in format_order:
             if fmt not in by_format:
                 continue
 
@@ -485,6 +592,21 @@ class TokenExperiment:
                 print(f"\n⚡ WITH AGENTS.MD GUIDANCE: {((aicac_mean - selective_mean) / aicac_mean * 100):.0f}% fewer tokens than loading all .ai/ files")
                 print("   → AGENTS.md acts as a router for selective context loading")
 
+        if "AICAC_TOON" in by_format and "AICAC" in by_format:
+            toon_mean = statistics.mean(by_format["AICAC_TOON"]["tokens"])
+            aicac_mean = statistics.mean(by_format["AICAC"]["tokens"])
+            reduction = ((aicac_mean - toon_mean) / aicac_mean) * 100
+            print(f"\n🔤 TOON ENCODING: {reduction:.1f}% fewer tokens than YAML for .ai/ files")
+            print("   → TOON optimizes encoding without changing content structure")
+            print("   → Gains compound with selective loading")
+
+        if "AICAC_TOON_SELECTIVE" in by_format and readme_mean:
+            toon_sel_mean = statistics.mean(by_format["AICAC_TOON_SELECTIVE"]["tokens"])
+            total_reduction = ((readme_mean - toon_sel_mean) / readme_mean) * 100
+            if total_reduction > 0:
+                print(f"\n🏆 BEST CASE (TOON + selective): {total_reduction:.1f}% fewer tokens vs README alone")
+                print("   → Combines AICaC structure + TOON encoding + selective loading")
+
         print("\n" + "=" * 70)
 
 
@@ -501,9 +623,13 @@ Examples:
         """
     )
     parser.add_argument("--repo-path", type=Path, default=Path.cwd())
-    parser.add_argument("--format", choices=["README_ONLY", "AGENTS_ONLY", "AICAC", "AICAC_SELECTIVE"])
+    parser.add_argument("--format", choices=[
+        "README_ONLY", "AGENTS_ONLY", "AICAC", "AICAC_SELECTIVE",
+        "AICAC_TOON", "AICAC_TOON_SELECTIVE",
+    ])
     parser.add_argument("--all-formats", action="store_true", help="Test README, AGENTS, and AICAC")
     parser.add_argument("--include-selective", action="store_true", help="Also test AICAC_SELECTIVE (aspirational)")
+    parser.add_argument("--include-toon", action="store_true", help="Also test TOON-encoded variants")
     parser.add_argument("--model", choices=["gpt4", "claude"])
     parser.add_argument("--category", choices=list(TEST_QUESTIONS.keys()))
     parser.add_argument("--trials", type=int, default=1)
@@ -516,6 +642,14 @@ Examples:
         formats = ["README_ONLY", "AGENTS_ONLY", "AICAC"]
         if args.include_selective:
             formats.append("AICAC_SELECTIVE")
+        if args.include_toon:
+            if not HAS_TOON:
+                print("Error: toon_format not installed. Install with:")
+                print("  pip install git+https://github.com/toon-format/toon-python.git")
+                return 1
+            formats.append("AICAC_TOON")
+            if args.include_selective:
+                formats.append("AICAC_TOON_SELECTIVE")
     elif args.format:
         formats = [args.format]
     else:

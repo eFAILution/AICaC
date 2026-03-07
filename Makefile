@@ -13,6 +13,7 @@ help:
 	@echo "  make prepare          Create test variants from sample project"
 	@echo "  make measure          Run token measurement (reality only)"
 	@echo "  make measure-all      Run with selective loading comparison"
+	@echo "  make measure-toon     Run with TOON encoding comparison"
 	@echo "  make measure-full     Full experiment (30 trials, all modes)"
 	@echo ""
 	@echo "Performance Measurement:"
@@ -55,6 +56,19 @@ measure: prepare
 		--trials 5 \
 		--output ../../experiments/results.json
 
+# Include TOON encoding comparison
+measure-toon: prepare
+	@echo ""
+	@echo "Running token measurement (YAML vs TOON comparison)..."
+	@echo ""
+	cd validation/scripts && python token_measurement.py \
+		--repo-path ../../experiments/aicac-full \
+		--all-formats \
+		--include-selective \
+		--include-toon \
+		--trials 5 \
+		--output ../../experiments/toon_results.json
+
 # Include selective loading comparison
 measure-all: prepare
 	@echo ""
@@ -70,12 +84,13 @@ measure-all: prepare
 # Full statistical experiment
 measure-full: prepare
 	@echo ""
-	@echo "Running full experiment (30 trials, all modes)..."
+	@echo "Running full experiment (30 trials, all modes including TOON)..."
 	@echo ""
 	cd validation/scripts && python token_measurement.py \
 		--repo-path ../../experiments/aicac-full \
 		--all-formats \
 		--include-selective \
+		--include-toon \
 		--trials 30 \
 		--output ../../experiments/full_results.json
 
