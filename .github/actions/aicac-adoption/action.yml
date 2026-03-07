@@ -68,7 +68,7 @@ runs:
   using: 'composite'
   steps:
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
 
@@ -376,6 +376,10 @@ runs:
         ISSUE_NUMBER: ${{ steps.migration-issue.outputs.number }}
       run: |
         cd "$PROJECT_PATH"
+
+        # Configure git identity for commit
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
 
         # Create branch, stage, and commit
         BRANCH="aicac/toon-migration"

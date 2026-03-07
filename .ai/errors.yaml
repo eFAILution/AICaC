@@ -10,7 +10,7 @@ errors:
     solutions:
       - 'Use YAML linter: pip install yamllint && yamllint .ai/'
       - 'Check indentation is consistent (2 spaces recommended)'
-      - 'Validate with: python -c "import yaml; yaml.safe_load(open(\'.ai/context.yaml\'))"'
+      - "Validate with: python -c \"import yaml; yaml.safe_load(open('.ai/context.yaml'))\""
       - 'Use online validator: https://www.yamllint.com/'
     example: |
       # Wrong:
