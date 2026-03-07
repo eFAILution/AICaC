@@ -381,12 +381,22 @@ runs:
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
 
-        # Create branch, stage, and commit
+        # Check if migration PR already exists
         BRANCH="aicac/toon-migration"
-        git checkout -b "$BRANCH" 2>/dev/null || git checkout "$BRANCH"
+        EXISTING_PR=$(gh pr list --head "$BRANCH" --json number --jq '.[0].number' 2>/dev/null || echo "")
+        if [ -n "$EXISTING_PR" ] && [ "$EXISTING_PR" != "null" ]; then
+          echo "✅ Migration PR #$EXISTING_PR already exists"
+          exit 0
+        fi
+
+        # Delete stale remote branch if it exists
+        git push origin --delete "$BRANCH" 2>/dev/null || true
+
+        # Create branch, stage, and commit
+        git checkout -b "$BRANCH"
         git add .ai/*.toon
         git commit -m "feat: add TOON-encoded .ai/ files for efficient AI context"
-        git push origin "$BRANCH" --force-with-lease
+        git push origin "$BRANCH"
 
         # Generate PR body and create PR
         PR_BODY=$(python ${{ github.action_path }}/scripts/toon_migration.py . --pr-body "$ISSUE_NUMBER")
