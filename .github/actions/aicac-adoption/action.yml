@@ -389,14 +389,13 @@ runs:
           exit 0
         fi
 
-        # Delete stale remote branch if it exists
-        git push origin --delete "$BRANCH" 2>/dev/null || true
-
-        # Create branch, stage, and commit
+        # Create branch from current HEAD, stage, and commit
         git checkout -b "$BRANCH"
         git add .ai/*.toon
         git commit -m "feat: add TOON-encoded .ai/ files for efficient AI context"
-        git push origin "$BRANCH"
+
+        # Push (force if stale remote branch exists, plain push otherwise)
+        git push origin "$BRANCH" 2>/dev/null || git push origin "$BRANCH" --force
 
         # Generate PR body and create PR
         PR_BODY=$(python ${{ github.action_path }}/scripts/toon_migration.py . --pr-body "$ISSUE_NUMBER")
