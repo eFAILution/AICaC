@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [0.3.0](https://github.com/eFAILution/AICaC/compare/0.2.0...0.3.0) (2026-03-07)
+
+### Features
+
+* **action:** add rebase/retry checkbox and restrict migration to default branch ([f78e02c](https://github.com/eFAILution/AICaC/commit/f78e02c7f42f70d50608dc0c5a76665070904d7a))
+* regenerate TOON files from updated YAML sources ([0b37fb6](https://github.com/eFAILution/AICaC/commit/0b37fb68e8863c78eedb2557b9f4c29a8b0b3478))
+
+### Bug Fixes
+
+* **action:** handle existing migration branch and skip if PR exists ([8a525b0](https://github.com/eFAILution/AICaC/commit/8a525b0d90e4f63df2b135ba86ba31c10ec034c2))
+* **action:** use force-push fallback instead of branch deletion ([8faf906](https://github.com/eFAILution/AICaC/commit/8faf90647b7f0e0fc5e2ce0c71978529de96b51a))
+* **ai:** escape nested quotes in errors.yaml ([10f6b26](https://github.com/eFAILution/AICaC/commit/10f6b26f0229722230e9a4d8418a0128de9182ef))
+* **ci:** fix yamllint YAML syntax and add actionlint ([2790bdb](https://github.com/eFAILution/AICaC/commit/2790bdb24540ebe1d2e0da730d005a1eb4f0e7f0))
+* **ci:** resolve actionlint errors and add git identity for migration ([92b3a6a](https://github.com/eFAILution/AICaC/commit/92b3a6a05f6f86f6f8e6c88dc25b6abd39fe5357))
+
+### Continuous Integration
+
+* **lint:** add yamllint to validate-aicac pipeline ([f2c505f](https://github.com/eFAILution/AICaC/commit/f2c505fddc95f5e1cfd467bbf0f39642cc760a4b))
+
 ## [0.2.0](https://github.com/eFAILution/AICaC/compare/0.1.1...0.2.0) (2026-03-07)
 
 ### Features
