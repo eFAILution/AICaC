@@ -255,9 +255,26 @@ runs:
         commit_message: 'chore: regenerate .ai/ TOON files from YAML sources'
         file_pattern: '.ai/*.toon'
 
-    # TOON MIGRATION - Issue-based opt-in workflow
-    - name: Check if TOON migration needed
+    # TOON MIGRATION - Issue-based opt-in workflow (default branch only)
+    - name: Check if on default branch
       if: inputs.mode == 'maintain' && inputs.suggest-toon == 'true'
+      id: default-branch
+      shell: bash
+      run: |
+        DEFAULT_BRANCH=$(git remote show origin | sed -n 's/.*HEAD branch: //p')
+        CURRENT_REF="${GITHUB_REF#refs/heads/}"
+        if [ "$CURRENT_REF" = "$DEFAULT_BRANCH" ]; then
+          echo "is-default=true" >> "$GITHUB_OUTPUT"
+          echo "✅ On default branch ($DEFAULT_BRANCH)"
+        else
+          echo "is-default=false" >> "$GITHUB_OUTPUT"
+          echo "⏭️  Skipping TOON migration (not on default branch: $CURRENT_REF)"
+        fi
+
+    - name: Check if TOON migration needed
+      if: >-
+        inputs.mode == 'maintain' && inputs.suggest-toon == 'true'
+        && steps.default-branch.outputs.is-default == 'true'
       id: migration-needed
       shell: bash
       env:
@@ -273,7 +290,10 @@ runs:
         fi
 
     - name: Check for existing migration issue
-      if: inputs.mode == 'maintain' && inputs.suggest-toon == 'true' && steps.migration-needed.outputs.needed == 'true'
+      if: >-
+        inputs.mode == 'maintain' && inputs.suggest-toon == 'true'
+        && steps.default-branch.outputs.is-default == 'true'
+        && steps.migration-needed.outputs.needed == 'true'
       id: migration-issue
       shell: bash
       env:
@@ -306,6 +326,7 @@ runs:
     - name: Ensure migration label exists
       if: >-
         inputs.mode == 'maintain' && inputs.suggest-toon == 'true'
+        && steps.default-branch.outputs.is-default == 'true'
         && steps.migration-needed.outputs.needed == 'true'
         && steps.migration-issue.outputs.state == 'none'
       shell: bash
@@ -319,6 +340,7 @@ runs:
     - name: Create migration issue
       if: >-
         inputs.mode == 'maintain' && inputs.suggest-toon == 'true'
+        && steps.default-branch.outputs.is-default == 'true'
         && steps.migration-needed.outputs.needed == 'true'
         && steps.migration-issue.outputs.state == 'none'
       shell: bash
@@ -337,6 +359,7 @@ runs:
     - name: Check migration approval
       if: >-
         inputs.mode == 'maintain' && inputs.suggest-toon == 'true'
+        && steps.default-branch.outputs.is-default == 'true'
         && steps.migration-needed.outputs.needed == 'true'
         && steps.migration-issue.outputs.state == 'open'
       id: migration-approved
@@ -357,6 +380,7 @@ runs:
     - name: Generate TOON files for migration PR
       if: >-
         inputs.mode == 'maintain' && inputs.suggest-toon == 'true'
+        && steps.default-branch.outputs.is-default == 'true'
         && steps.migration-approved.outputs.approved == 'true'
       shell: bash
       env:
@@ -368,6 +392,7 @@ runs:
     - name: Create migration PR
       if: >-
         inputs.mode == 'maintain' && inputs.suggest-toon == 'true'
+        && steps.default-branch.outputs.is-default == 'true'
         && steps.migration-approved.outputs.approved == 'true'
       shell: bash
       env:
@@ -376,20 +401,47 @@ runs:
         ISSUE_NUMBER: ${{ steps.migration-issue.outputs.number }}
       run: |
         cd "$PROJECT_PATH"
+        SCRIPT="${{ github.action_path }}/scripts/toon_migration.py"
 
         # Configure git identity for commit
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
 
-        # Check if migration PR already exists
         BRANCH="aicac/toon-migration"
+
+        # Check if migration PR already exists
         EXISTING_PR=$(gh pr list --head "$BRANCH" --json number --jq '.[0].number' 2>/dev/null || echo "")
         if [ -n "$EXISTING_PR" ] && [ "$EXISTING_PR" != "null" ]; then
-          echo "✅ Migration PR #$EXISTING_PR already exists"
+          # PR exists — check if rebase/regenerate was requested
+          gh pr view "$EXISTING_PR" --json body --jq '.body' > /tmp/migration_pr_body.txt
+          PR_BODY=$(cat /tmp/migration_pr_body.txt)
+
+          if python "$SCRIPT" . --check-rebase "$PR_BODY"; then
+            echo "🔄 Rebase requested for migration PR #$EXISTING_PR"
+
+            # Attempt to regenerate and force-push
+            if git checkout -B "$BRANCH" && \
+               git add .ai/*.toon && \
+               git commit -m "feat: regenerate TOON files from updated YAML sources" && \
+               git push origin "$BRANCH" --force; then
+              # Success — uncheck the rebase checkbox
+              python "$SCRIPT" . --uncheck-rebase < /tmp/migration_pr_body.txt > /tmp/updated_pr_body.txt
+              gh pr edit "$EXISTING_PR" --body-file /tmp/updated_pr_body.txt
+              echo "✅ Rebased migration PR #$EXISTING_PR"
+            else
+              # Failed — update PR with failure notice
+              ERR="Regeneration failed during the last action run. Check the workflow logs for details."
+              python "$SCRIPT" . --rebase-failed "$ERR" < /tmp/migration_pr_body.txt > /tmp/updated_pr_body.txt
+              gh pr edit "$EXISTING_PR" --body-file /tmp/updated_pr_body.txt
+              echo "❌ Rebase failed for migration PR #$EXISTING_PR"
+            fi
+          else
+            echo "✅ Migration PR #$EXISTING_PR already exists (no rebase requested)"
+          fi
           exit 0
         fi
 
-        # Create branch from current HEAD, stage, and commit
+        # No existing PR — create a new one
         git checkout -b "$BRANCH"
         git add .ai/*.toon
         git commit -m "feat: add TOON-encoded .ai/ files for efficient AI context"
@@ -398,7 +450,7 @@ runs:
         git push origin "$BRANCH" 2>/dev/null || git push origin "$BRANCH" --force
 
         # Generate PR body and create PR
-        PR_BODY=$(python ${{ github.action_path }}/scripts/toon_migration.py . --pr-body "$ISSUE_NUMBER")
+        PR_BODY=$(python "$SCRIPT" . --pr-body "$ISSUE_NUMBER")
         gh pr create \
           --title "Add TOON-encoded .ai/ files" \
           --body "$PR_BODY" \
