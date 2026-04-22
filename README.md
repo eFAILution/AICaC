@@ -9,30 +9,69 @@
 
 ## Overview
 
-AI Context as Code (AICaC) introduces the `.ai/` directory convention containing YAML-based structured data that maximizes token efficiency for AI coding assistants while preserving queryability and maintainability.
+AICaC defines the `.ai/` directory convention: structured YAML files,
+validated against [JSON Schemas](spec/v2/), that describe a project's context
+in a form AI coding assistants can query directly.
 
-**The Problem:** AI coding assistants waste thousands of tokens parsing unstructured prose documentation to understand codebases.
+**The problem:** AI coding assistants parse prose documentation linearly to
+understand codebases. Greedy tools load everything they find, which scales
+poorly.
 
-**The Solution:** Structured, machine-optimized documentation that complements existing human-readable formats like `README.md` and `AGENTS.md`.
+**The approach:** Pair a small router (`AGENTS.md`) with per-topic structured
+files (`.ai/context.yaml`, `.ai/architecture.yaml`, `.ai/workflows.yaml`,
+`.ai/decisions.yaml`, `.ai/errors.yaml`) so tools can load only what the
+current query needs.
 
-**The Impact:** 40-60% token reduction, 15-25% faster task completion (empirically validated).
+**Current status:** Specification v2.0, JSON Schemas, a validator with
+cross-reference checks, a bootstrap/maintenance GitHub Action, and a Claude
+Code skill at [`.claude/skills/aicac/`](.claude/skills/aicac/) that teaches
+agents to route instead of loading everything.
 
-## Quick Example
+## Does it actually save tokens?
 
-**Traditional documentation (prose):**
+**It depends entirely on whether the AI tool follows the router.** Measured
+on this repository (details in [validation/examples/EXAMPLE_RESULTS.md](validation/examples/EXAMPLE_RESULTS.md)):
+
+| Format                           | Tokens | vs README | vs AGENTS.md |
+|----------------------------------|-------:|----------:|-------------:|
+| README only                      |    859 | baseline  | -34%         |
+| README + AGENTS.md               |  1,299 | +51%      | baseline     |
+| README + AGENTS.md + all `.ai/`  |  3,569 | +316%     | +175%        |
+| Router-selective load            |  1,059 | +23%      | **-18%**     |
+
+Per-query-category wins differ sharply:
+
+- **Information-retrieval queries** (what's the dev command, entry point,
+  dependencies): router-selective is **-51% vs AGENTS.md**.
+- **Architecture / workflow queries**: within ~5% of AGENTS.md. Wins would
+  likely grow on larger projects but that needs cross-repo replication.
+
+**Honest headline:** AICaC without a router makes things worse. With the
+router pattern demonstrated in [`sample-project/AGENTS.md`](validation/examples/sample-project/AGENTS.md),
+it's a net win versus `AGENTS.md` alone and a large win for the query types
+AI tools answer most often.
+
+*Prior versions of this README cited a "40-60% token reduction" figure that
+was not empirically grounded. v2.0 replaces that claim with the measurements
+above. See [EXAMPLE_RESULTS.md](validation/examples/EXAMPLE_RESULTS.md) for
+methodology and limitations.*
+
+## Quick example
+
+**Prose:**
 ```markdown
-To add a new scanner, first create a class in the src/scanners/ 
-directory that inherits from BaseScanner. Then register it in the 
-scanner_registry.py file. Make sure to add unit tests in 
-tests/scanners/. See the Trivy scanner implementation as reference.
-
-Tokens: ~50
+To add a new scanner, first create a class in the src/scanners/ directory that
+inherits from BaseScanner. Then register it in the scanner_registry.py file.
+Make sure to add unit tests in tests/scanners/.
 ```
 
-**AICaC (structured):**
+**AICaC (v2.0):**
 ```yaml
+# .ai/workflows.yaml
+version: "2.0"
 workflows:
   add_scanner:
+    description: Add a new security scanner integration
     steps:
       - action: create_class
         location: src/scanners/
@@ -41,213 +80,169 @@ workflows:
         file: scanner_registry.py
       - action: add_tests
         location: tests/scanners/
-    reference_implementation: src/scanners/trivy_scanner.py
-
-Tokens: ~30 (40% reduction)
+    touches_components: [scanner_registry]
 ```
 
-## Repository Structure
+The AI asks "how do I add a scanner?" → router picks `workflows.yaml` →
+direct lookup of the `add_scanner` key. No prose parsing.
+
+## Repository structure
 
 ```
 AICaC/
-├── README.md                          # This file
-├── BADGES.md                          # Badge usage guide
-├── ai-context-as-code-whitepaper.md   # Complete specification (23KB)
-├── LICENSE-CODE                       # MIT License (for code)
-├── LICENSE-DOCS                       # CC BY-SA 4.0 (for documentation)
-├── .github/                           # GitHub integrations
-│   ├── actions/
-│   │   └── aicac-adoption/            # Adoption & maintenance action
-│   │       ├── scripts/               # Action scripts
-│   │       │   ├── bootstrap.py       # Bootstrap .ai/ structure
-│   │       │   ├── validate.py        # Validate compliance
-│   │       │   └── update_badge.py    # Update README badge
-│   │       └── tests/                 # Pytest test suite
-│   └── workflows/
-│       └── validate-aicac.yml         # CI validation for this repo
-├── pytest.ini                         # Pytest configuration
-└── validation/                        # Empirical validation suite
-    ├── README.md                      # Validation overview
-    ├── docs/
-    │   ├── testing-framework.md       # Research methodology (45KB)
-    │   ├── quick-start.md            # 30-minute guide (18KB)
-    │   └── publication-roadmap.md    # Publication strategy (35KB)
-    ├── scripts/
-    │   └── token_measurement.py      # Token efficiency measurement (20KB)
+├── README.md                           # This file
+├── AGENTS.md                           # Router that teaches tools to selectively load .ai/
+├── BADGES.md                           # Badge usage guide
+├── ai-context-as-code-whitepaper.md    # Full specification narrative
+├── .ai/                                # This repo's own .ai/ (v2.0)
+├── spec/
+│   └── v2/                             # JSON Schemas for every file
+├── .claude/skills/aicac/               # Claude Code skill: router / bootstrap / validate / sync
+├── .github/
+│   ├── actions/aicac-adoption/         # Composite action: bootstrap, validate, badge, TOON
+│   └── workflows/validate-aicac.yml    # CI for this repo
+└── validation/
+    ├── README.md
+    ├── docs/                           # Methodology, quick-start, publication roadmap
+    ├── scripts/                        # token_measurement.py, performance_measurement.py, yaml_to_toon.py
     └── examples/
-        └── EXAMPLE_RESULTS.md        # Sample experimental results (10KB)
+        ├── EXAMPLE_RESULTS.md          # Real measurement results, honestly framed
+        ├── results/                    # Committed raw JSON results
+        └── sample-project/             # Minimal .ai/ + router AGENTS.md example
 ```
 
-## Getting Started
+## Getting started
 
-### For Researchers
+### Use AICaC in your project
 
-Run empirical validation experiments:
+**Option 1: Claude Code skill (interactive)**
+
+Clone this repo and point Claude Code at it, or copy `.claude/skills/aicac/`
+into your own repo. When Claude Code sees `.ai/` or is asked to adopt AICaC,
+it will bootstrap, validate, and keep the files in sync.
+
+**Option 2: GitHub Action (automated)**
+
+```yaml
+# .github/workflows/aicac.yml
+- uses: eFAILution/AICaC/.github/actions/aicac-adoption@main
+  with:
+    mode: setup  # or: maintain
+```
+
+**Option 3: Manual**
 
 ```bash
-git clone https://github.com/eFAILution/AICaC.git
-cd AICaC/validation/scripts
-pip install anthropic tiktoken
-python token_measurement.py --all-formats --trials 10
+python3 .github/actions/aicac-adoption/scripts/bootstrap.py /path/to/project
+python3 .github/actions/aicac-adoption/scripts/validate.py /path/to/project
 ```
 
-See [validation/docs/quick-start.md](validation/docs/quick-start.md) for detailed instructions.
+### Validate
 
-### For Developers
+```bash
+pip install pyyaml jsonschema
+python3 .github/actions/aicac-adoption/scripts/validate.py .
+```
 
-Implement AICaC in your project:
+The validator checks, in order:
+1. Required files present (`.ai/context.yaml`)
+2. JSON Schema conformance per file (`spec/v2/*.schema.json`)
+3. Cross-references (workflows → components, decisions → components, ADR supersession)
+4. Content-quality heuristics (rejects majority-TODO files)
 
-1. Create `.ai/` directory in your repo
-2. Add minimal `context.yaml`:
-   ```yaml
-   version: "1.0"
-   project:
-     name: "your-project"
-     type: "web-app"
-   entrypoints:
-     main: "src/index.js"
-   common_tasks:
-     dev: "npm run dev"
-     test: "npm test"
-   ```
-3. Reference from `AGENTS.md`
-4. Add an AICaC badge to your README (see [BADGES.md](BADGES.md))
+### Measure
 
-See [ai-context-as-code-whitepaper.md](ai-context-as-code-whitepaper.md) Section 4 for complete specification.
+```bash
+pip install -r validation/requirements.txt
+make measure-all
+```
 
-### For Tool Vendors
+Writes real token counts to `experiments/results.json`.
 
-Add native AICaC support to your AI coding assistant:
-
-1. Read the [specification](ai-context-as-code-whitepaper.md)
-2. Check the [validation data](validation/docs/testing-framework.md)
-3. Open an issue on [GitHub](https://github.com/eFAILution/AICaC/issues)
-
-## The `.ai/` Directory Convention
+## The `.ai/` directory (v2.0)
 
 ```
 project-root/
-├── README.md              # Human-facing introduction
-├── AGENTS.md              # Cross-tool AI instructions (references .ai/)
+├── README.md
+├── AGENTS.md                    # Router — tells AI tools which .ai/ file to load per intent
 └── .ai/
-    ├── README.md          # Explains .ai/ contents
-    ├── context.yaml       # Project metadata and overview
-    ├── architecture.yaml  # Component relationships
-    ├── workflows.yaml     # Common tasks with exact commands
-    ├── decisions.yaml     # Architectural Decision Records
-    └── errors.yaml        # Error-to-solution mappings
+    ├── context.yaml             # Project metadata and routing map (REQUIRED)
+    ├── architecture.yaml        # Components, dependencies, data flow
+    ├── workflows.yaml           # Common tasks with exact commands
+    ├── decisions.yaml           # ADRs keyed by id
+    ├── errors.yaml              # Error patterns keyed by id
+    └── index.yaml               # Auto-generated: token-cheap routing keys
 ```
 
-### Core Principles
+### Canonical shape (v2.0)
 
-1. **Structured over prose** - Use YAML/JSON for machine-parseable data
-2. **Hierarchical modularity** - Separate concerns into domain-specific files
-3. **Graceful degradation** - Works alongside existing conventions
-4. **Queryable by default** - Enable direct lookup without full-file parsing
-5. **Human-readable** - Structured doesn't mean cryptic
-6. **Version controlled** - Context evolves with code in repository
+Every multi-entry file is a **dict keyed by stable id** (component_id,
+workflow_id, ADR id, error id). Direct lookup is token-cheap, ids are stable
+cross-reference targets, and merge conflicts stay local.
 
-## Why AICaC?
+v1.x list forms (`components: [- name: api, ...]`) are accepted with a
+deprecation warning. `migrate_v2.py` rewrites them automatically.
 
-### Token Efficiency
+### Principles
 
-| Query Type | README.md | AGENTS.md | AICaC | Improvement |
-|------------|-----------|-----------|-------|-------------|
-| "How to add a scanner?" | ~800 tokens | ~400 tokens | ~240 tokens | 40% |
-| "Why use Dagger?" | ~600 tokens | ~500 tokens | ~180 tokens | 64% |
-| "Fix registry error" | ~1200 tokens | ~800 tokens | ~320 tokens | 60% |
+1. **Structured over prose** — YAML/JSON, not Markdown
+2. **Modular** — one concern per file
+3. **Router-first** — AGENTS.md teaches tools *which* file to load
+4. **Graceful degradation** — works alongside existing docs
+5. **Schema-validated** — every file must pass `spec/v2/*.schema.json`
+6. **Version-controlled** — evolves with code
 
-### Direct Queryability
-```python
-# AI tools can perform targeted lookups
-workflows = parse_yaml('.ai/workflows.yaml')
-return workflows['workflows']['add_scanner']
-```
+## Compliance levels & badge
 
-### Maintainability
-- Architecture changes → edit `architecture.yaml`
-- Add workflow → edit `workflows.yaml`
-- Document decision → edit `decisions.yaml`
+| Level         | Requirements                                   |
+|---------------|------------------------------------------------|
+| Minimal       | Valid `.ai/context.yaml`                       |
+| Standard      | `context.yaml` + 2 optional files              |
+| Comprehensive | `context.yaml` + all 4 optional files          |
 
-No massive `AGENTS.md` file becoming unmaintainable.
+Files that are majority-TODO don't count. See [BADGES.md](BADGES.md).
 
 ## Documentation
 
-- **[White Paper](ai-context-as-code-whitepaper.md)** - Complete AICaC specification (23KB, ~1 hour read)
-- **[Testing Framework](validation/docs/testing-framework.md)** - Research methodology (45KB, ~30 min)
-- **[Quick Start](validation/docs/quick-start.md)** - Get results in 30 minutes (18KB, ~15 min)
-- **[Publication Roadmap](validation/docs/publication-roadmap.md)** - Academic & industry strategy (35KB, ~25 min)
+- **[Whitepaper](ai-context-as-code-whitepaper.md)** — full narrative
+- **[Spec README](spec/README.md)** — schemas and migration guide
+- **[Validation methodology](validation/docs/testing-framework.md)**
+- **[Quick start](validation/docs/quick-start.md)**
+- **[Publication roadmap](validation/docs/publication-roadmap.md)**
+- **[Claude Code skill](.claude/skills/aicac/SKILL.md)**
 
-## Real-World Example
+## Status & roadmap
 
-See the included sample project in `validation/examples/sample-project/` for a complete `.ai/` implementation with all core files.
+**v0.4.0 — Spec v2.0** (current): JSON Schemas, cross-ref validator, honest
+empirical framing, Claude Code skill.
 
-## Status & Roadmap
+**Near-term:**
+- Cross-repository measurement (≥5 production projects)
+- Response-quality experiments via `performance_measurement.py`
+- Publish schemas at `aicac.dev` for external consumption
 
-**Current Status:** v0.1.0 - Draft specification with validation framework
-
-**Roadmap:**
-- **Q1 2026:** Pilot experiments, refine specification ← *We are here*
-- **Q2 2026:** ArXiv preprint, NeurIPS 2026 submission
-- **Q3 2026:** Community feedback, tool integrations
-- **Q4 2026:** v1.0 specification, conference presentation
-- **2027:** Tool vendor support, widespread adoption
+**Long-term:**
+- Native `.ai/` support in AI coding tools (GitHub Copilot, Cursor, etc.)
+- IDE extensions for authoring and linting
 
 ## Contributing
 
-We welcome contributions:
-- 📝 Specification feedback and improvements
-- 🧪 Additional validation experiments
-- 📚 Example implementations
-- 🔧 Tooling (validators, converters, IDE extensions)
-
-Please open issues or pull requests on GitHub.
-
-## Publication
-
-This work is being prepared for submission to academic conferences and journals. See [validation/docs/publication-roadmap.md](validation/docs/publication-roadmap.md) for strategy.
-
-Target venues:
-- **NeurIPS 2026** (Datasets & Benchmarks Track) - May deadline
-- **ICSE 2027** (Technical Papers) - August deadline
-- **MSR 2027** (Data Showcase) - December deadline
-
-### Citing AICaC
-
-```bibtex
-@misc{aicac2026,
-  title={AI Context as Code: A Structured Approach to AI-Readable Project Documentation},
-  author={eFAILution},
-  year={2026},
-  howpublished={\url{https://github.com/eFAILution/AICaC}},
-  note={Version 0.1.0}
-}
-```
+Specification proposals, empirical replication, example implementations,
+and tooling improvements all welcome. Issues and PRs at [GitHub](https://github.com/eFAILution/AICaC/issues).
 
 ## License
 
-This project uses a dual-license structure:
+- **Code** (validation scripts, action, skill): [MIT](LICENSE-CODE)
+- **Specification & docs**: [CC BY-SA 4.0](LICENSE-DOCS)
 
-- **Code** (`validation/scripts/`): [MIT License](LICENSE-CODE)
-  - Permissive license for maximum tool integration
-  - Free commercial and open source use
-  
-- **Documentation** (specifications, papers): [CC BY-SA 4.0](LICENSE-DOCS)
-  - Requires attribution
-  - Share-alike for derivatives
-  - Prevents proprietary forks of the standard
+## Citation
 
-See [LICENSE-CODE](LICENSE-CODE) and [LICENSE-DOCS](LICENSE-DOCS) for details.
-
-## Contact
-
-**eFAILution**
-- GitHub: [@eFAILution](https://github.com/eFAILution)
-
-**Community:**
-- GitHub Discussions: [github.com/eFAILution/AICaC/discussions](https://github.com/eFAILution/AICaC/discussions)
-- Issues & PRs: [github.com/eFAILution/AICaC/issues](https://github.com/eFAILution/AICaC/issues)
-
----
-
-**Making AI-readable documentation a reality.**
+```bibtex
+@misc{aicac2026,
+  title={AI Context as Code: A Structured, Schema-Validated Approach to AI-Readable Project Documentation},
+  author={eFAILution},
+  year={2026},
+  howpublished={\url{https://github.com/eFAILution/AICaC}},
+  note={v0.4.0 — spec v2.0}
+}
+```
