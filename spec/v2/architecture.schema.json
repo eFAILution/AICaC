@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eFAILution/AICaC/spec/v2/architecture.schema.json",
+  "title": "AICaC architecture.yaml",
+  "description": "Component relationships, external dependencies, and data flow. Canonical form: dict keyed by component id.",
+  "type": "object",
+  "required": ["version"],
+  "properties": {
+    "version": { "type": "string", "pattern": "^(1|2)\\.[0-9]+(\\.[0-9]+)?$" },
+    "summary": { "type": "string", "maxLength": 280 },
+    "components": {
+      "oneOf": [
+        {
+          "type": "object",
+          "description": "Canonical form (v2.0+): dict keyed by component id.",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["purpose"],
+            "properties": {
+              "location": { "type": "string" },
+              "purpose": { "type": "string", "minLength": 5 },
+              "description": { "type": "string" },
+              "depends_on": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Component ids (keys of components) this depends on."
+              },
+              "external_dependencies": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "External dependency names (keys of dependencies)."
+              },
+              "interfaces": {
+                "type": "object",
+                "properties": {
+                  "input": { "type": "string" },
+                  "output": { "type": "string" }
+                }
+              },
+              "files": {
+                "oneOf": [
+                  { "type": "array", "items": { "type": "object" } },
+                  { "type": "object" }
+                ]
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        {
+          "type": "array",
+          "description": "Deprecated list form (v1.x). Each item must have name+purpose.",
+          "deprecated": true,
+          "items": {
+            "type": "object",
+            "required": ["name", "purpose"],
+            "properties": {
+              "name": { "type": "string" },
+              "purpose": { "type": "string" }
+            },
+            "additionalProperties": true
+          }
+        }
+      ]
+    },
+    "dependencies": {
+      "type": "object",
+      "description": "External/3rd-party dependencies with rationale.",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "purpose": { "type": "string" },
+          "why_chosen": { "type": "string" },
+          "alternatives_considered": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "critical": { "type": "boolean" },
+          "replaces": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "data_flow": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "type": "object" }
+          }
+        },
+        {
+          "type": "array",
+          "items": { "type": "object" }
+        }
+      ]
+    },
+    "interfaces": { "type": "object" },
+    "extension_points": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "layers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "components": { "type": "array", "items": { "type": "string" } },
+          "description": { "type": "string" }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

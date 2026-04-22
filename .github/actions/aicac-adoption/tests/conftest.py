@@ -88,16 +88,17 @@ pip install -r requirements.txt
 
 @pytest.fixture
 def aicac_project(temp_project_dir):
-    """Create a project with existing .ai/ directory."""
+    """Create a project with existing .ai/ directory (v2.0 canonical shape)."""
     ai_dir = temp_project_dir / ".ai"
     ai_dir.mkdir()
 
     # Create minimal context.yaml
-    context = """version: "1.0"
+    context = """version: "2.0"
+summary: "Test project for AICaC pytest fixtures."
 project:
   name: test-project
   type: web-app
-  description: Test project with AICaC
+  description: Test project with AICaC fixtures and enough description text.
 
 entrypoints:
   main: src/index.js
@@ -126,47 +127,57 @@ Test project.
 
 @pytest.fixture
 def comprehensive_aicac_project(aicac_project):
-    """Create a project with comprehensive AICaC adoption."""
+    """Create a project with comprehensive AICaC adoption (v2.0 canonical shape)."""
     ai_dir = aicac_project / ".ai"
 
-    # Add architecture.yaml
-    architecture = """components:
+    architecture = """version: "2.0"
+components:
   frontend:
-    path: src/frontend
-    type: react-app
+    location: src/frontend/
+    purpose: React SPA frontend component
   backend:
-    path: src/backend
-    type: api-server
+    location: src/backend/
+    purpose: API server component powered by Express
+    depends_on:
+      - frontend
 """
     with open(ai_dir / "architecture.yaml", "w") as f:
         f.write(architecture)
 
-    # Add workflows.yaml
-    workflows = """workflows:
+    workflows = """version: "2.0"
+workflows:
   add_feature:
+    description: Add a new feature component
     steps:
       - action: create_component
         location: src/components/
       - action: add_tests
         location: tests/
+  run_tests:
+    description: Run the test suite
+    command: npm test
 """
     with open(ai_dir / "workflows.yaml", "w") as f:
         f.write(workflows)
 
-    # Add decisions.yaml
-    decisions = """decisions:
-  - id: "001"
-    title: Use React
+    decisions = """version: "2.0"
+decisions:
+  ADR-001:
+    title: Use React for frontend framework
     status: accepted
-    date: "2024-01-01"
+    context: Need a proven SPA framework for the admin UI
+    decision: Adopt React with TypeScript for all new frontend work
 """
     with open(ai_dir / "decisions.yaml", "w") as f:
         f.write(decisions)
 
-    # Add errors.yaml
-    errors = """errors:
-  - pattern: "Module not found"
-    solution: "Run npm install"
+    errors = """version: "2.0"
+errors:
+  MODULE_NOT_FOUND:
+    symptom: "Module not found when running npm run dev"
+    solutions:
+      - description: Reinstall dependencies
+        command: npm install
 """
     with open(ai_dir / "errors.yaml", "w") as f:
         f.write(errors)

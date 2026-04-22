@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eFAILution/AICaC/spec/v2/index.schema.json",
+  "title": "AICaC index.yaml (optional)",
+  "description": "Auto-generated token-cheap routing index. Enables AI tools to select which .ai/ file to load without reading them all. Safe to regenerate; do not hand-edit.",
+  "type": "object",
+  "required": ["version", "summary", "keys"],
+  "properties": {
+    "version": { "type": "string", "pattern": "^2\\.[0-9]+(\\.[0-9]+)?$" },
+    "generated": { "type": "string", "description": "ISO timestamp of last regeneration." },
+    "summary": {
+      "type": "string",
+      "maxLength": 280,
+      "description": "One-sentence project summary."
+    },
+    "keys": {
+      "type": "object",
+      "description": "Map of file -> list of top-level keys/ids available in that file.",
+      "properties": {
+        "context": { "type": "array", "items": { "type": "string" } },
+        "architecture": { "type": "array", "items": { "type": "string" } },
+        "workflows": { "type": "array", "items": { "type": "string" } },
+        "decisions": { "type": "array", "items": { "type": "string" } },
+        "errors": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": { "type": "array", "items": { "type": "string" } }
+    },
+    "routing": {
+      "type": "object",
+      "description": "Optional hints: query-category -> recommended file(s).",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string" }
+      }
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eFAILution/AICaC/spec/v2/decisions.schema.json",
+  "title": "AICaC decisions.yaml",
+  "description": "Architectural Decision Records. Canonical form: dict keyed by ADR id (e.g. ADR-001).",
+  "type": "object",
+  "required": ["version", "decisions"],
+  "properties": {
+    "version": { "type": "string", "pattern": "^(1|2)\\.[0-9]+(\\.[0-9]+)?$" },
+    "summary": { "type": "string", "maxLength": 280 },
+    "decisions": {
+      "oneOf": [
+        {
+          "type": "object",
+          "description": "Canonical form (v2.0+): dict keyed by ADR id.",
+          "minProperties": 1,
+          "patternProperties": {
+            "^(ADR[-_][0-9]+|[A-Z][A-Z0-9_-]+)$": {
+              "type": "object",
+              "required": ["title", "status", "context", "decision"],
+              "properties": {
+                "title": { "type": "string", "minLength": 3 },
+                "status": {
+                  "type": "string",
+                  "enum": ["proposed", "accepted", "rejected", "deprecated", "superseded"]
+                },
+                "date": { "type": "string" },
+                "context": { "type": "string", "minLength": 10 },
+                "decision": { "type": "string", "minLength": 5 },
+                "rationale": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "consequences": {
+                  "type": "object",
+                  "properties": {
+                    "positive": { "type": "array", "items": { "type": "string" } },
+                    "negative": { "type": "array", "items": { "type": "string" } }
+                  }
+                },
+                "alternatives_considered": {
+                  "oneOf": [
+                    { "type": "array", "items": { "type": "string" } },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["name"],
+                        "properties": {
+                          "name": { "type": "string" },
+                          "rejected_because": { "type": "string" }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "superseded_by": { "type": ["string", "null"] },
+                "implementation": { "type": "string" },
+                "affects_components": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "array",
+          "description": "Deprecated list form (v1.x).",
+          "deprecated": true,
+          "items": {
+            "type": "object",
+            "required": ["id", "title", "status"],
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "status": { "type": "string" }
+            },
+            "additionalProperties": true
+          }
+        }
+      ]
+    }
+  },
+  "additionalProperties": true
+}

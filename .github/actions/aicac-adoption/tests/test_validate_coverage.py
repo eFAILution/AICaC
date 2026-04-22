@@ -6,6 +6,8 @@ Focuses on print_report, error handling, and edge cases.
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent / 'scripts'))
 
 from validate import AICaCValidator
@@ -47,17 +49,17 @@ class TestValidateCoverage:
         assert validator._validate_context() is False
 
     def test_validate_context_file_read_error(self, aicac_project):
-        """Test handling of file read errors."""
-        context_path = aicac_project / '.ai' / 'context.yaml'
-
-        # Make file unreadable (chmod 000)
+        """Test handling of file read errors. Skipped under root (chmod 000 doesn't block)."""
         import os
+        if os.geteuid() == 0:
+            pytest.skip("chmod 000 doesn't prevent root from reading")
+
+        context_path = aicac_project / '.ai' / 'context.yaml'
         os.chmod(context_path, 0o000)
 
         validator = AICaCValidator(str(aicac_project))
         result = validator._validate_context()
 
-        # Restore permissions
         os.chmod(context_path, 0o644)
 
         assert result is False
@@ -150,10 +152,25 @@ class TestValidateCoverage:
 
     def test_print_report_suggestions_for_standard(self, aicac_project, capsys):
         """Test that print_report shows improvement suggestions."""
-        # Add just two optional files for Standard compliance
+        # Add just two optional files for Standard compliance (v2.0 shape)
         ai_dir = aicac_project / '.ai'
-        (ai_dir / 'architecture.yaml').write_text('components: {}')
-        (ai_dir / 'workflows.yaml').write_text('workflows: {}')
+        (ai_dir / 'architecture.yaml').write_text(
+            'version: "2.0"\n'
+            'components:\n'
+            '  api:\n'
+            '    location: src/api/\n'
+            '    purpose: HTTP route handlers\n'
+        )
+        (ai_dir / 'workflows.yaml').write_text(
+            'version: "2.0"\n'
+            'workflows:\n'
+            '  run_tests:\n'
+            '    description: Run the test suite\n'
+            '    command: npm test\n'
+            '  start_dev:\n'
+            '    description: Start dev server\n'
+            '    command: npm run dev\n'
+        )
 
         validator = AICaCValidator(str(aicac_project))
         result = validator.validate()
