@@ -1,0 +1,5052 @@
+{
+  "metadata": {
+    "repo_path": "../../experiments/aicac-full",
+    "timestamp": "2026-04-21 22:39:37",
+    "total_measurements": 300,
+    "tokenizer_mode": "approximate",
+    "approximate_models": [
+      "gpt4"
+    ],
+    "methodology_notes": [
+      "TOTAL CONTEXT = What AI tools load when they read all files (reality)",
+      "SELECTIVE = AGENTS.md + relevant .ai/ file only (works if AI follows AGENTS.md router guidance)",
+      "AICaC adds files, so TOTAL context is HIGHER than README alone",
+      "SELECTIVE can be LOWER if AI tools follow AGENTS.md routing instructions",
+      "Key insight: AGENTS.md can act as a router to guide selective loading",
+      "Offline environments use bytes/4 approximation \u2014 relative comparisons remain valid."
+    ]
+  },
+  "summary": {
+    "formats": {
+      "README_ONLY": {
+        "mean_tokens": 859,
+        "median_tokens": 859,
+        "sample_count": 75
+      },
+      "AGENTS_ONLY": {
+        "mean_tokens": 1299,
+        "median_tokens": 1299,
+        "sample_count": 75,
+        "vs_readme_pct": 51.2
+      },
+      "AICAC": {
+        "mean_tokens": 3569,
+        "median_tokens": 3569,
+        "sample_count": 75,
+        "vs_readme_pct": 315.5
+      },
+      "AICAC_SELECTIVE": {
+        "mean_tokens": 1059.3,
+        "median_tokens": 1245,
+        "sample_count": 75,
+        "vs_readme_pct": 23.3
+      }
+    },
+    "key_findings": [
+      "AICAC uses 315% MORE tokens than README alone",
+      "This is expected: more files = more tokens for current AI tools"
+    ]
+  },
+  "measurements": [
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-001",
+      "question": "What command runs the development server?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-002",
+      "question": "What is the project's primary purpose?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-003",
+      "question": "What Python version is required?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-004",
+      "question": "What are the main dependencies?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-005",
+      "question": "Where is the main entry point?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-001",
+      "question": "Explain the data flow for creating a task",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-002",
+      "question": "What are the dependencies between components?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-003",
+      "question": "Why was FastAPI chosen over Flask?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-004",
+      "question": "Describe the service layer architecture",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-005",
+      "question": "How do the API routes communicate with services?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-001",
+      "question": "How do I add a new API endpoint?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-002",
+      "question": "How do I fix a 'port already in use' error?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-003",
+      "question": "How do I set up the development environment?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-004",
+      "question": "How do I run the tests?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-005",
+      "question": "How do I add a new database model?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-001",
+      "question": "What command runs the development server?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-002",
+      "question": "What is the project's primary purpose?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-003",
+      "question": "What Python version is required?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-004",
+      "question": "What are the main dependencies?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-005",
+      "question": "Where is the main entry point?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-001",
+      "question": "Explain the data flow for creating a task",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-002",
+      "question": "What are the dependencies between components?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-003",
+      "question": "Why was FastAPI chosen over Flask?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-004",
+      "question": "Describe the service layer architecture",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-005",
+      "question": "How do the API routes communicate with services?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-001",
+      "question": "How do I add a new API endpoint?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-002",
+      "question": "How do I fix a 'port already in use' error?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-003",
+      "question": "How do I set up the development environment?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-004",
+      "question": "How do I run the tests?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-005",
+      "question": "How do I add a new database model?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-001",
+      "question": "What command runs the development server?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-002",
+      "question": "What is the project's primary purpose?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-003",
+      "question": "What Python version is required?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-004",
+      "question": "What are the main dependencies?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-005",
+      "question": "Where is the main entry point?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-001",
+      "question": "Explain the data flow for creating a task",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-002",
+      "question": "What are the dependencies between components?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-003",
+      "question": "Why was FastAPI chosen over Flask?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-004",
+      "question": "Describe the service layer architecture",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-005",
+      "question": "How do the API routes communicate with services?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-001",
+      "question": "How do I add a new API endpoint?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-002",
+      "question": "How do I fix a 'port already in use' error?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-003",
+      "question": "How do I set up the development environment?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-004",
+      "question": "How do I run the tests?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-005",
+      "question": "How do I add a new database model?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-001",
+      "question": "What command runs the development server?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-002",
+      "question": "What is the project's primary purpose?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-003",
+      "question": "What Python version is required?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-004",
+      "question": "What are the main dependencies?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-005",
+      "question": "Where is the main entry point?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-001",
+      "question": "Explain the data flow for creating a task",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-002",
+      "question": "What are the dependencies between components?",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-003",
+      "question": "Why was FastAPI chosen over Flask?",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-004",
+      "question": "Describe the service layer architecture",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-005",
+      "question": "How do the API routes communicate with services?",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-001",
+      "question": "How do I add a new API endpoint?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-002",
+      "question": "How do I fix a 'port already in use' error?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-003",
+      "question": "How do I set up the development environment?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-004",
+      "question": "How do I run the tests?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-005",
+      "question": "How do I add a new database model?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-001",
+      "question": "What command runs the development server?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-002",
+      "question": "What is the project's primary purpose?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-003",
+      "question": "What Python version is required?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-004",
+      "question": "What are the main dependencies?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-005",
+      "question": "Where is the main entry point?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-001",
+      "question": "Explain the data flow for creating a task",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-002",
+      "question": "What are the dependencies between components?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-003",
+      "question": "Why was FastAPI chosen over Flask?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-004",
+      "question": "Describe the service layer architecture",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-005",
+      "question": "How do the API routes communicate with services?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-001",
+      "question": "How do I add a new API endpoint?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-002",
+      "question": "How do I fix a 'port already in use' error?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-003",
+      "question": "How do I set up the development environment?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-004",
+      "question": "How do I run the tests?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-005",
+      "question": "How do I add a new database model?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-001",
+      "question": "What command runs the development server?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-002",
+      "question": "What is the project's primary purpose?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-003",
+      "question": "What Python version is required?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-004",
+      "question": "What are the main dependencies?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-005",
+      "question": "Where is the main entry point?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-001",
+      "question": "Explain the data flow for creating a task",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-002",
+      "question": "What are the dependencies between components?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-003",
+      "question": "Why was FastAPI chosen over Flask?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-004",
+      "question": "Describe the service layer architecture",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-005",
+      "question": "How do the API routes communicate with services?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-001",
+      "question": "How do I add a new API endpoint?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-002",
+      "question": "How do I fix a 'port already in use' error?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-003",
+      "question": "How do I set up the development environment?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-004",
+      "question": "How do I run the tests?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-005",
+      "question": "How do I add a new database model?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-001",
+      "question": "What command runs the development server?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-002",
+      "question": "What is the project's primary purpose?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-003",
+      "question": "What Python version is required?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-004",
+      "question": "What are the main dependencies?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-005",
+      "question": "Where is the main entry point?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-001",
+      "question": "Explain the data flow for creating a task",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-002",
+      "question": "What are the dependencies between components?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-003",
+      "question": "Why was FastAPI chosen over Flask?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-004",
+      "question": "Describe the service layer architecture",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-005",
+      "question": "How do the API routes communicate with services?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-001",
+      "question": "How do I add a new API endpoint?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-002",
+      "question": "How do I fix a 'port already in use' error?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-003",
+      "question": "How do I set up the development environment?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-004",
+      "question": "How do I run the tests?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-005",
+      "question": "How do I add a new database model?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-001",
+      "question": "What command runs the development server?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-002",
+      "question": "What is the project's primary purpose?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-003",
+      "question": "What Python version is required?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-004",
+      "question": "What are the main dependencies?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-005",
+      "question": "Where is the main entry point?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-001",
+      "question": "Explain the data flow for creating a task",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-002",
+      "question": "What are the dependencies between components?",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-003",
+      "question": "Why was FastAPI chosen over Flask?",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-004",
+      "question": "Describe the service layer architecture",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-005",
+      "question": "How do the API routes communicate with services?",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-001",
+      "question": "How do I add a new API endpoint?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-002",
+      "question": "How do I fix a 'port already in use' error?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-003",
+      "question": "How do I set up the development environment?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-004",
+      "question": "How do I run the tests?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-005",
+      "question": "How do I add a new database model?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-001",
+      "question": "What command runs the development server?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-002",
+      "question": "What is the project's primary purpose?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-003",
+      "question": "What Python version is required?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-004",
+      "question": "What are the main dependencies?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-005",
+      "question": "Where is the main entry point?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-001",
+      "question": "Explain the data flow for creating a task",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-002",
+      "question": "What are the dependencies between components?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-003",
+      "question": "Why was FastAPI chosen over Flask?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-004",
+      "question": "Describe the service layer architecture",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-005",
+      "question": "How do the API routes communicate with services?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-001",
+      "question": "How do I add a new API endpoint?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-002",
+      "question": "How do I fix a 'port already in use' error?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-003",
+      "question": "How do I set up the development environment?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-004",
+      "question": "How do I run the tests?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-005",
+      "question": "How do I add a new database model?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-001",
+      "question": "What command runs the development server?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-002",
+      "question": "What is the project's primary purpose?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-003",
+      "question": "What Python version is required?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-004",
+      "question": "What are the main dependencies?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-005",
+      "question": "Where is the main entry point?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-001",
+      "question": "Explain the data flow for creating a task",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-002",
+      "question": "What are the dependencies between components?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-003",
+      "question": "Why was FastAPI chosen over Flask?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-004",
+      "question": "Describe the service layer architecture",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-005",
+      "question": "How do the API routes communicate with services?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-001",
+      "question": "How do I add a new API endpoint?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-002",
+      "question": "How do I fix a 'port already in use' error?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-003",
+      "question": "How do I set up the development environment?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-004",
+      "question": "How do I run the tests?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-005",
+      "question": "How do I add a new database model?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-001",
+      "question": "What command runs the development server?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-002",
+      "question": "What is the project's primary purpose?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-003",
+      "question": "What Python version is required?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-004",
+      "question": "What are the main dependencies?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-005",
+      "question": "Where is the main entry point?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-001",
+      "question": "Explain the data flow for creating a task",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-002",
+      "question": "What are the dependencies between components?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-003",
+      "question": "Why was FastAPI chosen over Flask?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-004",
+      "question": "Describe the service layer architecture",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-005",
+      "question": "How do the API routes communicate with services?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-001",
+      "question": "How do I add a new API endpoint?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-002",
+      "question": "How do I fix a 'port already in use' error?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-003",
+      "question": "How do I set up the development environment?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-004",
+      "question": "How do I run the tests?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-005",
+      "question": "How do I add a new database model?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-001",
+      "question": "What command runs the development server?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-002",
+      "question": "What is the project's primary purpose?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-003",
+      "question": "What Python version is required?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-004",
+      "question": "What are the main dependencies?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-005",
+      "question": "Where is the main entry point?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-001",
+      "question": "Explain the data flow for creating a task",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-002",
+      "question": "What are the dependencies between components?",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-003",
+      "question": "Why was FastAPI chosen over Flask?",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-004",
+      "question": "Describe the service layer architecture",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-005",
+      "question": "How do the API routes communicate with services?",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-001",
+      "question": "How do I add a new API endpoint?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-002",
+      "question": "How do I fix a 'port already in use' error?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-003",
+      "question": "How do I set up the development environment?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-004",
+      "question": "How do I run the tests?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-005",
+      "question": "How do I add a new database model?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-001",
+      "question": "What command runs the development server?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-002",
+      "question": "What is the project's primary purpose?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-003",
+      "question": "What Python version is required?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-004",
+      "question": "What are the main dependencies?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-005",
+      "question": "Where is the main entry point?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-001",
+      "question": "Explain the data flow for creating a task",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-002",
+      "question": "What are the dependencies between components?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-003",
+      "question": "Why was FastAPI chosen over Flask?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-004",
+      "question": "Describe the service layer architecture",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-005",
+      "question": "How do the API routes communicate with services?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-001",
+      "question": "How do I add a new API endpoint?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-002",
+      "question": "How do I fix a 'port already in use' error?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-003",
+      "question": "How do I set up the development environment?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-004",
+      "question": "How do I run the tests?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-005",
+      "question": "How do I add a new database model?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-001",
+      "question": "What command runs the development server?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-002",
+      "question": "What is the project's primary purpose?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-003",
+      "question": "What Python version is required?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-004",
+      "question": "What are the main dependencies?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-005",
+      "question": "Where is the main entry point?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-001",
+      "question": "Explain the data flow for creating a task",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-002",
+      "question": "What are the dependencies between components?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-003",
+      "question": "Why was FastAPI chosen over Flask?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-004",
+      "question": "Describe the service layer architecture",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-005",
+      "question": "How do the API routes communicate with services?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-001",
+      "question": "How do I add a new API endpoint?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-002",
+      "question": "How do I fix a 'port already in use' error?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-003",
+      "question": "How do I set up the development environment?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-004",
+      "question": "How do I run the tests?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-005",
+      "question": "How do I add a new database model?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-001",
+      "question": "What command runs the development server?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-002",
+      "question": "What is the project's primary purpose?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-003",
+      "question": "What Python version is required?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-004",
+      "question": "What are the main dependencies?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-005",
+      "question": "Where is the main entry point?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-001",
+      "question": "Explain the data flow for creating a task",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-002",
+      "question": "What are the dependencies between components?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-003",
+      "question": "Why was FastAPI chosen over Flask?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-004",
+      "question": "Describe the service layer architecture",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-005",
+      "question": "How do the API routes communicate with services?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-001",
+      "question": "How do I add a new API endpoint?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-002",
+      "question": "How do I fix a 'port already in use' error?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-003",
+      "question": "How do I set up the development environment?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-004",
+      "question": "How do I run the tests?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-005",
+      "question": "How do I add a new database model?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-001",
+      "question": "What command runs the development server?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-002",
+      "question": "What is the project's primary purpose?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-003",
+      "question": "What Python version is required?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-004",
+      "question": "What are the main dependencies?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-005",
+      "question": "Where is the main entry point?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-001",
+      "question": "Explain the data flow for creating a task",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-002",
+      "question": "What are the dependencies between components?",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-003",
+      "question": "Why was FastAPI chosen over Flask?",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-004",
+      "question": "Describe the service layer architecture",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-005",
+      "question": "How do the API routes communicate with services?",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-001",
+      "question": "How do I add a new API endpoint?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-002",
+      "question": "How do I fix a 'port already in use' error?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-003",
+      "question": "How do I set up the development environment?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-004",
+      "question": "How do I run the tests?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-005",
+      "question": "How do I add a new database model?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-001",
+      "question": "What command runs the development server?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-002",
+      "question": "What is the project's primary purpose?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-003",
+      "question": "What Python version is required?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-004",
+      "question": "What are the main dependencies?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "IR-005",
+      "question": "Where is the main entry point?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-001",
+      "question": "Explain the data flow for creating a task",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-002",
+      "question": "What are the dependencies between components?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-003",
+      "question": "Why was FastAPI chosen over Flask?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-004",
+      "question": "Describe the service layer architecture",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "AU-005",
+      "question": "How do the API routes communicate with services?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-001",
+      "question": "How do I add a new API endpoint?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-002",
+      "question": "How do I fix a 'port already in use' error?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-003",
+      "question": "How do I set up the development environment?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-004",
+      "question": "How do I run the tests?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "README_ONLY",
+      "question_id": "CW-005",
+      "question": "How do I add a new database model?",
+      "model": "gpt4",
+      "token_count": 859,
+      "context_length": 3271,
+      "files_loaded": [
+        "README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "Single file, minimal context"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-001",
+      "question": "What command runs the development server?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-002",
+      "question": "What is the project's primary purpose?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-003",
+      "question": "What Python version is required?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-004",
+      "question": "What are the main dependencies?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "IR-005",
+      "question": "Where is the main entry point?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-001",
+      "question": "Explain the data flow for creating a task",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-002",
+      "question": "What are the dependencies between components?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-003",
+      "question": "Why was FastAPI chosen over Flask?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-004",
+      "question": "Describe the service layer architecture",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "AU-005",
+      "question": "How do the API routes communicate with services?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-001",
+      "question": "How do I add a new API endpoint?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-002",
+      "question": "How do I fix a 'port already in use' error?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-003",
+      "question": "How do I set up the development environment?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-004",
+      "question": "How do I run the tests?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AGENTS_ONLY",
+      "question_id": "CW-005",
+      "question": "How do I add a new database model?",
+      "model": "gpt4",
+      "token_count": 1299,
+      "context_length": 4989,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "README + AGENTS.md"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-001",
+      "question": "What command runs the development server?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-002",
+      "question": "What is the project's primary purpose?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-003",
+      "question": "What Python version is required?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-004",
+      "question": "What are the main dependencies?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "IR-005",
+      "question": "Where is the main entry point?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-001",
+      "question": "Explain the data flow for creating a task",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-002",
+      "question": "What are the dependencies between components?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-003",
+      "question": "Why was FastAPI chosen over Flask?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-004",
+      "question": "Describe the service layer architecture",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "AU-005",
+      "question": "How do the API routes communicate with services?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-001",
+      "question": "How do I add a new API endpoint?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-002",
+      "question": "How do I fix a 'port already in use' error?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-003",
+      "question": "How do I set up the development environment?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-004",
+      "question": "How do I run the tests?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC",
+      "question_id": "CW-005",
+      "question": "How do I add a new database model?",
+      "model": "gpt4",
+      "token_count": 3569,
+      "context_length": 14053,
+      "files_loaded": [
+        "README.md",
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/context.yaml",
+        ".ai/decisions.yaml",
+        ".ai/errors.yaml",
+        ".ai/index.yaml",
+        ".ai/workflows.yaml",
+        ".ai/README.md"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "total_context",
+      "notes": "All documentation loaded (current AI tool behavior)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-001",
+      "question": "What command runs the development server?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-002",
+      "question": "What is the project's primary purpose?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-003",
+      "question": "What Python version is required?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-004",
+      "question": "What are the main dependencies?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "IR-005",
+      "question": "Where is the main entry point?",
+      "model": "gpt4",
+      "token_count": 643,
+      "context_length": 2528,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/context.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for IR (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-001",
+      "question": "Explain the data flow for creating a task",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-002",
+      "question": "What are the dependencies between components?",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-003",
+      "question": "Why was FastAPI chosen over Flask?",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-004",
+      "question": "Describe the service layer architecture",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "AU-005",
+      "question": "How do the API routes communicate with services?",
+      "model": "gpt4",
+      "token_count": 1245,
+      "context_length": 4935,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/architecture.yaml",
+        ".ai/decisions.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for AU (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-001",
+      "question": "How do I add a new API endpoint?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-002",
+      "question": "How do I fix a 'port already in use' error?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-003",
+      "question": "How do I set up the development environment?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-004",
+      "question": "How do I run the tests?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    },
+    {
+      "format": "AICAC_SELECTIVE",
+      "question_id": "CW-005",
+      "question": "How do I add a new database model?",
+      "model": "gpt4",
+      "token_count": 1290,
+      "context_length": 5114,
+      "files_loaded": [
+        "AGENTS.md",
+        ".ai/workflows.yaml",
+        ".ai/errors.yaml"
+      ],
+      "timestamp": "2026-04-21 22:39:37",
+      "measurement_type": "selective",
+      "notes": "AGENTS.md + relevant .ai/ file for CW (works if AI follows guidance)"
+    }
+  ]
+}
