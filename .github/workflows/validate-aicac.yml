@@ -26,7 +26,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pyyaml pytest pytest-cov tiktoken yamllint
+          pip install pyyaml pytest pytest-cov tiktoken yamllint jsonschema
           pip install git+https://github.com/toon-format/toon-python.git
 
       - name: Lint YAML files
