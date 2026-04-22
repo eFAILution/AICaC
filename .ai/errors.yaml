@@ -1,147 +1,126 @@
-version: '1.0'
+version: '2.0'
+summary: Errors encountered while authoring or validating .ai/ — YAML syntax, schema violations, deprecated v1.x shapes, missing dependencies, badge drift.
 errors:
   YAML_PARSE_ERROR:
-    symptom: 'yaml.scanner.ScannerError or similar when loading .ai/ files'
+    symptom: yaml.scanner.ScannerError or similar when loading .ai/ files
     common_causes:
-      - 'Incorrect indentation (YAML is whitespace-sensitive)'
-      - 'Missing quotes around special characters'
-      - 'Tab characters instead of spaces'
-      - 'Unclosed quotes or brackets'
+      - Incorrect indentation (YAML is whitespace-sensitive)
+      - Missing quotes around special characters
+      - Tab characters instead of spaces
+      - Unclosed quotes or brackets
     solutions:
-      - 'Use YAML linter: pip install yamllint && yamllint .ai/'
-      - 'Check indentation is consistent (2 spaces recommended)'
+      - "Use YAML linter: pip install yamllint && yamllint .ai/"
+      - Check indentation is consistent (2 spaces recommended)
       - "Validate with: python -c \"import yaml; yaml.safe_load(open('.ai/context.yaml'))\""
-      - 'Use online validator: https://www.yamllint.com/'
-    example: |
-      # Wrong:
-      project:
-        name: My Project  # Contains unquoted special chars
-      # Right:
-      project:
-        name: 'My Project'
-
+      - "Use online validator: https://www.yamllint.com/"
+  SCHEMA_VALIDATION_ERROR:
+    symptom: "jsonschema.ValidationError: ... failed validating '...' in schema"
+    common_causes:
+      - Required field missing (e.g. project.description)
+      - Wrong type (string vs list)
+      - project.type not in enum (use 'other' + type_detail for exotic cases)
+      - v1.x list form encountered — migrate to v2.0 dict form
+    solutions:
+      - "Run: python .github/actions/aicac-adoption/scripts/validate.py ."
+      - Consult spec/v2/*.schema.json for the required shape
+      - "If migrating v1.x: python .github/actions/aicac-adoption/scripts/migrate_v2.py ."
+    reference: spec/README.md
+  DEPRECATED_V1_LIST_FORM:
+    symptom: "DEPRECATION: architecture.yaml uses list form for components; v2.0 prefers dict keyed by component id"
+    common_causes:
+      - File was authored against v1.x whitepaper examples
+      - components / decisions / error_patterns given as YAML list
+    solutions:
+      - Convert list entries keyed by 'name' / 'id' / 'pattern' into a dict keyed by that value
+      - "Automated: python .github/actions/aicac-adoption/scripts/migrate_v2.py ."
+    reference: spec/README.md#migration-from-v1x--v20
+  COMMON_COMMANDS_DEPRECATED:
+    symptom: "DEPRECATION: context.yaml uses 'common_commands'; v2.0 prefers 'common_tasks'"
+    common_causes:
+      - File was authored against an old example
+    solutions:
+      - Rename the key to common_tasks in context.yaml
+  XREF_UNKNOWN_COMPONENT:
+    symptom: "XREF: workflow 'X' references component 'Y' which is not defined in architecture.yaml"
+    common_causes:
+      - Component id typo in touches_components / affects_components / depends_on
+      - Component removed from architecture.yaml without updating references
+    solutions:
+      - Fix the typo, or add the missing component to architecture.yaml
+      - If component was intentionally removed, remove the reference
   MODULE_NOT_FOUND_PYYAML:
     symptom: 'ModuleNotFoundError: No module named "yaml"'
     common_causes:
-      - 'PyYAML not installed'
-      - 'Wrong Python environment active'
+      - PyYAML not installed
+      - Wrong Python environment active
     solutions:
-      - 'Install PyYAML: pip install pyyaml'
-      - 'Check virtual environment is activated'
-      - 'Verify with: pip list | grep PyYAML'
-    reference: '.github/actions/aicac-adoption/action.yml (shows required deps)'
-
-  MODULE_NOT_FOUND_ANTHROPIC:
-    symptom: 'ModuleNotFoundError: No module named "anthropic"'
+      - "Install PyYAML: pip install pyyaml"
+      - Check virtual environment is activated
+    reference: .github/actions/aicac-adoption/action.yml
+  MODULE_NOT_FOUND_JSONSCHEMA:
+    symptom: 'ModuleNotFoundError: No module named "jsonschema"'
     common_causes:
-      - 'Anthropic SDK not installed'
-      - 'Running validation script without dependencies'
+      - jsonschema not installed (v2.0 validator requirement)
     solutions:
-      - 'Install: pip install anthropic tiktoken'
-      - 'See requirements in: validation/docs/quick-start.md'
-    applies_to: 'validation/scripts/token_measurement.py'
-
+      - "pip install jsonschema"
   API_KEY_MISSING:
-    symptom: 'anthropic.APIKeyError or environment variable not found'
+    symptom: anthropic.APIKeyError or environment variable not found
     common_causes:
-      - 'ANTHROPIC_API_KEY not set in environment'
-      - 'API key expired or invalid'
+      - ANTHROPIC_API_KEY not set in environment
+      - API key expired or invalid
     solutions:
-      - 'Set environment variable: export ANTHROPIC_API_KEY=your_key'
-      - 'Get API key from: https://console.anthropic.com/'
-      - 'Test with: echo $ANTHROPIC_API_KEY (should show key)'
-    security_note: 'Never commit API keys to version control'
-
+      - "export ANTHROPIC_API_KEY=your_key"
+      - "Use a free provider instead: make perf-ollama or make perf-groq"
+    reference: validation/docs/quick-start.md
   GITHUB_ACTION_PERMISSION_ERROR:
-    symptom: 'GitHub Actions is not permitted to create or approve pull requests'
+    symptom: GitHub Actions is not permitted to create or approve pull requests
     common_causes:
-      - 'Repository workflow permissions not configured'
-      - 'GITHUB_TOKEN lacks pull-requests: write permission'
+      - Repository workflow permissions not configured
+      - GITHUB_TOKEN lacks required scopes
     solutions:
-      - 'Go to: Settings > Actions > General > Workflow permissions'
-      - 'Enable: "Allow GitHub Actions to create and approve pull requests"'
-      - 'Ensure workflow has: permissions.pull-requests: write'
-    reference: '.github/workflows/validate-aicac.yml (shows required permissions)'
-
+      - "Settings > Actions > General > Workflow permissions > enable 'Allow GitHub Actions to create and approve pull requests'"
+      - "Ensure workflow has permissions.pull-requests: write and issues: write"
+    reference: .github/workflows/validate-aicac.yml
   PYTEST_COVERAGE_BELOW_THRESHOLD:
-    symptom: 'FAILED: coverage below 80% threshold'
+    symptom: "FAILED: coverage below 80% threshold"
     common_causes:
-      - 'New code added without tests'
-      - 'Edge cases not covered'
+      - New code added without tests
+      - Edge cases not covered
     solutions:
-      - 'Run: pytest --cov=scripts --cov-report=html'
-      - 'Open htmlcov/index.html to see missed lines'
-      - 'Add tests for uncovered code paths'
-      - 'See: .github/actions/aicac-adoption/tests/ for examples'
-    threshold: '80% minimum (configured in pytest.ini)'
-
-  VALIDATION_CONTEXT_INVALID:
-    symptom: 'context.yaml validation failed'
-    common_causes:
-      - 'Missing required fields (version, project, entrypoints, common_tasks)'
-      - 'Empty values for required fields'
-      - 'Invalid YAML structure'
-    solutions:
-      - 'Ensure all required fields present'
-      - 'Check: version, project.name, project.type, project.description'
-      - 'Verify entrypoints and common_tasks are not empty'
-      - 'Run validator: python .github/actions/aicac-adoption/scripts/validate.py .'
-    reference: 'ai-context-as-code-whitepaper.md (section 4.1 - context.yaml spec)'
-
+      - "Run: pytest --cov=scripts --cov-report=html"
+      - Open htmlcov/index.html to see missed lines
+    reference: .github/actions/aicac-adoption/tests/
   BADGE_NOT_UPDATING:
-    symptom: 'AICaC badge in README.md not updating automatically'
+    symptom: AICaC badge in README.md not updating automatically
     common_causes:
-      - 'Workflow not triggered on .ai/ changes'
-      - 'update-badge input set to false'
-      - 'README.md file not found'
+      - Workflow not triggered on .ai/ changes
+      - update-badge input set to false
+      - README.md not found
     solutions:
-      - 'Check workflow triggers in .github/workflows/validate-aicac.yml'
-      - 'Ensure update-badge: true in action inputs'
-      - 'Manually update: python .github/actions/aicac-adoption/scripts/update_badge.py <level>'
-      - 'Verify README.md exists in repo root'
-
+      - Check workflow triggers in .github/workflows/validate-aicac.yml
+      - "Ensure update-badge: true in action inputs"
+      - "Manual: python .github/actions/aicac-adoption/scripts/update_badge.py <LEVEL>"
   WRONG_COMPLIANCE_LEVEL:
-    symptom: 'Badge shows lower compliance level than expected'
+    symptom: Badge shows lower compliance level than expected
     common_causes:
-      - 'Optional files not detected'
-      - 'Files have invalid content'
-      - 'context.yaml validation failing'
+      - Optional files not detected (wrong filename, wrong location)
+      - Files fail schema or cross-reference validation
+      - Content-quality heuristic rejected TODO-only file
     solutions:
-      - 'Run validation: python .github/actions/aicac-adoption/scripts/validate.py .'
-      - 'Check for validation errors in output'
-      - 'Ensure optional files (architecture.yaml, etc.) have valid YAML'
-      - 'Verify file names match exactly (case-sensitive)'
-    compliance_requirements:
-      Minimal: 'context.yaml only'
-      Standard: 'context.yaml + 2 of [architecture, workflows, decisions, errors].yaml'
-      Comprehensive: 'All 5 files: context, architecture, workflows, decisions, errors'
-
-  IMPORT_ERROR_PYTEST:
-    symptom: 'ModuleNotFoundError when running pytest'
-    common_causes:
-      - 'Python path not configured'
-      - 'Running pytest from wrong directory'
-      - 'pytest.ini not found'
-    solutions:
-      - 'Run from repo root: cd .github/actions/aicac-adoption && pytest'
-      - 'Check pytest.ini pythonpath setting'
-      - 'Install pytest: pip install pytest pytest-cov'
-    reference: 'pytest.ini (shows pythonpath configuration)'
-
+      - "Run validator: python .github/actions/aicac-adoption/scripts/validate.py ."
+      - Check validator output for which file is failing and why
+      - Ensure optional files have real content (not just TODO entries)
 troubleshooting_workflow:
-  - step: 'Identify the error message'
-    action: 'Read full error output, note exact message'
-  - step: 'Check this file'
-    action: 'Search .ai/errors.yaml for matching error'
-  - step: 'Verify environment'
-    action: 'Check Python version, dependencies, API keys'
-  - step: 'Run validator'
-    action: 'python .github/actions/aicac-adoption/scripts/validate.py .'
-  - step: 'Check GitHub Issues'
-    action: 'Search: https://github.com/eFAILution/AICaC/issues'
-  - step: 'Ask for help'
-    action: 'Open issue with: error message, steps to reproduce, environment details'
-
+  - step: Read the full error message
+    action: Note exact path, line, and rule name
+  - step: Search this file
+    action: Match symptom to an entry in .ai/errors.yaml
+  - step: Run validator
+    action: "python .github/actions/aicac-adoption/scripts/validate.py ."
+  - step: Check GitHub Issues
+    action: "https://github.com/eFAILution/AICaC/issues"
+  - step: Ask for help
+    action: Open a new issue with error message, steps to reproduce, and environment details
 support:
-  github_issues: 'https://github.com/eFAILution/AICaC/issues'
-  discussions: 'https://github.com/eFAILution/AICaC/discussions'
+  github_issues: https://github.com/eFAILution/AICaC/issues
+  discussions: https://github.com/eFAILution/AICaC/discussions

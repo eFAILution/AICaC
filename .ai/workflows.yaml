@@ -1,97 +1,94 @@
-version: '1.0'
+version: '2.0'
+summary: Common tasks for AICaC contributors — run token measurements, adopt AICaC in another project, update badges, generate TOON/index, contribute to the spec.
 workflows:
-  run_validation_experiment:
-    description: 'Run token efficiency measurements'
+  run_token_measurement:
+    description: Measure token consumption across README / AGENTS / AICaC formats (deterministic, free).
     steps:
       - action: install_dependencies
-        command: 'pip install anthropic tiktoken'
-      - action: run_measurement
-        command: 'python validation/scripts/token_measurement.py --all-formats --trials 10'
-      - action: analyze_results
-        location: 'Output printed to console with token counts'
-    estimated_time: '30-60 minutes'
+        command: pip install -r validation/requirements.txt
+      - action: prepare_variants
+        command: make prepare
+      - action: measure
+        command: make measure-all
     prerequisites:
-      - 'Anthropic API key in environment'
-      - 'Python 3.8+'
-
-  run_tests:
-    description: 'Run pytest suite for adoption action'
+      - Python 3.8+
+    reference: validation/README.md
+    touches_components: [validation_framework]
+  run_performance_experiment:
+    description: Measure AI response quality and latency across formats (uses AI APIs, may cost money).
     steps:
       - action: install_dependencies
-        command: 'pip install pytest pytest-cov pyyaml'
-      - action: run_tests
-        command: 'cd .github/actions/aicac-adoption && pytest'
-      - action: check_coverage
-        note: 'Coverage must be ≥80%'
-    reference: '.github/actions/aicac-adoption/TESTING.md'
-
-  adopt_aicac_in_project:
-    description: 'Add AICaC to an external project'
+        command: pip install -r validation/requirements.txt
+      - action: estimate_cost
+        command: make perf-estimate
+      - action: run_with_provider
+        command: "make perf-ollama  # or perf-groq (free) / perf-claude / perf-openai"
+    prerequisites:
+      - Provider credentials (API key or local Ollama)
+    reference: validation/docs/testing-framework.md
+    touches_components: [validation_framework]
+  run_tests:
+    description: Run pytest suite for the adoption action.
+    command: cd .github/actions/aicac-adoption && pytest
+    prerequisites:
+      - pip install pytest pytest-cov pyyaml jsonschema
+    reference: .github/actions/aicac-adoption/TESTING.md
+    touches_components: [adoption_action]
+  adopt_aicac:
+    description: Add AICaC to an external project.
     steps:
-      - action: create_ai_directory
-        command: 'mkdir .ai'
-      - action: copy_template
-        command: 'cp validation/examples/sample-project/.ai/context.yaml .ai/'
-      - action: customize_context
-        file: '.ai/context.yaml'
-        note: 'Fill in project-specific details'
-      - action: add_optional_files
-        files: ['architecture.yaml', 'workflows.yaml', 'decisions.yaml', 'errors.yaml']
-        note: 'Add as needed for higher compliance'
+      - action: bootstrap
+        command: python .github/actions/aicac-adoption/scripts/bootstrap.py /path/to/project
+      - action: customize
+        file: .ai/context.yaml
+        note: Fill in project-specific values, remove TODO markers.
+      - action: validate
+        command: python .github/actions/aicac-adoption/scripts/validate.py /path/to/project
       - action: add_badge
-        file: 'README.md'
-        badge: '[![AICaC](https://img.shields.io/badge/AICaC-Minimal-green.svg)](https://github.com/eFAILution/AICaC)'
+        file: README.md
+        note: Paste badge from validator output.
       - action: commit
-        command: 'git add .ai/ README.md && git commit -m "chore: adopt AICaC standard"'
-    reference: 'README.md#getting-started'
-
-  update_badge_level:
-    description: 'Update badge when adding more files'
-    steps:
-      - action: run_validator
-        command: 'python .github/actions/aicac-adoption/scripts/validate.py .'
-      - action: update_badge
-        command: 'python .github/actions/aicac-adoption/scripts/update_badge.py <LEVEL>'
-        note: 'Replace <LEVEL> with: Minimal, Standard, or Comprehensive'
-
+        command: 'git add .ai/ README.md && git commit -m "chore: adopt AICaC"'
+    reference: README.md
+    touches_components: [adoption_action]
+  validate_compliance:
+    description: Check a project meets AICaC v2.0 schema, cross-references, and quality heuristics.
+    command: python .github/actions/aicac-adoption/scripts/validate.py .
+    touches_components: [adoption_action]
+  update_badge:
+    description: Recompute and write compliance badge in README.md.
+    command: python .github/actions/aicac-adoption/scripts/update_badge.py <LEVEL> --project-path=.
+    touches_components: [badging_system, adoption_action]
+  generate_index:
+    description: Regenerate the optional .ai/index.yaml routing file.
+    command: python .github/actions/aicac-adoption/scripts/generate_index.py .
+    touches_components: [adoption_action]
+  generate_toon:
+    description: Regenerate optional TOON-encoded .ai/*.toon files for token-efficient loading.
+    command: python .github/actions/aicac-adoption/scripts/generate_toon.py .
+    touches_components: [adoption_action]
   contribute_to_spec:
-    description: 'Contribute to AICaC specification'
+    description: Propose a change to AICaC schemas or conventions.
     steps:
       - action: fork_repo
-        command: 'gh repo fork eFAILution/AICaC'
-      - action: create_branch
-        command: 'git checkout -b feature/my-contribution'
-      - action: make_changes
-        note: 'Edit specification or validation scripts'
+        command: gh repo fork eFAILution/AICaC
+      - action: branch
+        command: git checkout -b feat/my-change
+      - action: change_schema
+        location: spec/v2/
+        note: Update schema + whitepaper + at least one example (sample project or this repo's .ai/).
       - action: run_tests
-        command: 'cd .github/actions/aicac-adoption && pytest'
-      - action: commit
-        command: 'git commit -m "feat: add <feature>"'
-      - action: create_pr
-        command: 'gh pr create --title "feat: add <feature>"'
-
-  prepare_publication:
-    description: 'Prepare for academic publication'
-    steps:
-      - action: review_whitepaper
-        file: 'ai-context-as-code-whitepaper.md'
-      - action: check_validation_results
-        location: 'validation/examples/EXAMPLE_RESULTS.md'
-      - action: review_publication_roadmap
-        file: 'validation/docs/publication-roadmap.md'
-      - action: format_for_venue
-        note: 'Follow specific conference/journal templates'
-    reference: 'validation/docs/publication-roadmap.md'
-
+        command: cd .github/actions/aicac-adoption && pytest
+      - action: open_pr
+        command: gh pr create
+    touches_components: [specification]
 common_issues:
-  import_errors:
-    symptom: 'ModuleNotFoundError when running scripts'
-    solution: 'Install dependencies: pip install -r requirements.txt'
-
+  schema_validation_failed:
+    symptom: jsonschema.ValidationError when running validate.py
+    solution: Read the path in the error; consult spec/v2/*.schema.json for required shape.
   api_key_missing:
-    symptom: 'Anthropic API key not found'
-    solution: 'Set environment variable: export ANTHROPIC_API_KEY=your_key'
-
-  pytest_not_found:
-    symptom: 'pytest command not recognized'
-    solution: 'Install pytest: pip install pytest pytest-cov'
+    symptom: Anthropic API key not found
+    solution: "export ANTHROPIC_API_KEY=... (or use perf-ollama / perf-groq for free alternatives)"
+  pytest_import_error:
+    symptom: ModuleNotFoundError when running pytest
+    solution: Run from repo root; pytest.ini configures pythonpath.

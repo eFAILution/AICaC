@@ -1,67 +1,62 @@
-# .ai/architecture.yaml - Component Relationships
+version: '2.0'
+summary: Four-layer architecture — api (HTTP) → services (business logic) → db (SQLAlchemy) with models (Pydantic) used across layers.
 components:
-  - name: api
-    location: "src/taskflow/api/"
-    purpose: "HTTP route handlers"
+  api:
+    location: src/taskflow/api/
+    purpose: HTTP route handlers (FastAPI routers).
     files:
-      - tasks.py: "Task CRUD endpoints"
-      - projects.py: "Project endpoints"
+      - tasks.py: Task CRUD endpoints
+      - projects.py: Project endpoints
     depends_on:
       - services
       - models
-
-  - name: models
-    location: "src/taskflow/models/"
-    purpose: "Pydantic models for validation"
+  models:
+    location: src/taskflow/models/
+    purpose: Pydantic models for request/response validation.
     files:
-      - task.py: "Task, TaskCreate, TaskUpdate"
-      - project.py: "Project, ProjectCreate"
-
-  - name: services
-    location: "src/taskflow/services/"
-    purpose: "Business logic layer"
+      - task.py: Task, TaskCreate, TaskUpdate
+      - project.py: Project, ProjectCreate
+  services:
+    location: src/taskflow/services/
+    purpose: Business logic layer, reusable across endpoints.
     files:
-      - task_service.py: "Task operations"
+      - task_service.py: Task operations
     depends_on:
       - db
       - models
-
-  - name: db
-    location: "src/taskflow/db/"
-    purpose: "Database connection and queries"
+  db:
+    location: src/taskflow/db/
+    purpose: Database connection and queries (SQLAlchemy).
     files:
-      - database.py: "SQLAlchemy setup"
-
+      - database.py: SQLAlchemy setup
 interfaces:
   Task:
-    location: "src/taskflow/models/task.py"
+    location: src/taskflow/models/task.py
     attributes:
-      - id: "int"
-      - title: "str"
-      - description: "str | None"
-      - priority: "Priority enum"
-      - status: "Status enum"
-      - due_date: "datetime | None"
-      - project_id: "int | None"
-
+      - id: int
+      - title: str
+      - description: str | None
+      - priority: Priority enum
+      - status: Status enum
+      - due_date: datetime | None
+      - project_id: int | None
 data_flow:
   create_task:
     - step: 1
       component: api
-      action: "Receive POST /tasks"
+      action: Receive POST /tasks
     - step: 2
       component: models
-      action: "Validate with TaskCreate"
+      action: Validate with TaskCreate
     - step: 3
       component: services
-      action: "Create task in database"
+      action: Create task in database
     - step: 4
       component: api
-      action: "Return Task response"
-
+      action: Return Task response
 extension_points:
-  - name: "New endpoint"
-    location: "src/taskflow/api/"
-    registration: "src/taskflow/main.py"
-  - name: "New model"
-    location: "src/taskflow/models/"
+  - name: New endpoint
+    location: src/taskflow/api/
+    registration: src/taskflow/main.py
+  - name: New model
+    location: src/taskflow/models/
