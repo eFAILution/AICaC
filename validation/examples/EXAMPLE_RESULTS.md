@@ -91,11 +91,12 @@ make measure-all
 
 ## What's not in this file
 
-- **AI response quality / task success rate** — run
-  `make perf-groq` or `make perf-claude` via `performance_measurement.py`.
-  Those experiments are non-deterministic and produce the variance-based
-  statistics (t-tests, Cohen's d, confidence intervals) that `token_measurement.py`
-  cannot.
+- **AI response quality / task success rate** — see the pilot run in
+  [`results/2026-04-live-claude-pilot.md`](results/2026-04-live-claude-pilot.md)
+  (n=12, sub-agent-based, AICAC_SELECTIVE scored 100% vs AGENTS_ONLY at 50%
+  and README_ONLY at 25% while using 15% fewer tokens than AGENTS_ONLY).
+  Run `make perf-groq` or `make perf-claude` via `performance_measurement.py`
+  for a larger trial count with real API calls and per-trial variance.
 - **Cross-repository validation** — needs to be replicated on ≥5 projects of
   varying sizes. See [docs/publication-roadmap.md](docs/publication-roadmap.md).
 

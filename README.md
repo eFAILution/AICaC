@@ -46,10 +46,24 @@ Per-query-category wins differ sharply:
 - **Architecture / workflow queries**: within ~5% of AGENTS.md. Wins would
   likely grow on larger projects but that needs cross-repo replication.
 
+### Live Claude pilot (n=12)
+
+A small sub-agent-based live run ([`results/2026-04-live-claude-pilot.md`](validation/examples/results/2026-04-live-claude-pilot.md))
+gives an early read on *answer quality*, not just token count:
+
+| Format            | Accuracy  | Context tokens | Notes                                |
+|-------------------|----------:|---------------:|--------------------------------------|
+| README_ONLY       | 25%       | 859            | Answered only the one "how-to" that prose covered |
+| AGENTS_ONLY       | 50%       | 1,299          | *Helpfully* failed by naming the `.ai/` file it needed |
+| AICAC_SELECTIVE   | **100%**  | 1,106          | 15% fewer tokens than AGENTS.md, twice the accuracy |
+
+Caveat: n=1 per cell; publication-grade numbers need ≥30 trials via
+`performance_measurement.py` against a real API.
+
 **Honest headline:** AICaC without a router makes things worse. With the
 router pattern demonstrated in [`sample-project/AGENTS.md`](validation/examples/sample-project/AGENTS.md),
-it's a net win versus `AGENTS.md` alone and a large win for the query types
-AI tools answer most often.
+the current pilot data shows it wins on both token count and answer
+accuracy.
 
 *Prior versions of this README cited a "40-60% token reduction" figure that
 was not empirically grounded. v2.0 replaces that claim with the measurements
