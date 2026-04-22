@@ -106,7 +106,8 @@ version = "0.1.0"
         with open(context_path) as f:
             context = yaml.safe_load(f)
 
-        assert context['project']['type'] == 'application'  # Fallback
+        # v2.0 canonicalizes undetected types to 'other' (enum-safe).
+        assert context['project']['type'] == 'other'
 
     def test_create_with_ai_placeholder(self, temp_project_dir):
         """Test create_with_ai returns minimal structure for now."""

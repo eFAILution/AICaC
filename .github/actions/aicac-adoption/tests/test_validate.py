@@ -58,9 +58,23 @@ class TestAICaCValidator:
         """Test validation of standard compliance."""
         ai_dir = aicac_project / '.ai'
 
-        # Add two optional files
-        (ai_dir / 'architecture.yaml').write_text('components: {}')
-        (ai_dir / 'workflows.yaml').write_text('workflows: {}')
+        (ai_dir / 'architecture.yaml').write_text(
+            'version: "2.0"\n'
+            'components:\n'
+            '  api:\n'
+            '    location: src/api/\n'
+            '    purpose: HTTP route handlers\n'
+        )
+        (ai_dir / 'workflows.yaml').write_text(
+            'version: "2.0"\n'
+            'workflows:\n'
+            '  run_tests:\n'
+            '    description: Run the test suite\n'
+            '    command: npm test\n'
+            '  start_dev:\n'
+            '    description: Start dev server\n'
+            '    command: npm run dev\n'
+        )
 
         validator = AICaCValidator(str(aicac_project))
         result = validator.validate()

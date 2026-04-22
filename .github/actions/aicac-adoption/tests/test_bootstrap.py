@@ -75,9 +75,10 @@ class TestAICaCBootstrap:
         with open(context_path) as f:
             context = yaml.safe_load(f)
 
-        assert context['version'] == '1.0'
+        assert context['version'] == '2.0'
         assert context['project']['name'] == 'test-node-project'
-        assert context['project']['type'] == 'node-app'
+        # node-app maps to canonical 'web-app' in v2.0
+        assert context['project']['type'] == 'web-app'
         assert 'entrypoints' in context
         assert 'common_tasks' in context
 
@@ -160,4 +161,4 @@ class TestAICaCBootstrap:
         assert context_path.exists()
         with open(context_path) as f:
             context = yaml.safe_load(f)
-        assert context['version'] == '1.0'
+        assert context['version'] == '2.0'

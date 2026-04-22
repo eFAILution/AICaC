@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eFAILution/AICaC/spec/v2/context.schema.json",
+  "title": "AICaC context.yaml",
+  "description": "Project metadata, entry points, and routing information for the .ai/ directory.",
+  "type": "object",
+  "required": ["version", "project", "entrypoints"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^(1|2)\\.[0-9]+(\\.[0-9]+)?$",
+      "description": "AICaC schema version this file targets (e.g. '2.0')."
+    },
+    "schema": {
+      "type": "string",
+      "description": "Optional URI of the schema used to validate this file."
+    },
+    "project": {
+      "type": "object",
+      "required": ["name", "type", "description"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "type": {
+          "type": "string",
+          "enum": [
+            "rest-api",
+            "graphql-api",
+            "grpc-service",
+            "cli",
+            "library",
+            "web-app",
+            "mobile-app",
+            "data-pipeline",
+            "ml-model",
+            "infrastructure",
+            "specification",
+            "monorepo",
+            "desktop-app",
+            "plugin",
+            "other"
+          ],
+          "description": "Canonical project type. Use 'other' with type_detail for exotic cases."
+        },
+        "type_detail": {
+          "type": "string",
+          "description": "Free-form refinement when type='other'."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 10,
+          "description": "One-line project description (<= 200 chars recommended)."
+        },
+        "primary_language": { "type": "string" },
+        "languages": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "repository": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "additionalProperties": true
+    },
+    "summary": {
+      "type": "string",
+      "maxLength": 280,
+      "description": "One-sentence summary suitable for a router/index file. Token-cheap."
+    },
+    "entrypoints": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "type": "string" },
+      "description": "Map of entrypoint name -> path (e.g. cli: src/main.py)."
+    },
+    "context_modules": {
+      "type": "object",
+      "properties": {
+        "architecture": { "type": "string" },
+        "workflows": { "type": "string" },
+        "decisions": { "type": "string" },
+        "errors": { "type": "string" },
+        "tests": { "type": "string" },
+        "glossary": { "type": "string" }
+      },
+      "additionalProperties": { "type": "string" }
+    },
+    "common_tasks": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "type": "string" },
+      "description": "Frequently-run commands keyed by short name."
+    },
+    "common_commands": {
+      "type": "object",
+      "deprecated": true,
+      "description": "DEPRECATED in v2.0: use common_tasks.",
+      "additionalProperties": { "type": "string" }
+    },
+    "constraints": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "platforms": {
+      "type": "object",
+      "properties": {
+        "supported": { "type": "array", "items": { "type": "string" } },
+        "constraints": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "anyOf": [
+    { "required": ["common_tasks"] },
+    { "required": ["common_commands"] }
+  ],
+  "additionalProperties": true
+}

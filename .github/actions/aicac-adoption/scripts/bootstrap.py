@@ -86,16 +86,27 @@ class AICaCBootstrap:
 
         files_created = []
 
-        # Create context.yaml
+        # Map detected project_type to canonical enum (v2.0)
+        type_map = {
+            'node-app': 'web-app',
+            'python-app': 'cli',
+            'rust-app': 'cli',
+            'go-app': 'cli',
+            'application': 'other',
+        }
+        detected_type = analysis.get('project_type', 'application')
+        canonical_type = type_map.get(detected_type, 'other')
+
         context = {
-            'version': '1.0',
+            'version': '2.0',
+            'summary': f"TODO: one-line summary of {analysis['project_name']}",
             'project': {
                 'name': analysis['project_name'],
-                'type': analysis.get('project_type', 'application'),
-                'description': 'TODO: Add project description',
+                'type': canonical_type,
+                'description': 'TODO: Add project description (at least 10 characters)',
             },
             'entrypoints': {
-                'main': 'TODO: Add main entrypoint',
+                'main': 'TODO: Add main entrypoint path',
             },
             'common_tasks': {
                 'dev': 'TODO: Add development command',
