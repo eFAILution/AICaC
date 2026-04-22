@@ -1,74 +1,72 @@
-version: '1.0'
+version: '2.0'
+summary: Four components — the spec (schemas + whitepaper), validation harness, GitHub Action tooling, and the Claude Code skill — layered as spec / validation / tooling.
 components:
   specification:
-    description: 'Core AICaC specification and whitepaper'
-    location: 'ai-context-as-code-whitepaper.md'
-    purpose: 'Defines the .ai/ directory convention and structured documentation approach'
-    dependencies: []
-
+    location: ai-context-as-code-whitepaper.md
+    purpose: Defines the .ai/ directory convention and JSON Schemas.
+    files:
+      - ai-context-as-code-whitepaper.md: Narrative whitepaper
+      - spec/v2/context.schema.json: Canonical context schema
+      - spec/v2/architecture.schema.json: Canonical architecture schema
+      - spec/v2/workflows.schema.json: Canonical workflows schema
+      - spec/v2/decisions.schema.json: Canonical decisions schema
+      - spec/v2/errors.schema.json: Canonical errors schema
+      - spec/v2/index.schema.json: Optional routing index schema
   validation_framework:
-    description: 'Empirical validation and token measurement scripts'
-    location: 'validation/'
-    purpose: 'Measure token efficiency and validate AICaC claims'
-    key_files:
-      - 'validation/scripts/token_measurement.py'
-      - 'validation/docs/testing-framework.md'
-      - 'validation/docs/quick-start.md'
-    dependencies:
-      - anthropic
+    location: validation/
+    purpose: Measures token efficiency across documentation formats and AI response quality.
+    files:
+      - validation/scripts/token_measurement.py: Deterministic token accounting
+      - validation/scripts/performance_measurement.py: AI response quality + latency
+      - validation/scripts/yaml_to_toon.py: Optional TOON re-encoding
+      - validation/docs/testing-framework.md: Methodology
+    external_dependencies:
       - tiktoken
-
+      - anthropic
   adoption_action:
-    description: 'GitHub Action for automated AICaC adoption and maintenance'
-    location: '.github/actions/aicac-adoption/'
-    purpose: 'Bootstrap .ai/ directories and validate compliance'
-    key_files:
-      - '.github/actions/aicac-adoption/action.yml'
-      - '.github/actions/aicac-adoption/scripts/bootstrap.py'
-      - '.github/actions/aicac-adoption/scripts/validate.py'
-      - '.github/actions/aicac-adoption/scripts/update_badge.py'
-    dependencies:
+    location: .github/actions/aicac-adoption/
+    purpose: Bootstrap .ai/, validate compliance, update badge, optionally generate TOON.
+    files:
+      - .github/actions/aicac-adoption/action.yml: Composite action definition
+      - .github/actions/aicac-adoption/scripts/bootstrap.py: Bootstrap .ai/ scaffolding
+      - .github/actions/aicac-adoption/scripts/validate.py: Schema + xref + quality validator
+      - .github/actions/aicac-adoption/scripts/update_badge.py: README badge updater
+      - .github/actions/aicac-adoption/scripts/generate_toon.py: Optional TOON generator
+      - .github/actions/aicac-adoption/scripts/generate_index.py: Optional index.yaml generator
+    external_dependencies:
       - pyyaml
-
+      - jsonschema
+  claude_code_skill:
+    location: .claude/skills/aicac/
+    purpose: Bridge the gap before native AI-tool support — teach Claude Code to route, bootstrap, validate, and keep .ai/ in sync.
+    files:
+      - .claude/skills/aicac/SKILL.md: Skill frontmatter and quick-reference
+      - .claude/skills/aicac/router.md: Query-type to file mapping
+      - .claude/skills/aicac/bootstrap.md: Bootstrap recipes per project type
+      - .claude/skills/aicac/validate.md: Validation checklist + schema refs
+      - .claude/skills/aicac/sync.md: How to keep .ai/ in sync with code changes
   badging_system:
-    description: 'Badge generation and compliance levels'
-    location: 'BADGES.md'
-    purpose: 'Provide visual indicators of AICaC adoption level'
-    compliance_levels:
-      - 'None: No .ai/ directory'
-      - 'Minimal: context.yaml only'
-      - 'Standard: context.yaml + 2 optional files'
-      - 'Comprehensive: All core files present'
-
-  documentation:
-    description: 'Supporting documentation and examples'
-    location: 'validation/docs/'
-    purpose: 'Guide researchers and developers'
-    key_files:
-      - 'README.md'
-      - 'BADGES.md'
-      - 'validation/docs/publication-roadmap.md'
-
+    location: BADGES.md
+    purpose: Visual indicators of AICaC adoption level, driven by validator output.
+dependencies:
+  pyyaml:
+    purpose: Parse YAML files
+    critical: true
+  jsonschema:
+    purpose: Validate .ai/ files against spec/v2/ schemas
+    critical: true
+  tiktoken:
+    purpose: Count GPT-family tokens deterministically
+    critical: false
+    alternatives_considered:
+      - anthropic.count_tokens
 layers:
-  - name: 'Specification Layer'
-    components: ['specification', 'documentation']
-    description: 'Defines what AICaC is and how to implement it'
-
-  - name: 'Validation Layer'
-    components: ['validation_framework']
-    description: 'Empirically validates AICaC effectiveness'
-
-  - name: 'Tooling Layer'
-    components: ['adoption_action', 'badging_system']
-    description: 'Tools to adopt and maintain AICaC compliance'
-
-integration_points:
-  github_actions:
-    description: 'Workflow automation for AICaC maintenance'
-    file: '.github/workflows/validate-aicac.yml'
-    triggers: ['push to main', 'pull requests', 'manual dispatch']
-
-  pytest:
-    description: 'Test suite for adoption action scripts'
-    file: 'pytest.ini'
-    coverage_threshold: '80%'
+  - name: Specification Layer
+    components: [specification]
+    description: Authoritative shapes and meaning.
+  - name: Validation Layer
+    components: [validation_framework]
+    description: Empirical measurement and publication artifacts.
+  - name: Tooling Layer
+    components: [adoption_action, badging_system, claude_code_skill]
+    description: Makes adoption and maintenance frictionless.

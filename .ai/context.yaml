@@ -1,19 +1,34 @@
-version: '1.0'
+version: '2.0'
+summary: AICaC — the .ai/ directory convention + JSON schemas + tooling for token-efficient, machine-readable project context.
 project:
-  name: 'AICaC'
+  name: AICaC
   type: specification
-  description: 'AI Context as Code - A structured approach to AI-readable project documentation using YAML-based .ai/ directory convention'
-  repository: 'https://github.com/eFAILution/AICaC'
+  description: Structured YAML context for AI coding assistants, with JSON Schema validation, a Claude Code skill, and a GitHub Action for adoption and maintenance.
+  repository: https://github.com/eFAILution/AICaC
+  primary_language: python
   languages:
     - python
     - markdown
     - yaml
 entrypoints:
-  whitepaper: 'ai-context-as-code-whitepaper.md'
-  validation_scripts: 'validation/scripts/token_measurement.py'
-  adoption_action: '.github/actions/aicac-adoption/action.yml'
-  badge_guide: 'BADGES.md'
+  whitepaper: ai-context-as-code-whitepaper.md
+  spec: spec/README.md
+  schemas: spec/v2/
+  skill: .claude/skills/aicac/SKILL.md
+  validation_scripts: validation/scripts/token_measurement.py
+  adoption_action: .github/actions/aicac-adoption/action.yml
+  badge_guide: BADGES.md
+context_modules:
+  architecture: architecture.yaml
+  workflows: workflows.yaml
+  decisions: decisions.yaml
+  errors: errors.yaml
 common_tasks:
-  test: 'cd .github/actions/aicac-adoption && pytest'
-  validate: 'python validation/scripts/token_measurement.py --all-formats'
-  lint: 'python -m pylint validation/scripts/ .github/actions/aicac-adoption/scripts/'
+  test: cd .github/actions/aicac-adoption && pytest
+  validate: python .github/actions/aicac-adoption/scripts/validate.py .
+  measure: make measure
+  lint: python -m pylint validation/scripts/ .github/actions/aicac-adoption/scripts/
+constraints:
+  - Every .ai/ file must validate against spec/v2/*.schema.json
+  - No secrets, internal IPs, or proprietary algorithms in .ai/
+  - Changes to .ai/ structure require a corresponding schema update

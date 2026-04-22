@@ -1,54 +1,51 @@
-# .ai/errors.yaml - Common Errors and Solutions
-error_patterns:
-  - pattern: "Task not found"
-    context: "Accessing a task that doesn't exist"
+version: '2.0'
+summary: Common TaskFlow errors — task not found, validation, db locked, port in use, import error.
+errors:
+  TASK_NOT_FOUND:
+    symptom: Task not found
+    context: Accessing a task that does not exist.
     solutions:
-      - description: "Check task ID exists"
-        code: "GET /tasks to list all tasks"
-      - description: "Task may have been deleted"
-
-  - pattern: "Validation error"
-    context: "Request body doesn't match expected schema"
+      - description: Check task id exists
+        command: GET /tasks
+      - Task may have been deleted
+  VALIDATION_ERROR:
+    symptom: Validation error
+    context: Request body doesn't match expected schema.
     solutions:
-      - description: "Check required fields"
-        required_fields:
-          - title: "string, required"
-          - priority: "low|medium|high, optional"
-      - description: "See /docs for schema"
-
-  - pattern: "Database locked"
-    context: "SQLite concurrent access issue"
+      - Check required fields (title required; priority optional low|medium|high)
+      - See /docs for schema
+  DATABASE_LOCKED:
+    symptom: Database locked
+    context: SQLite concurrent access issue.
     solutions:
-      - description: "Check for other connections"
-        command: "lsof tasks.db"
-      - description: "Restart the server"
-      - description: "Use PostgreSQL for production"
-
-  - pattern: "Port already in use"
-    context: "Server can't start"
+      - description: Check for other connections
+        command: lsof tasks.db
+      - Restart the server
+      - Use PostgreSQL for production
+  PORT_IN_USE:
+    symptom: Port already in use
+    context: Server can't start.
     solutions:
-      - description: "Kill existing process"
+      - description: Kill existing process
         command: "lsof -ti:8000 | xargs kill"
-      - description: "Use different port"
-        command: "taskflow serve --port 8080"
-
-  - pattern: "Import error: taskflow"
-    context: "Package not installed"
+      - description: Use a different port
+        command: taskflow serve --port 8080
+  IMPORT_ERROR_TASKFLOW:
+    symptom: "Import error: taskflow"
+    context: Package not installed in current environment.
     solutions:
-      - description: "Install in dev mode"
-        command: "pip install -e ."
-      - description: "Activate virtualenv"
-        command: "source venv/bin/activate"
-
+      - description: Install in dev mode
+        command: pip install -e .
+      - description: Activate virtualenv
+        command: source venv/bin/activate
 common_fixes:
   reset_database:
-    description: "Start fresh"
-    command: "rm tasks.db && taskflow serve"
-
+    description: Start fresh
+    command: rm tasks.db && taskflow serve
   reinstall:
-    description: "Clean reinstall"
+    description: Clean reinstall
     commands:
-      - "rm -rf venv"
-      - "python -m venv venv"
-      - "source venv/bin/activate"
-      - "pip install -e .[dev]"
+      - rm -rf venv
+      - python -m venv venv
+      - source venv/bin/activate
+      - pip install -e .[dev]

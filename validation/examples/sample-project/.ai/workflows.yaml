@@ -1,10 +1,11 @@
-# .ai/workflows.yaml - Common Tasks
+version: '2.0'
+summary: Common TaskFlow workflows — add endpoint, run tests, start server, format code.
 workflows:
   add_endpoint:
-    description: "Add a new API endpoint"
+    description: Add a new API endpoint with matching model and test.
     steps:
       - action: create_file
-        location: "src/taskflow/api/{resource}.py"
+        location: src/taskflow/api/{resource}.py
         template: |
           from fastapi import APIRouter
           router = APIRouter(prefix="/{resource}s", tags=["{resource}s"])
@@ -17,7 +18,7 @@ workflows:
           def create_{resource}():
               pass
       - action: create_file
-        location: "src/taskflow/models/{resource}.py"
+        location: src/taskflow/models/{resource}.py
         template: |
           from pydantic import BaseModel
 
@@ -28,33 +29,26 @@ workflows:
           class {Resource}Create(BaseModel):
               name: str
       - action: modify_file
-        file: "src/taskflow/main.py"
-        add_import: "from taskflow.api import {resource}"
-        add_line: "app.include_router({resource}.router)"
+        file: src/taskflow/main.py
+        add_import: from taskflow.api import {resource}
+        add_line: app.include_router({resource}.router)
       - action: create_file
-        location: "tests/test_{resource}.py"
-    reference: "src/taskflow/api/tasks.py"
-
+        location: tests/test_{resource}.py
+    reference: src/taskflow/api/tasks.py
+    touches_components: [api, models]
   run_tests:
-    description: "Run test suite"
-    command: "pytest"
+    description: Run test suite.
+    command: pytest
     options:
-      verbose: "pytest -v"
-      coverage: "pytest --cov=taskflow"
-      single: "pytest {file}"
-
+      verbose: pytest -v
+      coverage: pytest --cov=taskflow
+      single: pytest {file}
   start_server:
-    description: "Start development server"
-    command: "taskflow serve --reload"
+    description: Start development server.
+    command: taskflow serve --reload
     options:
-      production: "uvicorn taskflow.main:app"
-      custom_port: "taskflow serve --port {port}"
-
+      production: uvicorn taskflow.main:app
+      custom_port: taskflow serve --port {port}
   format_code:
-    description: "Format code"
-    command: "black src/ tests/"
-
-common_commands:
-  dev: "taskflow serve --reload"
-  test: "pytest"
-  format: "black src/ tests/"
+    description: Format source code with Black.
+    command: black src/ tests/

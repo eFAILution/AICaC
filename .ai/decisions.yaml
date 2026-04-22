@@ -1,157 +1,178 @@
-version: '1.0'
+version: '2.0'
+summary: Eight accepted ADRs covering format choices (YAML, dot-directory), compliance levels, licensing, validation methodology, graceful degradation, and the v2.0 canonical-dict migration.
 decisions:
-  ADR001_yaml_over_json:
+  ADR-001:
+    title: YAML over JSON for .ai/ files
     date: '2026-01'
     status: accepted
-    context: 'Need structured format for .ai/ directory that is both machine-readable and human-friendly'
-    decision: 'Use YAML as primary format instead of JSON'
+    context: Need structured format that is both machine-readable and human-friendly for hand editing.
+    decision: Use YAML as the canonical authoring format.
     rationale:
-      - 'More human-readable with comments support'
-      - 'Less verbose than JSON (fewer tokens)'
-      - 'Native multi-line string support'
-      - 'Standard in many DevOps workflows'
+      - More human-readable with comments support
+      - Less verbose than JSON (fewer tokens)
+      - Native multi-line string support
+      - Standard in many DevOps workflows
     consequences:
       positive:
-        - 'Easier for developers to read and edit'
-        - 'Better token efficiency than JSON'
-        - 'Supports inline documentation with comments'
+        - Easier for developers to read and edit
+        - Better token efficiency than JSON
+        - Supports inline documentation with comments
       negative:
-        - 'Indentation-sensitive (can cause errors)'
-        - 'Requires YAML parser library'
+        - Indentation-sensitive (can cause errors)
+        - Requires YAML parser library
     alternatives_considered:
-      - 'JSON: More strict but verbose'
-      - 'TOML: Good but less widespread'
-      - 'Markdown tables: Not machine-parseable enough'
-
-  ADR002_dot_ai_directory:
+      - name: JSON
+        rejected_because: More strict but verbose
+      - name: TOML
+        rejected_because: Good but less widespread for this shape
+      - name: Markdown tables
+        rejected_because: Not machine-parseable enough
+  ADR-002:
+    title: .ai/ directory convention
     date: '2026-01'
     status: accepted
-    context: 'Need dedicated location for AI-specific context that does not conflict with existing conventions'
-    decision: 'Use .ai/ as the standard directory name'
+    context: Need a dedicated location for AI-specific context that does not conflict with existing conventions.
+    decision: Use .ai/ as the standard directory name.
     rationale:
-      - 'Clearly signals AI-specific content'
-      - 'Dot-prefix follows Unix convention for config'
-      - 'Does not conflict with existing standards'
-      - 'Easy to .gitignore if needed'
+      - Clearly signals AI-specific content
+      - Dot-prefix follows Unix convention for config
+      - Does not conflict with existing standards
+      - Easy to .gitignore if needed
     consequences:
       positive:
-        - 'Clear separation from human docs'
-        - 'Standard location for AI tools to look'
-        - 'Follows established patterns'
+        - Clear separation from human docs
+        - Standard location for AI tools to look
+        - Follows established patterns
       negative:
-        - 'Hidden by default in some file explorers'
-        - 'Requires documentation of purpose'
+        - Hidden by default in some file explorers
+        - Requires documentation of purpose
     alternatives_considered:
-      - 'ai/: Visible but might conflict with code'
-      - '.aicac/: More specific but longer'
-      - 'docs/ai/: Mixed with human documentation'
-
-  ADR003_compliance_levels:
+      - name: ai/
+        rejected_because: Visible but risks conflict with code
+      - name: .aicac/
+        rejected_because: More specific but longer
+      - name: docs/ai/
+        rejected_because: Mixed with human documentation
+  ADR-003:
+    title: Four compliance levels
     date: '2026-01'
     status: accepted
-    context: 'Need way to measure and communicate degree of AICaC adoption'
-    decision: 'Define four compliance levels: None, Minimal, Standard, Comprehensive'
+    context: Need a way to measure and communicate AICaC adoption without demanding comprehensiveness on day one.
+    decision: 'Four levels: None, Minimal, Standard, Comprehensive.'
     rationale:
-      - 'Encourages gradual adoption'
-      - 'Allows projects to start small'
-      - 'Provides clear upgrade path'
-      - 'Enables badge system'
+      - Encourages gradual adoption
+      - Allows projects to start small
+      - Provides clear upgrade path
+      - Enables badge system
     consequences:
       positive:
-        - 'Lowers barrier to entry'
-        - 'Visual progress indicator via badges'
-        - 'Clear requirements for each level'
+        - Lowers barrier to entry
+        - Visual progress indicator via badges
+        - Clear requirements for each level
       negative:
-        - 'May encourage minimal compliance'
-        - 'Requires maintenance of multiple examples'
-    levels:
-      None: 'No .ai/ directory'
-      Minimal: 'context.yaml only'
-      Standard: 'context.yaml + 2 optional files'
-      Comprehensive: 'All 5 core files (context, architecture, workflows, decisions, errors)'
-
-  ADR004_github_action_automation:
+        - May encourage minimal compliance
+        - Requires maintenance of multiple examples
+    implementation: .github/actions/aicac-adoption/scripts/validate.py
+  ADR-004:
+    title: GitHub Action for adoption & maintenance
     date: '2026-01'
     status: accepted
-    context: 'Manual adoption and maintenance is time-consuming and error-prone'
-    decision: 'Provide GitHub Action for automated bootstrap and validation'
+    context: Manual adoption and maintenance is time-consuming and error-prone.
+    decision: Ship a composite GitHub Action for bootstrap, validation, and badge updates.
     rationale:
-      - 'Reduces friction for adoption'
-      - 'Ensures consistent structure'
-      - 'Automates badge updates'
-      - 'CI integration for validation'
+      - Reduces friction for adoption
+      - Ensures consistent structure
+      - Automates badge updates
+      - CI integration for validation
     consequences:
       positive:
-        - 'One-click adoption for GitHub projects'
-        - 'Automatic validation in CI'
-        - 'Keeps badges up-to-date'
+        - One-click adoption for GitHub projects
+        - Automatic validation in CI
+        - Keeps badges up-to-date
       negative:
-        - 'GitHub-specific (not GitLab/Bitbucket)'
-        - 'Requires maintenance of action code'
-    implementation: '.github/actions/aicac-adoption/'
-
-  ADR005_dual_license_structure:
+        - GitHub-specific (not GitLab/Bitbucket)
+        - Requires maintenance of action code
+    implementation: .github/actions/aicac-adoption/
+    affects_components: [adoption_action]
+  ADR-005:
+    title: Dual-license (MIT code, CC BY-SA docs)
     date: '2026-01'
     status: accepted
-    context: 'Need to balance open source ethos with academic attribution and prevent proprietary standard forks'
-    decision: 'Use dual license: MIT for code, CC BY-SA 4.0 for documentation'
+    context: Balance open-source ethos with academic attribution and prevent proprietary standard forks.
+    decision: MIT for code, CC BY-SA 4.0 for documentation and specification.
     rationale:
-      - 'MIT allows maximum tool integration'
-      - 'CC BY-SA prevents proprietary standard forks'
-      - 'Academic attribution via CC BY-SA'
-      - 'Standard approach for specifications'
+      - MIT allows maximum tool integration
+      - CC BY-SA prevents proprietary standard forks
+      - Academic attribution via CC BY-SA
+      - Standard approach for specifications
     consequences:
       positive:
-        - 'Code can be integrated into any project'
-        - 'Specification remains open and attributed'
-        - 'Derivatives must remain open'
+        - Code can be integrated into any project
+        - Specification remains open and attributed
+        - Derivatives must remain open
       negative:
-        - 'Two licenses to manage'
-        - 'Potential confusion for contributors'
-    files:
-      code: 'validation/scripts/, .github/actions/ - MIT'
-      docs: 'whitepaper, README, validation docs - CC BY-SA 4.0'
-
-  ADR006_validation_methodology:
+        - Two licenses to manage
+        - Potential confusion for contributors
+  ADR-006:
+    title: Empirical validation methodology
     date: '2026-01'
     status: accepted
-    context: 'Claims of token efficiency need empirical backing'
-    decision: 'Build controlled experiments measuring token counts across formats'
+    context: Efficiency claims need backing that stands up to academic review.
+    decision: Build controlled experiments measuring token counts and AI response quality across documentation formats.
     rationale:
-      - 'Provides scientific rigor'
-      - 'Enables publication in academic venues'
-      - 'Demonstrates real-world value'
-      - 'Allows community to replicate'
+      - Provides scientific rigor
+      - Enables publication in academic venues
+      - Demonstrates real-world value
+      - Allows community replication
     consequences:
       positive:
-        - 'Credible efficiency claims'
-        - 'Publishable research'
-        - 'Transparent methodology'
+        - Credible efficiency claims
+        - Publishable research
+        - Transparent methodology
       negative:
-        - 'Time-intensive to execute'
-        - 'Requires API access and costs'
-    implementation: 'validation/scripts/token_measurement.py'
-    reference: 'validation/docs/testing-framework.md'
-
-  ADR007_graceful_degradation:
+        - Time-intensive to execute
+        - Requires API access and costs
+    implementation: validation/scripts/token_measurement.py
+    reference: validation/docs/testing-framework.md
+    affects_components: [validation_framework]
+  ADR-007:
+    title: Graceful degradation alongside README.md and AGENTS.md
     date: '2026-01'
     status: accepted
-    context: 'AICaC should complement, not replace existing documentation conventions'
-    decision: 'Design .ai/ to work alongside README.md and AGENTS.md'
+    context: AICaC should complement, not replace, existing conventions.
+    decision: .ai/ is additive — AGENTS.md acts as a router, README.md remains human-facing, .ai/ holds structured data.
     rationale:
-      - 'Existing conventions are valuable'
-      - 'Allows gradual migration'
-      - 'Different audiences (human vs AI)'
-      - 'Reduces adoption friction'
+      - Existing conventions are valuable
+      - Allows gradual migration
+      - Different audiences (human vs AI)
+      - Reduces adoption friction
     consequences:
       positive:
-        - 'No breaking changes to existing projects'
-        - 'Can reference between formats'
-        - 'Works with current tooling'
+        - No breaking changes to existing projects
+        - Can reference between formats
+        - Works with current tooling
       negative:
-        - 'Potential for duplication'
-        - 'Requires cross-referencing strategy'
-    strategy:
-      - 'README.md: Human-facing intro'
-      - 'AGENTS.md: Cross-tool AI instructions, references .ai/'
-      - '.ai/: Structured machine-readable data'
+        - Potential for duplication between files
+        - Requires cross-referencing strategy
+  ADR-008:
+    title: v2.0 canonical dict-keyed shapes + JSON Schemas
+    date: '2026-04'
+    status: accepted
+    context: v1.x allowed both list and dict forms for components/decisions/errors; whitepaper, repo .ai/, and sample project each used different shapes, blocking schema-driven tooling and cross-reference validation.
+    decision: v2.0 canonicalizes on dict-keyed-by-id shape and ships JSON Schemas in spec/v2/. The validator accepts v1.x list form with a DEPRECATION warning.
+    rationale:
+      - Direct lookup by id is token-cheap (supports AICaC's queryability principle)
+      - Stable ids enable cross-reference validation (touches_components, affects_components)
+      - Merge conflicts stay local to one entry
+      - Schema-driven validation replaces hand-rolled field checks
+    consequences:
+      positive:
+        - Tool vendors can consume a real JSON Schema
+        - Cross-references (workflow -> component, ADR -> component) can be validated
+        - index.yaml becomes meaningful (lists ids, not prose)
+      negative:
+        - Existing v1.x adopters see deprecation warnings
+        - One-time migration of whitepaper/sample examples
+    implementation: spec/v2/
+    affects_components: [specification, adoption_action, claude_code_skill]
+    superseded_by: null
