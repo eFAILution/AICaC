@@ -35,3 +35,7 @@ htmlcov/
 # Results (keep examples, ignore user-generated)
 results*.json
 !validation/examples/EXAMPLE_RESULTS.md
+
+# Real-world validation scratch — local clones of upstream projects used for
+# ad-hoc efficiency testing. Each carries its own .git; don't vendor.
+validation/real-world-projects/
