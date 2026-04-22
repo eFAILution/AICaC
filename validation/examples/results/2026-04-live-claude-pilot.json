@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "run_date": "2026-04-21",
+    "approach": "Sub-agent-based live Claude experiment. Each of 12 (4 questions x 3 formats) tasks spawned a Claude Code sub-agent that was given ONLY a pre-built context file and asked to answer using no other sources.",
+    "model": "Claude (Claude Code sub-agent, general-purpose subagent_type)",
+    "limitations": [
+      "Sub-agents carry Claude Code's system prompt overhead (total_tokens includes ~13K of harness overhead; context_tokens is the AICaC-relevant portion).",
+      "N=1 per cell (no repeat trials); accuracy is a deterministic-ish yes/no and durations are single-shot.",
+      "Sub-agent scheduling variance makes per-call latency noisy; trends hold across the small sample but absolute numbers should not be quoted as benchmarks."
+    ],
+    "repo": "validation/examples/sample-project",
+    "formats": ["README_ONLY", "AGENTS_ONLY", "AICAC_SELECTIVE"]
+  },
+  "accuracy_by_format": {
+    "README_ONLY":      {"correct": 1, "total": 4, "pct": 25.0},
+    "AGENTS_ONLY":      {"correct": 2, "total": 4, "pct": 50.0},
+    "AICAC_SELECTIVE":  {"correct": 4, "total": 4, "pct": 100.0}
+  },
+  "context_tokens_by_format_mean": {
+    "README_ONLY":     859,
+    "AGENTS_ONLY":     1299,
+    "AICAC_SELECTIVE": 1106
+  },
+  "duration_ms_by_format_mean": {
+    "README_ONLY":     5954,
+    "AGENTS_ONLY":     6732,
+    "AICAC_SELECTIVE": 7539
+  },
+  "trials": [
+    {"q_id": "IR-002", "format": "README_ONLY",     "context_tokens": 859,  "duration_ms": 5377, "found": false, "accuracy": 0.0,  "answer": "Not found in context."},
+    {"q_id": "IR-002", "format": "AGENTS_ONLY",     "context_tokens": 1299, "duration_ms": 5813, "found": true,  "accuracy": 1.0,  "answer": "Python 3.11+ required (Quick reference)."},
+    {"q_id": "IR-002", "format": "AICAC_SELECTIVE", "context_tokens": 643,  "duration_ms": 7003, "found": true,  "accuracy": 1.0,  "answer": "Python 3.11+ is required."},
+    {"q_id": "AU-001", "format": "README_ONLY",     "context_tokens": 859,  "duration_ms": 6142, "found": false, "accuracy": 0.0,  "answer": "Not found in context."},
+    {"q_id": "AU-001", "format": "AGENTS_ONLY",     "context_tokens": 1299, "duration_ms": 6592, "found": false, "accuracy": 0.0,  "answer": "Not found; file references .ai/decisions.yaml but content not included."},
+    {"q_id": "AU-001", "format": "AICAC_SELECTIVE", "context_tokens": 1245, "duration_ms": 8524, "found": true,  "accuracy": 1.0,  "answer": "FastAPI chosen for built-in OpenAPI, Pydantic validation, async support, enforced type hints; smaller ecosystem tradeoff."},
+    {"q_id": "CW-001", "format": "README_ONLY",     "context_tokens": 859,  "duration_ms": 5920, "found": true,  "accuracy": 1.0,  "answer": "Create route in src/taskflow/api/, Pydantic models, register router in main.py, add tests."},
+    {"q_id": "CW-001", "format": "AGENTS_ONLY",     "context_tokens": 1299, "duration_ms": 8367, "found": true,  "accuracy": 1.0,  "answer": "Same as README + cite of .ai/workflows.yaml."},
+    {"q_id": "CW-001", "format": "AICAC_SELECTIVE", "context_tokens": 1290, "duration_ms": 8061, "found": true,  "accuracy": 1.0,  "answer": "add_endpoint workflow with concrete APIRouter + Pydantic templates, main.py include_router pattern, tests/."},
+    {"q_id": "ER-001", "format": "README_ONLY",     "context_tokens": 859,  "duration_ms": 6376, "found": false, "accuracy": 0.0,  "answer": "Not found in context."},
+    {"q_id": "ER-001", "format": "AGENTS_ONLY",     "context_tokens": 1299, "duration_ms": 6157, "found": false, "accuracy": 0.0,  "answer": "Not found; .ai/errors.yaml referenced but contents not included."},
+    {"q_id": "ER-001", "format": "AICAC_SELECTIVE", "context_tokens": 1245, "duration_ms": 6569, "found": true,  "accuracy": 1.0,  "answer": "lsof -ti:8000 | xargs kill, or taskflow serve --port 8080."}
+  ]
+}
