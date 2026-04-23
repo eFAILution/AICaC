@@ -17,3 +17,23 @@ matplotlib>=3.7.0
 
 # Utilities
 pyyaml>=6.0
+
+# Transitive pins — not used directly, but constrain what can resolve
+# through the direct deps above. Each clears an OSV advisory that was
+# otherwise surfaced during security scans.
+#
+# Pillow: pulled by matplotlib. Minimum clears the full set of known
+# advisories affecting earlier versions:
+#   GHSA-3f63-hfp8-52jq (RCE), -44wm-f244-xhp3 (buffer overflow),
+#   -8ghj-p4vj-mr35 (DoS), -j7hp-h8jx-5ppr (libwebp OOB in bundled wheel),
+#   -cfh3-3jmp-rvhc (PSD OOB write), -whj4-6x5x-4v2j (FITS GZIP bomb).
+Pillow>=12.2.0
+
+# tqdm: pulled by several AI SDK deps. Minimum clears
+# GHSA-r7q7-xcjw-qx8q (arbitrary code exec) and -g7vv-2v7x-gj9p
+# (CLI argument injection).
+tqdm>=4.66.3
+
+# zipp: pulled transitively through importlib-metadata. Minimum clears
+# GHSA-jfmj-5v4g-7637 (DoS via malformed zip).
+zipp>=3.19.1
