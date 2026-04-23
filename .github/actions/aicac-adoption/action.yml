@@ -23,12 +23,12 @@ inputs:
     default: '.'
 
   with-ai:
-    description: 'Use AI assistance to populate .ai/ files (future feature)'
+    description: 'DEPRECATED: use the Claude Code skill or MCP server for interactive population. This input is a no-op.'
     required: false
     default: 'false'
 
   ai-service:
-    description: 'AI service to use: github-copilot, openai, anthropic'
+    description: 'DEPRECATED: paired with the removed with-ai input. This input is a no-op.'
     required: false
     default: 'github-copilot'
 
@@ -36,6 +36,26 @@ inputs:
     description: 'Automatically update badge in README.md (maintain mode)'
     required: false
     default: 'true'
+
+  strict:
+    description: 'Fail the action on any schema violation in maintain mode (useful as a pre-merge gate).'
+    required: false
+    default: 'false'
+
+  auto-migrate:
+    description: 'If v1.x .ai/ shape is detected, open a PR with the v2.0 migration (maintain mode, default branch only).'
+    required: false
+    default: 'true'
+
+  regenerate-index:
+    description: 'Keep .ai/index.yaml in sync on every maintain run. Commits the regenerated file if it changed.'
+    required: false
+    default: 'true'
+
+  install-shims:
+    description: 'Comma-separated list of platform shims to scaffold in setup mode (cursor,copilot,windsurf,aider) or "all". Each shim points at AGENTS.md.'
+    required: false
+    default: ''
 
   generate-toon:
     description: 'Generate .toon files from .ai/ YAML sources (maintain mode)'
@@ -64,6 +84,18 @@ outputs:
     description: 'Whether .ai/ directory needs to be created'
     value: ${{ steps.check-existing.outputs.needs-setup }}
 
+  migration-needed:
+    description: 'True if v1.x .ai/ shape was detected'
+    value: ${{ steps.check-migration.outputs.needed }}
+
+  index-stale:
+    description: 'True if .ai/index.yaml was regenerated during this run'
+    value: ${{ steps.index-changes.outputs.changed }}
+
+  schema-violations:
+    description: 'Count of schema violations reported by validate.py (0 if clean)'
+    value: ${{ steps.check-compliance.outputs.schema-violations }}
+
 runs:
   using: 'composite'
   steps:
@@ -78,7 +110,7 @@ runs:
         GENERATE_TOON: ${{ inputs.generate-toon }}
         SUGGEST_TOON: ${{ inputs.suggest-toon }}
       run: |
-        pip install pyyaml
+        pip install pyyaml jsonschema
         if [ "$GENERATE_TOON" = "true" ] || [ "$SUGGEST_TOON" = "true" ]; then
           pip install git+https://github.com/toon-format/toon-python.git
         fi
@@ -91,6 +123,9 @@ runs:
         chmod +x ${{ github.action_path }}/scripts/update_badge.py
         chmod +x ${{ github.action_path }}/scripts/generate_toon.py
         chmod +x ${{ github.action_path }}/scripts/toon_migration.py
+        chmod +x ${{ github.action_path }}/scripts/migrate_v2.py
+        chmod +x ${{ github.action_path }}/scripts/generate_index.py
+        chmod +x ${{ github.action_path }}/scripts/install_shims.py
 
     - name: Check if .ai/ exists
       id: check-existing
@@ -112,15 +147,22 @@ runs:
       shell: bash
       env:
         PROJECT_PATH: ${{ inputs.project-path }}
-        WITH_AI: ${{ inputs.with-ai }}
-        AI_SERVICE: ${{ inputs.ai-service }}
       run: |
         cd "$PROJECT_PATH"
-        if [ "$WITH_AI" = "true" ]; then
-          python ${{ github.action_path }}/scripts/bootstrap.py . --with-ai --ai-service=$AI_SERVICE
-        else
-          python ${{ github.action_path }}/scripts/bootstrap.py .
-        fi
+        python ${{ github.action_path }}/scripts/bootstrap.py .
+
+    - name: Install platform shims
+      if: >-
+        inputs.mode == 'setup'
+        && steps.check-existing.outputs.needs-setup == 'true'
+        && inputs.install-shims != ''
+      shell: bash
+      env:
+        PROJECT_PATH: ${{ inputs.project-path }}
+        SHIMS: ${{ inputs.install-shims }}
+      run: |
+        cd "$PROJECT_PATH"
+        python ${{ github.action_path }}/scripts/install_shims.py . --platforms="$SHIMS"
 
     - name: Generate PR body
       if: inputs.mode == 'setup' && steps.check-existing.outputs.needs-setup == 'true'
@@ -148,6 +190,27 @@ runs:
         delete-branch: true
         labels: documentation, enhancement, aicac
 
+    # MAINTAIN MODE - Detect v1.x shape (informs auto-migrate below)
+    - name: Check for v1.x → v2.0 migration
+      if: inputs.mode == 'maintain' || inputs.mode == 'validate'
+      id: check-migration
+      shell: bash
+      env:
+        PROJECT_PATH: ${{ inputs.project-path }}
+      run: |
+        cd "$PROJECT_PATH"
+        if [ ! -d .ai ]; then
+          echo "needed=false" >> $GITHUB_OUTPUT
+          echo "ℹ️  No .ai/ directory — migration check skipped."
+          exit 0
+        fi
+        if python ${{ github.action_path }}/scripts/migrate_v2.py . --check; then
+          echo "needed=false" >> $GITHUB_OUTPUT
+        else
+          echo "needed=true" >> $GITHUB_OUTPUT
+          echo "📋 v1.x .ai/ shape detected; migration available."
+        fi
+
     # MAINTAIN MODE - Validate and update
     - name: Check AICaC compliance
       if: inputs.mode == 'maintain' || inputs.mode == 'validate'
@@ -155,38 +218,41 @@ runs:
       shell: bash
       env:
         PROJECT_PATH: ${{ inputs.project-path }}
+        STRICT: ${{ inputs.strict }}
       run: |
         cd "$PROJECT_PATH"
 
-        if ! python ${{ github.action_path }}/scripts/validate.py . > validation_output.txt 2>&1; then
+        # Run once in human-readable form for the log
+        HUMAN_RC=0
+        python ${{ github.action_path }}/scripts/validate.py . > validation_output.txt 2>&1 || HUMAN_RC=$?
+        cat validation_output.txt
+
+        if [ "$HUMAN_RC" -ne 0 ]; then
           echo "level=None" >> $GITHUB_OUTPUT
           echo "badge=https://img.shields.io/badge/AICaC-Not%20Adopted-red.svg" >> $GITHUB_OUTPUT
+          echo "schema-violations=0" >> $GITHUB_OUTPUT
           echo "❌ AICaC not adopted"
-          cat validation_output.txt
           exit 1
         fi
 
-        # Extract compliance level from output
-        LEVEL=$(grep "Compliance Level:" validation_output.txt | awk '{print $3}')
+        # Run again in JSON mode for structured counts
+        python ${{ github.action_path }}/scripts/validate.py . --json > validation.json 2>/dev/null || true
+        LEVEL=$(python -c "import json; print(json.load(open('validation.json')).get('compliance_level') or 'Unknown')")
+        VIOLATIONS=$(python -c "import json; print(len(json.load(open('validation.json')).get('errors', [])))")
         echo "level=$LEVEL" >> $GITHUB_OUTPUT
+        echo "schema-violations=$VIOLATIONS" >> $GITHUB_OUTPUT
 
-        # Set badge URL
-        case $LEVEL in
-          "Comprehensive")
-            echo "badge=https://img.shields.io/badge/AICaC-Comprehensive-success.svg" >> $GITHUB_OUTPUT
-            ;;
-          "Standard")
-            echo "badge=https://img.shields.io/badge/AICaC-Standard-brightgreen.svg" >> $GITHUB_OUTPUT
-            ;;
-          "Minimal")
-            echo "badge=https://img.shields.io/badge/AICaC-Minimal-green.svg" >> $GITHUB_OUTPUT
-            ;;
-          *)
-            echo "badge=https://img.shields.io/badge/AICaC-Unknown-lightgrey.svg" >> $GITHUB_OUTPUT
-            ;;
+        case "$LEVEL" in
+          Comprehensive) echo "badge=https://img.shields.io/badge/AICaC-Comprehensive-success.svg" >> $GITHUB_OUTPUT ;;
+          Standard)      echo "badge=https://img.shields.io/badge/AICaC-Standard-brightgreen.svg" >> $GITHUB_OUTPUT ;;
+          Minimal)       echo "badge=https://img.shields.io/badge/AICaC-Minimal-green.svg" >> $GITHUB_OUTPUT ;;
+          *)             echo "badge=https://img.shields.io/badge/AICaC-Unknown-lightgrey.svg" >> $GITHUB_OUTPUT ;;
         esac
 
-        cat validation_output.txt
+        if [ "$STRICT" = "true" ] && [ "$VIOLATIONS" -gt 0 ]; then
+          echo "❌ strict mode: $VIOLATIONS schema violation(s) found — failing"
+          exit 1
+        fi
 
     - name: Update badge in README
       if: (inputs.mode == 'maintain' && inputs.update-badge == 'true')
@@ -220,6 +286,111 @@ runs:
       with:
         commit_message: 'docs: update AICaC badge to reflect ${{ steps.check-compliance.outputs.level }} compliance'
         file_pattern: README.md
+
+    # INDEX REGENERATION - Keep .ai/index.yaml in sync
+    - name: Regenerate .ai/index.yaml
+      if: >-
+        inputs.mode == 'maintain'
+        && inputs.regenerate-index == 'true'
+        && steps.check-existing.outputs.needs-setup == 'false'
+      shell: bash
+      env:
+        PROJECT_PATH: ${{ inputs.project-path }}
+      run: |
+        cd "$PROJECT_PATH"
+        python ${{ github.action_path }}/scripts/generate_index.py .
+
+    - name: Check for index changes
+      if: >-
+        inputs.mode == 'maintain'
+        && inputs.regenerate-index == 'true'
+        && steps.check-existing.outputs.needs-setup == 'false'
+      id: index-changes
+      shell: bash
+      env:
+        PROJECT_PATH: ${{ inputs.project-path }}
+      run: |
+        cd "$PROJECT_PATH"
+        if git diff --quiet .ai/index.yaml 2>/dev/null \
+           && ! git ls-files --others --exclude-standard .ai/index.yaml | grep -q .; then
+          echo "changed=false" >> $GITHUB_OUTPUT
+          echo "✅ .ai/index.yaml already in sync"
+        else
+          echo "changed=true" >> $GITHUB_OUTPUT
+          echo "📝 .ai/index.yaml regenerated"
+        fi
+
+    - name: Commit index update
+      if: >-
+        inputs.mode == 'maintain'
+        && inputs.regenerate-index == 'true'
+        && steps.index-changes.outputs.changed == 'true'
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: 'chore(ai): regenerate .ai/index.yaml'
+        file_pattern: '.ai/index.yaml'
+
+    # AUTO-MIGRATE - v1.x → v2.0 PR (default branch only)
+    - name: Check default branch for auto-migrate
+      if: >-
+        inputs.mode == 'maintain'
+        && inputs.auto-migrate == 'true'
+        && steps.check-migration.outputs.needed == 'true'
+      id: migrate-default-branch
+      shell: bash
+      run: |
+        DEFAULT_BRANCH=$(git remote show origin | sed -n 's/.*HEAD branch: //p')
+        CURRENT_REF="${GITHUB_REF#refs/heads/}"
+        if [ "$CURRENT_REF" = "$DEFAULT_BRANCH" ]; then
+          echo "is-default=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "is-default=false" >> "$GITHUB_OUTPUT"
+          echo "⏭️  Skipping v2 auto-migrate (not on default branch: $CURRENT_REF)"
+        fi
+
+    - name: Run v2.0 migration
+      if: >-
+        inputs.mode == 'maintain'
+        && inputs.auto-migrate == 'true'
+        && steps.check-migration.outputs.needed == 'true'
+        && steps.migrate-default-branch.outputs.is-default == 'true'
+      shell: bash
+      env:
+        PROJECT_PATH: ${{ inputs.project-path }}
+      run: |
+        cd "$PROJECT_PATH"
+        python ${{ github.action_path }}/scripts/migrate_v2.py .
+        # Regenerate index against the migrated files
+        python ${{ github.action_path }}/scripts/generate_index.py .
+
+    - name: Open v2.0 migration PR
+      if: >-
+        inputs.mode == 'maintain'
+        && inputs.auto-migrate == 'true'
+        && steps.check-migration.outputs.needed == 'true'
+        && steps.migrate-default-branch.outputs.is-default == 'true'
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ inputs.github-token }}
+        commit-message: 'refactor(ai): migrate .ai/ to v2.0 canonical shape'
+        title: 'refactor(ai): migrate .ai/ to v2.0 canonical shape'
+        body: |
+          Automated migration from AICaC v1.x to v2.0 canonical shape.
+
+          Changes applied by `migrate_v2.py`:
+          - `components:` list → dict keyed by component name
+          - `decisions:` list → dict keyed by ADR id
+          - `errors:`/`error_patterns:` list → dict keyed by error id
+          - `common_commands:` → `common_tasks:`
+          - `version:` bumped `1.x` → `2.0`
+          - `.ai/index.yaml` regenerated against the migrated files
+
+          Review the diff, then merge to complete the migration. The
+          validator will continue to accept v1.x shape with warnings until
+          this PR lands.
+        branch: aicac/migrate-v2
+        delete-branch: true
+        labels: aicac, migration
 
     # TOON GENERATION - Generate .toon files from .ai/ YAML sources
     - name: Generate TOON files
