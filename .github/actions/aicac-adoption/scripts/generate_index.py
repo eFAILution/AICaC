@@ -16,7 +16,6 @@ Or via `make generate-index` / the AICaC adoption action.
 from __future__ import annotations
 
 import argparse
-import datetime
 import sys
 from pathlib import Path
 
@@ -71,9 +70,11 @@ def build_index(ai_dir: Path) -> dict:
     if errs:
         keys["errors"] = _keys_of(errs.get("errors")) or _keys_of(errs.get("error_patterns"))
 
+    # No timestamp field — git history records when index was regenerated,
+    # and a per-run timestamp would force a spurious commit every maintain
+    # run even when no real content changed.
     return {
         "version": "2.0",
-        "generated": datetime.datetime.utcnow().isoformat(timespec="seconds") + "Z",
         "summary": summary,
         "keys": keys,
         "routing": ROUTING_HINTS,
