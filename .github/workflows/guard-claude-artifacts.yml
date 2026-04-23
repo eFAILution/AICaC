@@ -1,0 +1,89 @@
+---
+name: Guard Claude artifacts
+
+# Defense in depth. Client-side .githooks/commit-msg can be skipped with
+# --no-verify; this workflow cannot. Fails the run if any commit message
+# or repo file contains a Claude Code session URL or a Claude
+# Co-Authored-By trailer.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  scan-commit-messages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan commit messages for Claude artifacts
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          if [ -n "${BASE_REF:-}" ]; then
+            git fetch origin "$BASE_REF" --quiet
+            RANGE="origin/$BASE_REF..$HEAD_SHA"
+          else
+            RANGE="$BEFORE_SHA..$HEAD_SHA"
+          fi
+
+          echo "Scanning range: $RANGE"
+          BAD=$(git log "$RANGE" --format='%H%n%B%n---END---' \
+                | grep -nE '^Co-Authored-By:\s*Claude|claude\.ai/code/session' \
+                || true)
+
+          if [ -n "$BAD" ]; then
+            echo "::error::Forbidden Claude artifact in commit message(s):"
+            echo "$BAD"
+            exit 1
+          fi
+
+          echo "✓ No Claude artifacts in commit messages."
+
+  scan-repo-content:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan repo content for Claude artifacts
+        run: |
+          set -euo pipefail
+          # Exclude the guard itself (it necessarily names the patterns),
+          # the gitleaks config, and the commit-msg hook.
+          BAD=$(grep -rEn \
+                  --exclude-dir=.git \
+                  --exclude-dir=node_modules \
+                  --exclude='.gitleaks.toml' \
+                  --exclude='commit-msg' \
+                  --exclude='guard-claude-artifacts.yml' \
+                  'claude\.ai/code/session_|^Co-Authored-By:[[:space:]]*Claude' \
+                  . || true)
+
+          if [ -n "$BAD" ]; then
+            echo "::error::Forbidden Claude artifact in repo file content:"
+            echo "$BAD"
+            exit 1
+          fi
+
+          echo "✓ No Claude artifacts in repo content."
+
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITLEAKS_CONFIG: .gitleaks.toml

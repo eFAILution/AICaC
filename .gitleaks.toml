@@ -1,0 +1,19 @@
+title = "AICaC gitleaks config"
+
+# Extend the default gitleaks ruleset (API keys, tokens, etc.) and add
+# project-specific rules for Claude Code artifacts the user treats as
+# never-commit.
+[extend]
+useDefault = true
+
+[[rules]]
+id = "claude-session-url"
+description = "Claude Code session URL — private session identifier, never commit"
+regex = '''claude\.ai/code/session_[A-Za-z0-9_-]+'''
+tags = ["claude", "session", "private"]
+
+[[rules]]
+id = "claude-co-authored-trailer"
+description = "Claude Co-Authored-By trailer — user policy forbids Claude attribution"
+regex = '''(?m)^Co-Authored-By:\s*Claude\b'''
+tags = ["claude", "attribution"]

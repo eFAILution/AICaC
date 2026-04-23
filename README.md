@@ -259,6 +259,17 @@ empirical framing, Claude Code skill.
 Specification proposals, empirical replication, example implementations,
 and tooling improvements all welcome. Issues and PRs at [GitHub](https://github.com/eFAILution/AICaC/issues).
 
+After cloning, enable the repo's git hooks once:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+This installs a `commit-msg` hook that blocks commits whose messages
+contain Claude Code session URLs or Claude `Co-Authored-By` trailers.
+A CI workflow (`.github/workflows/guard-claude-artifacts.yml`) enforces
+the same rules server-side, so the hook is opt-in but CI is mandatory.
+
 ## License
 
 - **Code** (validation scripts, action, skill): [MIT](LICENSE-CODE)
