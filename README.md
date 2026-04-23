@@ -131,9 +131,24 @@ AICaC/
 
 **Option 1: Claude Code skill (interactive)**
 
-Clone this repo and point Claude Code at it, or copy `.claude/skills/aicac/`
-into your own repo. When Claude Code sees `.ai/` or is asked to adopt AICaC,
-it will bootstrap, validate, and keep the files in sync.
+The skill at `.claude/skills/aicac/` handles bootstrap, validate, sync, and
+routing. When Claude Code sees `.ai/` or is asked to adopt AICaC, it loads
+the skill and keeps the files in sync.
+
+Installation depends on scope:
+
+```bash
+# Per-project: clone AICaC — the skill is already at .claude/skills/aicac/
+git clone https://github.com/eFAILution/AICaC
+
+# User-global (available in every project): symlink from a clone
+ln -s "$(pwd)/AICaC/.claude/skills/aicac" ~/.claude/skills/aicac
+
+# Or copy (frozen snapshot, no auto-update)
+cp -r AICaC/.claude/skills/aicac ~/.claude/skills/aicac
+```
+
+Restart Claude Code after installing globally.
 
 **Option 2: GitHub Action (automated)**
 
