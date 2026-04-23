@@ -1,0 +1,44 @@
+---
+# yamllint configuration
+# Defaults lean toward strict 80-col prose style, which fights structured
+# YAML that carries full-sentence summary/description fields and long
+# URLs. Relax the noisy rules; keep the rules that catch real mistakes
+# (indentation, duplicates, trailing spaces, broken anchors).
+
+extends: default
+
+rules:
+  # AICaC .ai/*.yaml carry prose summary/description fields that routinely
+  # exceed 80 chars. 120 is a sane ceiling that still catches runaway lines.
+  line-length:
+    max: 120
+    level: warning
+
+  # "---" at the top of single-document YAMLs is stylistic, not a real
+  # problem. Disable — each of our files is a single document by design.
+  document-start: disable
+
+  # Our generated .ai/index.yaml uses 2-space list indentation under
+  # mapping keys (PyYAML default). Stock yamllint wants 4. Relax to
+  # accept either so generators don't need custom formatters.
+  indentation:
+    spaces: consistent
+    indent-sequences: consistent
+    check-multi-line-strings: false
+
+  # Tests and generators produce YAML programmatically; trailing empty
+  # lines can appear. Keep as a warning, not an error.
+  empty-lines:
+    level: warning
+
+  # Truthy strictness (y/yes/n/no) is noisy on config-heavy YAML.
+  truthy:
+    level: warning
+
+  # Comment indent-matching is cosmetic; warn but don't fail.
+  comments-indentation:
+    level: warning
+
+  # At least one space after `#` is reasonable; relax the default 2.
+  comments:
+    min-spaces-from-content: 1

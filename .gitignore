@@ -39,3 +39,6 @@ results*.json
 # Real-world validation scratch — local clones of upstream projects used for
 # ad-hoc efficiency testing. Each carries its own .git; don't vendor.
 validation/real-world-projects/
+
+# Argus security scanner output
+argus-results/

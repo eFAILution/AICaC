@@ -1,0 +1,21 @@
+# Project-level tool config (bandit, etc.). AICaC itself is not packaged
+# from here — see validation/requirements.txt for the scripts' deps.
+
+[tool.bandit]
+# Exclude test directories — B101 (use of assert) is the standard pytest
+# pattern. Excluding tests/ kills that noise class entirely.
+exclude_dirs = [
+    "tests",
+    "test",
+    ".git",
+    "node_modules",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "experiments",
+    "validation/real-world-projects",
+]
+
+# Skip B101 globally (belt-and-braces in case a helper with asserts lives
+# outside tests/) so we never re-argue this.
+skips = ["B101"]

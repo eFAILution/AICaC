@@ -29,7 +29,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import subprocess
+import subprocess  # nosec B404 - this script is a test-harness driver that shells out to performance_measurement.py with hardcoded argv; no user input reaches the subprocess call
 import sys
 from pathlib import Path
 
@@ -91,7 +91,11 @@ def run(provider: str, trials: int) -> int:
         "--output", str(output),
     ]
     print("Running:", " ".join(cmd), flush=True)
-    return subprocess.call(cmd)
+    # cmd is built entirely from CLI args (provider is validated via argparse
+    # choices, trials is int-coerced) and hard-coded script paths. shell=False
+    # (the default) means no shell interpolation, so even malicious values
+    # can only become argv tokens to the known Python script.
+    return subprocess.call(cmd)  # nosec B603
 
 
 def main() -> int:
