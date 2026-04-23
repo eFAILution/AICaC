@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Blocks commits whose message contains forbidden Claude artifacts.
+#
+# Enable: git config core.hooksPath .githooks
+#
+# Forbidden patterns:
+#   - Co-Authored-By: Claude <...>   (no Claude attribution of any kind)
+#   - https://claude.ai/code/session_*   (private Claude Code session URL)
+
+set -u
+
+MSG_FILE="$1"
+BAD=$(grep -nE "^Co-Authored-By:\s*Claude|claude\.ai/code/session" "$MSG_FILE" || true)
+
+if [ -n "$BAD" ]; then
+  cat >&2 <<EOF
+✗ Commit blocked: forbidden Claude artifact in commit message.
+
+$BAD
+
+Banned patterns:
+  - Co-Authored-By: Claude  (any Claude attribution; user policy)
+  - https://claude.ai/code/session_*  (private session identifier)
+
+Strip the offending line(s) from the commit message and try again.
+If Claude Code auto-generated a template containing these, edit the
+message before finalizing the commit.
+EOF
+  exit 1
+fi
+
+exit 0
