@@ -111,7 +111,7 @@ This will:
 | `strict` | Fail on any schema violation (maintain mode) | `false` | No |
 | `auto-migrate` | Open a PR with v1.x → v2.0 migration when v1.x shape is detected | `true` | No |
 | `regenerate-index` | Keep `.ai/index.yaml` in sync each maintain run | `true` | No |
-| `install-shims` | Comma-separated platforms to scaffold in setup mode: `cursor`, `copilot`, `windsurf`, `aider`, or `all` | `""` | No |
+| `install-shims` | Comma-separated platforms to scaffold in setup mode: `cursor`, `copilot`, `windsurf`, `aider`, or `all`. **Transitional** — see note below. | `""` | No |
 | `generate-toon` | Generate `.toon` files alongside YAML (optional) | `false` | No |
 | `suggest-toon` | Suggest TOON migration via GitHub issue | `true` | No |
 | `with-ai` | **Deprecated** — no-op. Use the skill or MCP server. | `false` | No |
@@ -128,6 +128,12 @@ This will:
 | `migration-needed` | `true` if v1.x `.ai/` shape was detected |
 | `index-stale` | `true` if `.ai/index.yaml` was regenerated during this run |
 | `schema-violations` | Count of schema violations (0 if clean) |
+
+### About `install-shims`
+
+Platform shim files (`.cursor/rules/aicac.mdc`, `.github/copilot-instructions.md`, `.windsurfrules`, `CONVENTIONS.md`) each contain a 5–10 line pointer telling that platform's AI to read `AGENTS.md` first. They're useful today for tools that don't yet consume MCP.
+
+The durable cross-platform story is different: once the AICaC MCP server ships (see [`validation/docs/mcp-server-design.md`](../../../validation/docs/mcp-server-design.md)), any MCP-capable tool will receive both the capabilities *and* the procedural knowledge from one source — and no per-tool shim will be needed. Treat `install-shims` as a bridge, not a permanent adoption path.
 
 ## Scripts
 

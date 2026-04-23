@@ -7,8 +7,32 @@ implemented**. Companion to `in-harness-eval-protocol.md`.
 
 Let any MCP-capable AI tool (Claude Code, Cursor, Windsurf, Continue, Zed,
 Aider, etc.) adopt AICaC's *capabilities* — bootstrap, validate, migrate,
-sync — without per-platform skill/rules packaging. The router pattern
-itself stays in `AGENTS.md` where vendors already converge.
+sync — and the *procedural knowledge* of how to use them. The router
+pattern stays in `AGENTS.md` where vendors already converge.
+
+## Framing: skills and MCP are complementary, not substitutes
+
+Anthropic's
+[production-MCP guidance](https://claude.com/blog/building-agents-that-reach-production-systems-with-mcp)
+frames the split clearly:
+
+> "MCP gives an agent access to tools and data from external systems,
+> while skills teach an agent the procedural knowledge of _how_ to use
+> those tools to accomplish real work."
+
+For AICaC this maps to:
+
+- **MCP tools** — the callable capabilities: `validate`, `bootstrap`,
+  `migrate`, `generate_index`, `sync_suggest`.
+- **Skill content** — the procedural knowledge: when to update
+  `workflows.yaml` vs `architecture.yaml`, when an ADR is warranted,
+  how to route a query intent to one `.ai/` file. This already lives
+  in `.claude/skills/aicac/*.md` as router / bootstrap / sync / migrate
+  recipes.
+
+We ship **both**, and the MCP server is the mechanism that makes the
+skill content portable beyond Claude Code. See "Skill content as MCP
+resources" below.
 
 ## Scope
 
@@ -16,9 +40,9 @@ itself stays in `AGENTS.md` where vendors already converge.
 |---|---|---|
 | Router behavior (instructions) | `AGENTS.md` + JSON Schemas | No — already universal |
 | Capabilities (side-effecting) | **MCP tools** | Yes |
+| Procedural knowledge (recipes) | **MCP resources + prompts**, sourced from `.claude/skills/aicac/*.md` | Yes |
 | Read-only spec content | **MCP resources** | Yes |
-| Canned behavior prompts | **MCP prompts** | Yes |
-| Per-tool polish (skills, rules files) | Platform-specific shims | No — optional convenience |
+| Per-tool rules files (Cursor, Copilot, …) | Platform-specific shims | Fallback only — for tools that don't speak MCP yet |
 
 ## Runtime
 
@@ -37,6 +61,14 @@ itself stays in `AGENTS.md` where vendors already converge.
   `.ai/` shape.
 - **Invocation**: stdio transport (standard for local MCP). Tools register
   the server in their MCP config.
+- **Local-only, deliberately.** Anthropic's production-MCP guidance argues
+  for remote servers as the durable distribution model — they reach web,
+  mobile, and cloud-hosted agents. AICaC's operations are filesystem-bound
+  (read/write a specific project's `.ai/` directory), so local scope is
+  the natural fit. A remote AICaC server would imply a hosted validation
+  service, which is out of scope. If that ever changes (e.g., a managed
+  AICaC-as-a-service offering), a remote variant is a separate server,
+  not a refactor of this one.
 
 Example client config (Claude Code `~/.claude/mcp.json`):
 
@@ -235,6 +267,35 @@ How to update `.ai/` after a code change — what questions to ask before
 writing to `workflows.yaml` vs `architecture.yaml`, when an ADR is
 warranted, etc.
 
+## Skill content as MCP resources
+
+The `.claude/skills/aicac/*.md` files already contain the full procedural
+knowledge — `router.md`, `bootstrap.md`, `validate.md`, `sync.md`,
+`migrate.md`. Today they only reach Claude Code. The server serves the
+same content back over MCP so any MCP-capable client inherits the
+expertise:
+
+| Resource URI | Source file | Purpose |
+|---|---|---|
+| `aicac://skill/router` | `.claude/skills/aicac/router.md` | When intent → which `.ai/` file |
+| `aicac://skill/bootstrap` | `.claude/skills/aicac/bootstrap.md` | How to populate a fresh `.ai/` |
+| `aicac://skill/validate` | `.claude/skills/aicac/validate.md` | How to interpret validator output |
+| `aicac://skill/sync` | `.claude/skills/aicac/sync.md` | When code change → which `.ai/` update |
+| `aicac://skill/migrate` | `.claude/skills/aicac/migrate.md` | v1.x → v2.0 migration notes |
+
+Clients that understand the emerging
+["skills distributed from MCP servers" extension](https://claude.com/blog/building-agents-that-reach-production-systems-with-mcp)
+can load these as first-class skills. Clients that don't can still fetch
+them as plain resources.
+
+**This is the core of AICaC's cross-platform adoption story.** The
+capabilities layer (tools) ships the side-effecting work; the
+skill-content layer (resources/prompts) ships the *how to think about
+this* that used to only reach Claude Code through its native skill
+format. One source of truth (`.claude/skills/aicac/*.md`), two
+transports (native skill for Claude Code, MCP resource for everyone
+else).
+
 ## What's deliberately NOT in scope
 
 - **No token-measurement tools**. That's research tooling
@@ -285,19 +346,33 @@ prompt-stub, versioning pinned to spec major, registries listed above.
 
 ## Relationship to existing work
 
-- **`.claude/skills/aicac/`**: keep as-is. It'll continue to work for
-  Claude Code users who prefer the skill format. The MCP server and the
-  skill serve the same audience with overlapping capabilities; users pick
-  one based on their tool's MCP maturity.
+- **`.claude/skills/aicac/`**: becomes the single source of truth for the
+  procedural-knowledge layer. Claude Code loads it as a native skill; the
+  MCP server serves the same markdown files as `aicac://skill/*` resources
+  for every other client. Keep the files here; the MCP server reads from
+  them rather than duplicating.
 - **`AGENTS.md`**: unchanged. Remains the universal behavior front-door.
-- **GitHub Action**: unchanged. CI-native, separate concern.
+- **GitHub Action**: CI-time adoption path. The `install-shims` input it
+  exposes (cursor/copilot/windsurf/aider adapter files) is a bridge for
+  tools that don't speak MCP yet — not the primary cross-platform
+  mechanism. Once MCP + skill-over-MCP is the dominant pattern, shims
+  become vestigial.
 - **Python scripts** (`validate.py` etc.): unchanged. Remain callable
   standalone; the MCP server is a thin adapter over them.
 
 ## Why this, why now
 
-`AGENTS.md` gets AICaC ~80% of the way to cross-platform. MCP closes the
-gap for the *capabilities* layer — the recipes that would otherwise need
-a per-tool skill/rules file. Without it, every new AI tool means another
-adapter to write. With it, new tools that support MCP pick up AICaC
-capabilities for free.
+Three adoption channels, each with a clear role:
+
+| Channel | Layer | Reach |
+|---|---|---|
+| `AGENTS.md` | Instructions / router | Universal — any tool that reads repo docs |
+| MCP server (tools) | Capabilities | Any MCP-capable tool (growing fast) |
+| MCP server (skill resources) | Procedural knowledge | Any MCP-capable tool, durable as skill-over-MCP ext matures |
+| GitHub Action | CI-time automation | Any repo, no AI tool required |
+| Platform shims (Cursor/Copilot/…) | Bridge for pre-MCP tools | Per-tool, transitional |
+
+Without the MCP server, the procedural knowledge that lives in
+`.claude/skills/aicac/*.md` only reaches Claude Code. With it, the same
+content reaches every MCP-capable client — and no new adapter is needed
+as new tools come online.
