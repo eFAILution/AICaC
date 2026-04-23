@@ -2,6 +2,18 @@
 
 A comprehensive GitHub Action to help projects adopt and maintain AICaC (AI Context as Code) compliance.
 
+## When to use this action
+
+AICaC has three adoption channels. This action is **one of them**:
+
+| Channel | When | Audience |
+|---|---|---|
+| [Claude Code skill](../../../.claude/skills/aicac/SKILL.md) | Interactive session | Developer using Claude Code |
+| MCP server *(planned — see [design doc](../../../validation/docs/mcp-server-design.md))* | Interactive session | Any MCP-capable tool (Cursor, Windsurf, Continue, Zed, …) |
+| **This action** | **CI, on push/PR** | **Repo maintainer enforcing compliance; no AI tool in the loop** |
+
+Use this action when you want CI-time bootstrap, validation, or migration — not when you're looking for an AI assistant to populate files interactively.
+
 ## Features
 
 ### 🚀 Setup Mode
@@ -95,9 +107,15 @@ This will:
 | `mode` | Operation mode: `setup` or `maintain` | `maintain` | No |
 | `github-token` | GitHub token for creating PRs | `${{ github.token }}` | No |
 | `project-path` | Path to project directory | `.` | No |
-| `with-ai` | Use AI to populate files (future) | `false` | No |
-| `ai-service` | AI service: `github-copilot`, `openai`, `anthropic` | `github-copilot` | No |
 | `update-badge` | Auto-update badge in README | `true` | No |
+| `strict` | Fail on any schema violation (maintain mode) | `false` | No |
+| `auto-migrate` | Open a PR with v1.x → v2.0 migration when v1.x shape is detected | `true` | No |
+| `regenerate-index` | Keep `.ai/index.yaml` in sync each maintain run | `true` | No |
+| `install-shims` | Comma-separated platforms to scaffold in setup mode: `cursor`, `copilot`, `windsurf`, `aider`, or `all` | `""` | No |
+| `generate-toon` | Generate `.toon` files alongside YAML (optional) | `false` | No |
+| `suggest-toon` | Suggest TOON migration via GitHub issue | `true` | No |
+| `with-ai` | **Deprecated** — no-op. Use the skill or MCP server. | `false` | No |
+| `ai-service` | **Deprecated** — no-op. | `github-copilot` | No |
 
 ## Outputs
 
@@ -107,6 +125,9 @@ This will:
 | `badge-url` | Recommended badge URL |
 | `pr-number` | PR number if created (setup mode) |
 | `setup-needed` | Whether `.ai/` needs to be created |
+| `migration-needed` | `true` if v1.x `.ai/` shape was detected |
+| `index-stale` | `true` if `.ai/index.yaml` was regenerated during this run |
+| `schema-violations` | Count of schema violations (0 if clean) |
 
 ## Scripts
 

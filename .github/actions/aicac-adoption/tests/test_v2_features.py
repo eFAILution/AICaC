@@ -16,6 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 from validate import AICaCValidator
 import migrate_v2
 import generate_index
+import install_shims
 
 
 # ---------------------------------------------------------------- schema
@@ -234,3 +235,58 @@ class TestGenerateIndex:
         idx = generate_index.build_index(ai_dir)
         assert "project_overview" in idx["routing"]
         assert idx["routing"]["project_overview"] == ["context.yaml"]
+
+
+# ---------------------------------------------------------------- migrate --check
+
+class TestMigrateCheck:
+    """The --check flag is exposed via _count_pending_changes; exercise the logic."""
+
+    def test_check_reports_zero_on_v2(self, aicac_project):
+        ai_dir = aicac_project / ".ai"
+        assert migrate_v2._count_pending_changes(ai_dir) == 0
+
+    def test_check_reports_nonzero_on_v1(self, tmp_path):
+        ai_dir = tmp_path / ".ai"
+        ai_dir.mkdir()
+        (ai_dir / "architecture.yaml").write_text(
+            'version: "1.0"\n'
+            "components:\n"
+            "  - name: api\n"
+            "    purpose: HTTP\n"
+        )
+        assert migrate_v2._count_pending_changes(ai_dir) >= 1
+
+
+# ---------------------------------------------------------------- install_shims
+
+class TestInstallShims:
+    def test_all_platforms_resolve(self):
+        assert set(install_shims.parse_platforms("all")) == set(install_shims.PLATFORMS)
+
+    def test_unknown_platform_rejected(self):
+        with pytest.raises(ValueError):
+            install_shims.parse_platforms("cursor,bogus")
+
+    def test_writes_files_to_expected_paths(self, tmp_path):
+        for platform in install_shims.PLATFORMS:
+            rel, wrote = install_shims.write_shim(tmp_path, platform, dry_run=False)
+            assert wrote is True
+            assert (tmp_path / rel).exists()
+
+    def test_shim_points_at_agents_md(self, tmp_path):
+        install_shims.write_shim(tmp_path, "cursor", dry_run=False)
+        content = (tmp_path / ".cursor/rules/aicac.mdc").read_text()
+        assert "AGENTS.md" in content
+        assert "alwaysApply: true" in content
+
+    def test_skips_existing_files(self, tmp_path):
+        rel, wrote_first = install_shims.write_shim(tmp_path, "windsurf", dry_run=False)
+        assert wrote_first is True
+        _, wrote_second = install_shims.write_shim(tmp_path, "windsurf", dry_run=False)
+        assert wrote_second is False
+
+    def test_dry_run_does_not_write(self, tmp_path):
+        rel, wrote = install_shims.write_shim(tmp_path, "copilot", dry_run=True)
+        assert wrote is True  # returns "would write" for contract consistency
+        assert not (tmp_path / rel).exists()

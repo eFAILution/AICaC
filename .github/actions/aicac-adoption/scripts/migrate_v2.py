@@ -126,15 +126,37 @@ def migrate_file(path: Path, dry_run: bool = False) -> list[str]:
     return changes
 
 
+def _count_pending_changes(ai_dir: Path) -> int:
+    """Count files that would be rewritten. Non-destructive."""
+    total = 0
+    for filename in MIGRATORS:
+        if migrate_file(ai_dir / filename, dry_run=True):
+            total += 1
+    return total
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Migrate .ai/ from v1.x to v2.0")
     parser.add_argument("project_path", nargs="?", default=".")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Exit 0 if .ai/ is already v2.0, 1 if migration needed. Non-destructive.",
+    )
     args = parser.parse_args()
 
     ai_dir = Path(args.project_path) / ".ai"
     if not ai_dir.exists():
         print(f"No .ai/ directory at {ai_dir}", file=sys.stderr)
+        return 1
+
+    if args.check:
+        pending = _count_pending_changes(ai_dir)
+        if pending == 0:
+            print("Already v2.0-compliant.")
+            return 0
+        print(f"v1.x shape detected in {pending} file(s). Migration needed.")
         return 1
 
     total = 0
