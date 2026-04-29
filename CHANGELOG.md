@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [0.6.0](https://github.com/eFAILution/AICaC/compare/0.5.0...0.6.0) (2026-04-29)
+
+### Features
+
+* **spec:** accept object form for decisions[*].implementation ([2ddebfa](https://github.com/eFAILution/AICaC/commit/2ddebfae41109a4a7e569ce2fd0a546676421dc6))
+
+### Bug Fixes
+
+* **action:** bump peter-evans/create-pull-request v5 -> v8 ([df1430b](https://github.com/eFAILution/AICaC/commit/df1430b4843084a4b69a4b8b9e6598808e32b631))
+
 ## [0.5.0](https://github.com/eFAILution/AICaC/compare/0.4.0...0.5.0) (2026-04-29)
 
 ### Features
