@@ -55,7 +55,13 @@
                   ]
                 },
                 "superseded_by": { "type": ["string", "null"] },
-                "implementation": { "type": "string" },
+                "implementation": {
+                  "description": "How the decision was carried out. Free-form: a single string (path, command, brief note) or a structured object documenting fields like pattern, config, ttl, target, etc.",
+                  "oneOf": [
+                    { "type": "string" },
+                    { "type": "object" }
+                  ]
+                },
                 "affects_components": {
                   "type": "array",
                   "items": { "type": "string" }
