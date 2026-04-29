@@ -2,12 +2,23 @@
 """
 AICaC v1.x -> v2.0 migration helper.
 
-Rewrites .ai/ files in place:
-  - architecture.yaml  components: [{name, ...}]  -> components: {name: {...}}
-  - decisions.yaml     decisions: [{id, ...}]     -> decisions: {id: {...}}
-  - errors.yaml        error_patterns: [{pattern, ...}] -> errors: {pattern: {...}}
-  - context.yaml       common_commands             -> common_tasks
-  - all files          version '1.x'               -> '2.0' (when present)
+Rewrites .ai/ files in place. Handles two distinct flavors of v1.x:
+
+  Shape migrations (list -> dict):
+    - architecture.yaml  components: [{name, ...}]  -> components: {name: {...}}
+    - decisions.yaml     decisions: [{id, ...}]     -> decisions: {id: {...}}
+    - errors.yaml        error_patterns: [{pattern, ...}] -> errors: {pattern: {...}}
+
+  Field-level normalization (already-dict but not yet v2.0-conforming):
+    - decisions[*]       lowercase keys -> uppercase to match ^[A-Z][A-Z0-9_-]+$
+    - decisions[*].title derived from the key when missing
+    - decisions[*].alternatives_considered  [{name: reason}] -> [{name, rejected_because}]
+    - errors[*].symptom  derived from symptoms[] (joined) or from the id when missing
+    - errors[*]          causes: [{cause, solution}] -> common_causes[] + solutions[]
+
+  Generic:
+    - context.yaml       common_commands -> common_tasks
+    - all canonical files  version '1.x' -> '2.0' (and add 'version: "2.0"' when missing)
 
 Always prints a diff-like summary. Use --dry-run to preview.
 """
@@ -15,16 +26,55 @@ Always prints a diff-like summary. Use --dry-run to preview.
 from __future__ import annotations
 
 import argparse
+import copy
+import re
 import sys
 from pathlib import Path
 
 import yaml
 
 
+# v2.0 schema requires decision keys to match this pattern.
+DECISION_KEY_RE = re.compile(r"^(ADR[-_][0-9]+|[A-Z][A-Z0-9_-]+)$")
+
+
 def _slugify(text: str) -> str:
     """Build a stable id from a free-form name/pattern."""
     safe = "".join(c if c.isalnum() else "_" for c in text).strip("_").upper()
     return safe or "ITEM"
+
+
+def _normalize_decision_key(key: str) -> tuple[str, bool]:
+    """Coerce a decision key to match the v2.0 pattern. Returns (new_key, changed)."""
+    if DECISION_KEY_RE.match(key):
+        return key, False
+    normalized = re.sub(r"[^A-Z0-9_-]", "_", key.upper())
+    normalized = re.sub(r"_+", "_", normalized).strip("_")
+    if not normalized or not normalized[0].isalpha():
+        normalized = f"DECISION_{normalized}".strip("_") or "DECISION_001"
+    return normalized, normalized != key
+
+
+def _title_from_key(key: str) -> str:
+    """USE_ESBUILD -> 'Use Esbuild'."""
+    parts = [p for p in re.split(r"[_-]+", key) if p]
+    return " ".join(p.capitalize() for p in parts) or key
+
+
+def _reshape_alternatives(alts: object) -> tuple[object, bool]:
+    """[{webpack: 'too slow'}] -> [{name: 'webpack', rejected_because: 'too slow'}]."""
+    if not isinstance(alts, list):
+        return alts, False
+    new_list: list[object] = []
+    changed = False
+    for item in alts:
+        if isinstance(item, dict) and "name" not in item and len(item) == 1:
+            (k, v), = item.items()
+            new_list.append({"name": str(k), "rejected_because": str(v)})
+            changed = True
+        else:
+            new_list.append(item)
+    return new_list, changed
 
 
 def migrate_architecture(data: dict) -> list[str]:
@@ -45,6 +95,8 @@ def migrate_architecture(data: dict) -> list[str]:
 def migrate_decisions(data: dict) -> list[str]:
     changed: list[str] = []
     decisions = data.get("decisions")
+
+    # v1.x list -> dict
     if isinstance(decisions, list):
         new = {}
         for item in decisions:
@@ -53,7 +105,43 @@ def migrate_decisions(data: dict) -> list[str]:
             adr_id = item.pop("id", None) or f"ADR-{len(new)+1:03d}"
             new[adr_id] = item
         data["decisions"] = new
+        decisions = new
         changed.append(f"decisions: list -> dict[{len(new)}]")
+
+    # Normalize dict-shaped data (whether converted above or already dict)
+    if isinstance(decisions, dict):
+        # Key normalization
+        renamed: dict[str, object] = {}
+        rename_count = 0
+        for old_key, value in decisions.items():
+            new_key, was_renamed = _normalize_decision_key(str(old_key))
+            if was_renamed:
+                rename_count += 1
+            # In the rare case of a collision, suffix with -2, -3, ...
+            base = new_key
+            n = 2
+            while new_key in renamed:
+                new_key = f"{base}-{n}"
+                n += 1
+            renamed[new_key] = value
+        if rename_count:
+            data["decisions"] = renamed
+            decisions = renamed
+            changed.append(f"decisions: normalized {rename_count} key(s) to v2.0 pattern")
+
+        # Per-decision field fix-ups
+        for adr_id, adr in decisions.items():
+            if not isinstance(adr, dict):
+                continue
+            if not adr.get("title"):
+                adr["title"] = _title_from_key(adr_id)
+                changed.append(f"decisions[{adr_id}]: added derived title")
+            if "alternatives_considered" in adr:
+                new_alts, alts_changed = _reshape_alternatives(adr["alternatives_considered"])
+                if alts_changed:
+                    adr["alternatives_considered"] = new_alts
+                    changed.append(f"decisions[{adr_id}]: reshaped alternatives_considered")
+
     return changed
 
 
@@ -82,6 +170,53 @@ def migrate_errors(data: dict) -> list[str]:
             new[eid] = item
         data["errors"] = new
         changed.append(f"errors: list -> dict[{len(new)}]")
+
+    # Normalize dict-shaped errors (covers both just-converted and already-dict cases)
+    errors = data.get("errors")
+    if isinstance(errors, dict):
+        for err_id, err in errors.items():
+            if not isinstance(err, dict):
+                continue
+
+            # Derive symptom from symptoms[] or from id
+            if not err.get("symptom"):
+                symptoms = err.get("symptoms")
+                if isinstance(symptoms, list) and symptoms:
+                    err["symptom"] = "; ".join(str(s) for s in symptoms)
+                    changed.append(f"errors[{err_id}]: symptom <- symptoms[]")
+                else:
+                    err["symptom"] = _title_from_key(str(err_id))
+                    changed.append(f"errors[{err_id}]: symptom <- derived from id")
+
+            # Flatten causes: [{cause, solution}] into common_causes + solutions
+            causes = err.get("causes")
+            if isinstance(causes, list) and "common_causes" not in err:
+                cc: list[str] = []
+                sols: list[object] = []
+                for c in causes:
+                    if isinstance(c, dict):
+                        if c.get("cause"):
+                            cc.append(str(c["cause"]))
+                        sol = c.get("solution")
+                        if sol is not None:
+                            # Deep-copy dict solutions so the YAML dumper doesn't
+                            # emit anchors when the same node is referenced from
+                            # both causes[].solution and solutions[].
+                            if isinstance(sol, dict):
+                                sols.append(copy.deepcopy(sol))
+                            elif isinstance(sol, str):
+                                sols.append(sol)
+                            else:
+                                sols.append(str(sol))
+                    elif isinstance(c, str):
+                        cc.append(c)
+                if cc:
+                    err["common_causes"] = cc
+                    changed.append(f"errors[{err_id}]: common_causes <- causes[].cause")
+                if sols and "solutions" not in err:
+                    err["solutions"] = sols
+                    changed.append(f"errors[{err_id}]: solutions <- causes[].solution")
+
     return changed
 
 
@@ -95,6 +230,9 @@ def migrate_context(data: dict) -> list[str]:
 
 def bump_version(data: dict) -> list[str]:
     v = data.get("version")
+    if v is None:
+        data["version"] = "2.0"
+        return ["version (missing) -> '2.0'"]
     if isinstance(v, str) and v.startswith("1."):
         data["version"] = "2.0"
         return [f"version {v!r} -> '2.0'"]
