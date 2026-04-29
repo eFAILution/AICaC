@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [0.5.0](https://github.com/eFAILution/AICaC/compare/0.4.0...0.5.0) (2026-04-29)
+
+### Features
+
+* **migrate:** handle dict-shaped non-conforming v1.x data ([9accb32](https://github.com/eFAILution/AICaC/commit/9accb3203d0831c6dd197339458972cb013ac622)), closes [eFAILution/gitlab-component-helper#87](https://github.com/eFAILution/gitlab-component-helper/issues/87)
+
+### Bug Fixes
+
+* **action:** stage v1.x → v2.0 migration before validation to break upgrade deadlock ([061c0c3](https://github.com/eFAILution/AICaC/commit/061c0c38d497f11ad6e13fdbd34bdc6a55033f12))
+
 ## [0.4.0](https://github.com/eFAILution/AICaC/compare/0.3.0...0.4.0) (2026-04-23)
 
 ### Features
