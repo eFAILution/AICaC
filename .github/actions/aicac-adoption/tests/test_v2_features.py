@@ -54,6 +54,47 @@ class TestSchemaValidation:
         result = validator.validate()
         assert result["valid"]
 
+    def test_decision_implementation_accepts_object(self, aicac_project):
+        """ADRs commonly document implementation as a structured object
+        ({pattern, ttl, storage}, {config, target}, ...) — the schema must
+        accept it alongside the simple string form."""
+        decisions_path = aicac_project / ".ai" / "decisions.yaml"
+        decisions_path.write_text(
+            'version: "2.0"\n'
+            "decisions:\n"
+            "  CACHE_COMPONENTS:\n"
+            "    title: Cache Components\n"
+            "    status: accepted\n"
+            "    context: GitLab API calls are slow and rate-limited.\n"
+            "    decision: Implement component caching with a TTL.\n"
+            "    implementation:\n"
+            "      pattern: Cache-aside\n"
+            "      ttl: 3600 seconds\n"
+            "      storage: in-memory\n"
+        )
+        validator = AICaCValidator(str(aicac_project))
+        result = validator.validate()
+        decision_errors = [e for e in result["errors"] if "decisions" in e]
+        assert decision_errors == [], decision_errors
+
+    def test_decision_implementation_accepts_string(self, aicac_project):
+        """The simple string form must keep working (backwards compatibility)."""
+        decisions_path = aicac_project / ".ai" / "decisions.yaml"
+        decisions_path.write_text(
+            'version: "2.0"\n'
+            "decisions:\n"
+            "  USE_VALIDATOR:\n"
+            "    title: Use Validator\n"
+            "    status: accepted\n"
+            "    context: Need a schema-driven validator for .ai/ files.\n"
+            "    decision: Adopt jsonschema with Draft 2020-12 schemas.\n"
+            "    implementation: scripts/validate.py\n"
+        )
+        validator = AICaCValidator(str(aicac_project))
+        result = validator.validate()
+        decision_errors = [e for e in result["errors"] if "decisions" in e]
+        assert decision_errors == [], decision_errors
+
 
 # ---------------------------------------------------------------- xref
 
