@@ -43,7 +43,11 @@ inputs:
     default: 'false'
 
   auto-migrate:
-    description: 'If v1.x .ai/ shape is detected, open a PR with the v2.0 migration (maintain mode, default branch only).'
+    description: >-
+      If v1.x .ai/ shape is detected: stage the v2.0 migration in the CI working tree
+      so validation passes (no commits to non-default branches), and on the default
+      branch open an aicac/migrate-v2 PR with the migrated files. Set to false to
+      keep validation fail-fast on v1.x.
     required: false
     default: 'true'
 
@@ -211,6 +215,27 @@ runs:
           echo "📋 v1.x .ai/ shape detected; migration available."
         fi
 
+    # MAINTAIN MODE - Stage v1.x → v2.0 migration in the working tree before
+    # validation runs. Without this step the v2.0 validator fail-fasts on v1.x
+    # schema errors and the action never reaches the auto-migrate PR step,
+    # which deadlocks consumers upgrading from a v1.x .ai/ (the bump PR can't
+    # merge, so the new action never runs on the default branch to open the
+    # migration PR). Migration is idempotent and matches the migrate_v2 PR
+    # path exactly. The working-tree changes are picked up by the
+    # peter-evans step below on the default branch and discarded otherwise.
+    - name: Stage v2.0 migration in working tree
+      if: >-
+        (inputs.mode == 'maintain' || inputs.mode == 'validate')
+        && inputs.auto-migrate == 'true'
+        && steps.check-migration.outputs.needed == 'true'
+      shell: bash
+      env:
+        PROJECT_PATH: ${{ inputs.project-path }}
+      run: |
+        cd "$PROJECT_PATH"
+        python ${{ github.action_path }}/scripts/migrate_v2.py .
+        echo "📦 v2.0 migration staged in working tree (commit happens via aicac/migrate-v2 PR on default branch)"
+
     # MAINTAIN MODE - Validate and update
     - name: Check AICaC compliance
       if: inputs.mode == 'maintain' || inputs.mode == 'validate'
@@ -219,6 +244,8 @@ runs:
       env:
         PROJECT_PATH: ${{ inputs.project-path }}
         STRICT: ${{ inputs.strict }}
+        MIGRATION_NEEDED: ${{ steps.check-migration.outputs.needed }}
+        AUTO_MIGRATE: ${{ inputs.auto-migrate }}
       run: |
         cd "$PROJECT_PATH"
 
@@ -228,6 +255,18 @@ runs:
         cat validation_output.txt
 
         if [ "$HUMAN_RC" -ne 0 ]; then
+          # If a migration is staged, validation may still fail on issues
+          # migrate_v2.py can't auto-rewrite (e.g. lowercase decision keys,
+          # missing required fields). Surface them as warnings instead of
+          # killing the job, so the aicac/migrate-v2 PR still opens for
+          # human review and other branches don't block on schema cleanup.
+          if [ "$MIGRATION_NEEDED" = "true" ] && [ "$AUTO_MIGRATE" = "true" ]; then
+            echo "::warning::AICaC validation reported errors after staging the v1.x → v2.0 migration. The migrate_v2 PR (default branch) or your bump PR will need manual cleanup of remaining schema issues."
+            echo "level=None" >> $GITHUB_OUTPUT
+            echo "badge=https://img.shields.io/badge/AICaC-Migrating-yellow.svg" >> $GITHUB_OUTPUT
+            echo "schema-violations=0" >> $GITHUB_OUTPUT
+            exit 0
+          fi
           echo "level=None" >> $GITHUB_OUTPUT
           echo "badge=https://img.shields.io/badge/AICaC-Not%20Adopted-red.svg" >> $GITHUB_OUTPUT
           echo "schema-violations=0" >> $GITHUB_OUTPUT
@@ -254,8 +293,15 @@ runs:
           exit 1
         fi
 
+    # Skip the badge writer while a migration is staged: the level reported
+    # by validate.py on the v1.x tree (or partially-migrated tree) doesn't
+    # reflect what compliance will be after migration lands. The migrate-v2
+    # PR's own CI run on the migrated tree will refresh the badge correctly.
     - name: Update badge in README
-      if: (inputs.mode == 'maintain' && inputs.update-badge == 'true')
+      if: >-
+        inputs.mode == 'maintain'
+        && inputs.update-badge == 'true'
+        && steps.check-migration.outputs.needed != 'true'
       shell: bash
       env:
         PROJECT_PATH: ${{ inputs.project-path }}
@@ -280,8 +326,16 @@ runs:
           echo "📝 Badge updated in README.md"
         fi
 
+    # Guard: when a migration is staged, badge changes flow into the
+    # aicac/migrate-v2 PR alongside the migrated .ai/ files, not into the
+    # current branch. This prevents leaking a "Standard"/"Comprehensive" badge
+    # onto main while the .ai/ shape on main is still v1.x.
     - name: Commit badge update
-      if: inputs.mode == 'maintain' && inputs.update-badge == 'true' && steps.badge-changes.outputs.changed == 'true'
+      if: >-
+        inputs.mode == 'maintain'
+        && inputs.update-badge == 'true'
+        && steps.badge-changes.outputs.changed == 'true'
+        && steps.check-migration.outputs.needed != 'true'
       uses: stefanzweifel/git-auto-commit-action@v5
       with:
         commit_message: 'docs: update AICaC badge to reflect ${{ steps.check-compliance.outputs.level }} compliance'
@@ -320,11 +374,16 @@ runs:
           echo "📝 .ai/index.yaml regenerated"
         fi
 
+    # Guard: when a migration is staged, the regenerated index reflects
+    # v2.0-shaped data and must travel with the migrated files in the
+    # aicac/migrate-v2 PR — not be committed alone to main where the .ai/
+    # files on disk are still v1.x.
     - name: Commit index update
       if: >-
         inputs.mode == 'maintain'
         && inputs.regenerate-index == 'true'
         && steps.index-changes.outputs.changed == 'true'
+        && steps.check-migration.outputs.needed != 'true'
       uses: stefanzweifel/git-auto-commit-action@v5
       with:
         commit_message: 'chore(ai): regenerate .ai/index.yaml'
@@ -348,21 +407,10 @@ runs:
           echo "⏭️  Skipping v2 auto-migrate (not on default branch: $CURRENT_REF)"
         fi
 
-    - name: Run v2.0 migration
-      if: >-
-        inputs.mode == 'maintain'
-        && inputs.auto-migrate == 'true'
-        && steps.check-migration.outputs.needed == 'true'
-        && steps.migrate-default-branch.outputs.is-default == 'true'
-      shell: bash
-      env:
-        PROJECT_PATH: ${{ inputs.project-path }}
-      run: |
-        cd "$PROJECT_PATH"
-        python ${{ github.action_path }}/scripts/migrate_v2.py .
-        # Regenerate index against the migrated files
-        python ${{ github.action_path }}/scripts/generate_index.py .
-
+    # Note: migration was already staged in the working tree earlier (see
+    # "Stage v2.0 migration in working tree"), and the index was regenerated
+    # against the migrated files in "Regenerate .ai/index.yaml". On the
+    # default branch peter-evans below picks up both as uncommitted changes.
     - name: Open v2.0 migration PR
       if: >-
         inputs.mode == 'maintain'
@@ -385,9 +433,10 @@ runs:
           - `version:` bumped `1.x` → `2.0`
           - `.ai/index.yaml` regenerated against the migrated files
 
-          Review the diff, then merge to complete the migration. The
-          validator will continue to accept v1.x shape with warnings until
-          this PR lands.
+          Review the diff, then merge to complete the migration. While this
+          PR is open the action stages the same migration in CI working
+          trees so validation passes on other branches; nothing is committed
+          to those branches — only this PR carries the change.
         branch: aicac/migrate-v2
         delete-branch: true
         labels: aicac, migration
