@@ -217,6 +217,154 @@ class TestMigrateV2:
         assert "common_commands" not in new
 
 
+# -------------------------------------------------- migrate dict-shape fixups
+
+class TestMigrateDictNormalization:
+    """v1.x repos that already moved to dict shape but used non-canonical
+    fields/keys (e.g. eFAILution/gitlab-component-helper#87) need more than
+    just list->dict conversion to validate against the v2.0 schemas."""
+
+    def test_decision_lowercase_key_uppercased(self, tmp_path):
+        ai_dir = tmp_path / ".ai"
+        ai_dir.mkdir()
+        (ai_dir / "decisions.yaml").write_text(
+            'version: "1.0"\n'
+            "decisions:\n"
+            "  use_esbuild:\n"
+            "    status: accepted\n"
+            "    context: Need a fast bundler for the extension build.\n"
+            "    decision: Adopt esbuild over webpack.\n"
+        )
+        migrate_v2.migrate_file(ai_dir / "decisions.yaml")
+        new = yaml.safe_load((ai_dir / "decisions.yaml").read_text())
+        assert "USE_ESBUILD" in new["decisions"]
+        assert "use_esbuild" not in new["decisions"]
+
+    def test_decision_missing_title_derived_from_key(self, tmp_path):
+        ai_dir = tmp_path / ".ai"
+        ai_dir.mkdir()
+        (ai_dir / "decisions.yaml").write_text(
+            'version: "2.0"\n'
+            "decisions:\n"
+            "  USE_ESBUILD:\n"
+            "    status: accepted\n"
+            "    context: Need a fast bundler for the extension build.\n"
+            "    decision: Adopt esbuild over webpack.\n"
+        )
+        migrate_v2.migrate_file(ai_dir / "decisions.yaml")
+        new = yaml.safe_load((ai_dir / "decisions.yaml").read_text())
+        assert new["decisions"]["USE_ESBUILD"]["title"] == "Use Esbuild"
+
+    def test_decision_alternatives_considered_reshaped(self, tmp_path):
+        ai_dir = tmp_path / ".ai"
+        ai_dir.mkdir()
+        (ai_dir / "decisions.yaml").write_text(
+            'version: "2.0"\n'
+            "decisions:\n"
+            "  USE_ESBUILD:\n"
+            "    title: Use Esbuild\n"
+            "    status: accepted\n"
+            "    context: Need a fast bundler for the extension build.\n"
+            "    decision: Adopt esbuild over webpack.\n"
+            "    alternatives_considered:\n"
+            "      - webpack: Too slow, complex configuration\n"
+            "      - rollup: Not optimized for Node.js\n"
+        )
+        migrate_v2.migrate_file(ai_dir / "decisions.yaml")
+        new = yaml.safe_load((ai_dir / "decisions.yaml").read_text())
+        alts = new["decisions"]["USE_ESBUILD"]["alternatives_considered"]
+        assert alts[0] == {"name": "webpack", "rejected_because": "Too slow, complex configuration"}
+        assert alts[1] == {"name": "rollup", "rejected_because": "Not optimized for Node.js"}
+
+    def test_errors_missing_version_added(self, tmp_path):
+        ai_dir = tmp_path / ".ai"
+        ai_dir.mkdir()
+        (ai_dir / "errors.yaml").write_text(
+            "errors:\n"
+            "  COMPONENT_NOT_LOADING:\n"
+            "    symptom: Component browser is empty\n"
+        )
+        migrate_v2.migrate_file(ai_dir / "errors.yaml")
+        new = yaml.safe_load((ai_dir / "errors.yaml").read_text())
+        assert new["version"] == "2.0"
+
+    def test_errors_symptom_derived_from_symptoms_list(self, tmp_path):
+        ai_dir = tmp_path / ".ai"
+        ai_dir.mkdir()
+        (ai_dir / "errors.yaml").write_text(
+            'version: "2.0"\n'
+            "errors:\n"
+            "  COMPONENT_NOT_LOADING:\n"
+            "    symptoms:\n"
+            "      - Component browser shows no components\n"
+            "      - Autocomplete not working\n"
+        )
+        migrate_v2.migrate_file(ai_dir / "errors.yaml")
+        new = yaml.safe_load((ai_dir / "errors.yaml").read_text())
+        assert new["errors"]["COMPONENT_NOT_LOADING"]["symptom"] == (
+            "Component browser shows no components; Autocomplete not working"
+        )
+
+    def test_errors_causes_flattened_into_common_causes_and_solutions(self, tmp_path):
+        ai_dir = tmp_path / ".ai"
+        ai_dir.mkdir()
+        (ai_dir / "errors.yaml").write_text(
+            'version: "2.0"\n'
+            "errors:\n"
+            "  COMPONENT_NOT_LOADING:\n"
+            "    symptom: Component browser is empty\n"
+            "    causes:\n"
+            "      - cause: No component sources configured\n"
+            "        solution: Add componentSources in settings\n"
+            "      - cause: Cache not initialized\n"
+            "        solution:\n"
+            "          steps:\n"
+            "            - Run command palette\n"
+            "            - Update Cache\n"
+        )
+        migrate_v2.migrate_file(ai_dir / "errors.yaml")
+        new = yaml.safe_load((ai_dir / "errors.yaml").read_text())
+        err = new["errors"]["COMPONENT_NOT_LOADING"]
+        assert err["common_causes"] == [
+            "No component sources configured",
+            "Cache not initialized",
+        ]
+        assert err["solutions"][0] == "Add componentSources in settings"
+        assert err["solutions"][1] == {"steps": ["Run command palette", "Update Cache"]}
+
+    def test_errors_solutions_deepcopied_no_yaml_anchors(self, tmp_path):
+        ai_dir = tmp_path / ".ai"
+        ai_dir.mkdir()
+        (ai_dir / "errors.yaml").write_text(
+            'version: "2.0"\n'
+            "errors:\n"
+            "  E:\n"
+            "    symptom: foo\n"
+            "    causes:\n"
+            "      - cause: x\n"
+            "        solution:\n"
+            "          steps: [a]\n"
+        )
+        migrate_v2.migrate_file(ai_dir / "errors.yaml")
+        text = (ai_dir / "errors.yaml").read_text()
+        assert "&id" not in text and "*id" not in text
+
+    def test_already_v2_no_changes(self, tmp_path):
+        ai_dir = tmp_path / ".ai"
+        ai_dir.mkdir()
+        (ai_dir / "decisions.yaml").write_text(
+            'version: "2.0"\n'
+            "decisions:\n"
+            "  ADR-001:\n"
+            "    title: Use React\n"
+            "    status: accepted\n"
+            "    context: Need a SPA framework with broad support.\n"
+            "    decision: Adopt React for the frontend.\n"
+        )
+        changes = migrate_v2.migrate_file(ai_dir / "decisions.yaml")
+        assert changes == []
+
+
 # ---------------------------------------------------------------- index
 
 class TestGenerateIndex:
