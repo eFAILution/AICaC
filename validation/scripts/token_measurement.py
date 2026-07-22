@@ -24,7 +24,7 @@ Usage:
 import argparse
 import json
 import time
-from dataclasses import dataclass, asdict, field
+from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import List, Dict, Optional
 import statistics
@@ -147,7 +147,7 @@ class DocumentationLoader:
             # Also load .ai/README.md if exists
             ai_readme = ai_dir / "README.md"
             if ai_readme.exists():
-                content += f"\n# From .ai/README.md\n\n"
+                content += "\n# From .ai/README.md\n\n"
                 content += ai_readme.read_text()
                 files.append(".ai/README.md")
 
@@ -218,7 +218,7 @@ class DocumentationLoader:
 
             ai_readme = ai_dir / "README.md"
             if ai_readme.exists():
-                content += f"\n# From .ai/README.md\n\n"
+                content += "\n# From .ai/README.md\n\n"
                 content += ai_readme.read_text()
                 files.append(".ai/README.md")
 

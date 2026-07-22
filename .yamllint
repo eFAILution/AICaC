@@ -8,11 +8,11 @@
 extends: default
 
 rules:
-  # AICaC .ai/*.yaml carry prose summary/description fields that routinely
-  # exceed 80 chars. 120 is a sane ceiling that still catches runaway lines.
-  line-length:
-    max: 120
-    level: warning
+  # .ai/*.yaml carry full-sentence summary/description fields and long URLs
+  # that legitimately run past any column ceiling (some lines exceed 200
+  # chars). Line length is not a meaningful signal for this machine-read
+  # content format, so don't flag it.
+  line-length: disable
 
   # "---" at the top of single-document YAMLs is stylistic, not a real
   # problem. Disable — each of our files is a single document by design.
@@ -35,9 +35,8 @@ rules:
   truthy:
     level: warning
 
-  # Comment indent-matching is cosmetic; warn but don't fail.
-  comments-indentation:
-    level: warning
+  # Comment indent-matching is cosmetic and not worth flagging.
+  comments-indentation: disable
 
   # At least one space after `#` is reasonable; relax the default 2.
   comments:
