@@ -27,7 +27,6 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import json
 import os
 import subprocess  # nosec B404 - this script is a test-harness driver that shells out to performance_measurement.py with hardcoded argv; no user input reaches the subprocess call
 import sys
@@ -43,7 +42,7 @@ PERF_SCRIPT = Path(__file__).parent / "performance_measurement.py"
 PROVIDERS = {
     "ollama":    {"env_var": None,               "cost_per_1k_in": 0.0,    "cost_per_1k_out": 0.0},
     "groq":      {"env_var": "GROQ_API_KEY",     "cost_per_1k_in": 0.0,    "cost_per_1k_out": 0.0},
-    "anthropic": {"env_var": "ANTHROPIC_API_KEY","cost_per_1k_in": 0.003,  "cost_per_1k_out": 0.015},
+    "anthropic": {"env_var": "ANTHROPIC_API_KEY", "cost_per_1k_in": 0.003,  "cost_per_1k_out": 0.015},
     "openai":    {"env_var": "OPENAI_API_KEY",   "cost_per_1k_in": 0.0025, "cost_per_1k_out": 0.010},
 }
 

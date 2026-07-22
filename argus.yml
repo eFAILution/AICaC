@@ -52,12 +52,14 @@ scanners:
 
   lint-python:
     enabled: true
+    config_file: .flake8
 
   lint-javascript:
     enabled: true
 
   lint-yaml:
     enabled: true
+    config_file: .yamllint
 
   # lint-json:
   #   enabled: true

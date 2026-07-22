@@ -1,0 +1,10 @@
+[flake8]
+# House style is 100 columns. The validation/ measurement scripts are
+# internal tooling (not packaged — see pyproject.toml) and carry long
+# f-string report lines and column-aligned data literals; enforcing line
+# length there is churn without risk reduction, so E501 is ignored for
+# that tree. Real defects (pyflakes F-codes, etc.) stay enforced.
+max-line-length = 100
+per-file-ignores =
+    validation/scripts/*: E501
+    validation/scripts/tests/*: E501, E402
