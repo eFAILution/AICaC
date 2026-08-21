@@ -15,6 +15,7 @@ shapes (list form, common_commands) but does not fail on them.
 Usage:
     python validate.py [path_to_project]
     python validate.py . --json          # machine-readable output
+    python validate.py . --json-output validation.json  # human report + JSON sidecar
     python validate.py . --strict        # treat warnings as errors
 """
 
@@ -431,13 +432,26 @@ def main() -> int:
     parser.add_argument("project_path", nargs="?", default=".")
     parser.add_argument("--strict", action="store_true", help="Treat warnings as errors")
     parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON only")
+    parser.add_argument(
+        "--json-output",
+        type=Path,
+        help="Write machine-readable JSON to this file while retaining normal stdout",
+    )
     args = parser.parse_args()
 
     validator = AICaCValidator(args.project_path, strict=args.strict)
     results = validator.validate()
 
+    serialized = json.dumps(results, indent=2, default=str)
+    if args.json_output is not None:
+        try:
+            args.json_output.write_text(serialized + "\n", encoding="utf-8")
+        except OSError as exc:
+            print(f"Could not write JSON output to {args.json_output}: {exc}", file=sys.stderr)
+            return 2
+
     if args.json:
-        print(json.dumps(results, indent=2, default=str))
+        print(serialized)
     else:
         validator.print_report(results)
 

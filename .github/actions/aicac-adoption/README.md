@@ -30,6 +30,11 @@ Continuously validate and maintain compliance:
 - Automatically updates badge in README.md
 - Fails CI if compliance drops
 
+### ✅ Validate Mode
+Runs the compliance check without badge, index, migration-PR, or TOON maintenance writes. Set
+`strict: 'true'` to make warnings and errors fail the Action. Strict mode remains a hard gate when
+a migration is staged; only non-strict migration runs may continue so the migration PR can open.
+
 ## Usage
 
 ### Option 1: Bootstrap AICaC (For New Adopters)
@@ -96,20 +101,19 @@ This will:
 - name: Validate AICaC
   uses: eFAILution/AICaC/.github/actions/aicac-adoption@main
   with:
-    mode: maintain
-    update-badge: 'false'
+    mode: validate
 ```
 
 ## Inputs
 
 | Input | Description | Default | Required |
 |-------|-------------|---------|----------|
-| `mode` | Operation mode: `setup` or `maintain` | `maintain` | No |
+| `mode` | Operation mode: `setup`, `maintain`, or read-only `validate` | `maintain` | No |
 | `github-token` | GitHub token for creating PRs | `${{ github.token }}` | No |
 | `project-path` | Path to project directory | `.` | No |
 | `update-badge` | Auto-update badge in README | `true` | No |
-| `strict` | Fail on any schema violation (maintain mode) | `false` | No |
-| `auto-migrate` | Open a PR with v1.x → v2.0 migration when v1.x shape is detected | `true` | No |
+| `strict` | Pass `--strict` so warnings and errors always fail (`maintain` or `validate`, including staged migration) | `false` | No |
+| `auto-migrate` | In `maintain`, stage and open a PR for v1.x → v2.0 migration when needed | `true` | No |
 | `regenerate-index` | Keep `.ai/index.yaml` in sync each maintain run | `true` | No |
 | `install-shims` | Comma-separated platforms to scaffold in setup mode: `cursor`, `copilot`, `windsurf`, `aider`, or `all`. **Transitional** — see note below. | `""` | No |
 | `generate-toon` | Generate `.toon` files alongside YAML (optional) | `false` | No |
@@ -162,6 +166,7 @@ Validates AICaC compliance:
 **Standalone usage:**
 ```bash
 python scripts/validate.py /path/to/project
+python scripts/validate.py . --json-output validation.json
 ```
 
 ### scripts/update_badge.py
