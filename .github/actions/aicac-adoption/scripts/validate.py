@@ -30,8 +30,11 @@ import yaml
 
 try:
     from jsonschema import Draft202012Validator
+    from jsonschema.exceptions import ValidationError, best_match
     HAS_JSONSCHEMA = True
 except ImportError:
+    ValidationError = Any  # type: ignore[misc, assignment]
+    best_match = None
     HAS_JSONSCHEMA = False
 
 
@@ -196,37 +199,70 @@ class AICaCValidator:
                     self._error(f".ai/{filename}: schema[{loc}] {specific.message}")
 
             # version check
-            version = self._parsed[filename].get("version", "")
+            document = self._parsed[filename]
+            version = document.get("version", "") if isinstance(document, dict) else ""
             if isinstance(version, str) and version.startswith("1."):
                 self._warn(f".ai/{filename}: declares v{version}; v2.0 is current canonical")
 
     @classmethod
-    def _specific_schema_errors(cls, error: Any) -> list[Any]:
+    def _specific_schema_errors(cls, error: ValidationError) -> list[ValidationError]:
         """Return actionable errors from the best matching oneOf/anyOf branch.
 
         jsonschema reports a combinator failure at its parent path and includes
-        the useful field errors in ``context``. Select the branch that reached
-        deepest into the instance, then keep every error from that branch so a
-        missing sibling field is not hidden by a deeper type error.
+        useful field errors in ``context``. Rank its branches by how far they
+        match the instance, prefer structural type matches and fewer leaf
+        failures, then keep every leaf from the selected branch. If equally
+        plausible branches remain and jsonschema cannot choose one, keep the
+        parent combinator error instead of prescribing an arbitrary shape.
         """
         if not error.context:
             return [error]
 
-        branches: dict[Any, list[Any]] = {}
+        branches: dict[Any, list[ValidationError]] = {}
         for child in error.context:
             relative_schema_path = list(child.relative_schema_path)
             branch = relative_schema_path[0] if relative_schema_path else None
             branches.setdefault(branch, []).append(child)
 
-        selected = max(
-            branches.values(),
-            key=lambda children: max(len(child.absolute_path) for child in children),
-        )
-        return [
-            specific
-            for child in selected
-            for specific in cls._specific_schema_errors(child)
+        leaves_by_branch = {
+            branch: [
+                leaf
+                for child in children
+                for leaf in cls._specific_schema_errors(child)
+            ]
+            for branch, children in branches.items()
+        }
+
+        def score(leaves: list[ValidationError]) -> tuple[int, int, int]:
+            return (
+                max(len(leaf.absolute_path) for leaf in leaves),
+                -len(leaves),
+                -sum(leaf.validator == "type" for leaf in leaves),
+            )
+
+        best_score = max(score(leaves) for leaves in leaves_by_branch.values())
+        candidates = [
+            branch
+            for branch, leaves in leaves_by_branch.items()
+            if score(leaves) == best_score
         ]
+        if len(candidates) == 1:
+            return leaves_by_branch[candidates[0]]
+
+        ranked = best_match([error]) if best_match is not None else error
+        if ranked is error:
+            return [error]
+        ranked_schema_path = list(ranked.absolute_schema_path)
+        for branch in candidates:
+            children = branches[branch]
+            if any(
+                ranked_schema_path[:len(child.absolute_schema_path)]
+                == list(child.absolute_schema_path)
+                for child in children
+            ):
+                return leaves_by_branch[branch]
+
+        return [error]
 
     # ------------------------------------------------------------------ xref
 

@@ -22,7 +22,7 @@ errors:
       - v1.x list form encountered — migrate to v2.0 dict form
     solutions:
       - "Run: python .github/actions/aicac-adoption/scripts/validate.py ."
-      - Fix the reported leaf path first; parent oneOf/anyOf failures are reduced to the best matching branch.
+      - Fix the reported leaf path first. Equally plausible oneOf/anyOf shapes keep their parent error instead of selecting by schema order.
       - Consult spec/v2/*.schema.json for the required shape
       - "If migrating v1.x: python .github/actions/aicac-adoption/scripts/migrate_v2.py ."
     reference: spec/README.md

@@ -236,6 +236,20 @@ runs:
         python ${{ github.action_path }}/scripts/migrate_v2.py .
         echo "📦 v2.0 migration staged in working tree (commit happens via aicac/migrate-v2 PR on default branch)"
 
+    # INDEX REGENERATION - Repair generated routing data before compliance validation.
+    # Validate-only mode never writes and therefore checks the index exactly as supplied.
+    - name: Regenerate .ai/index.yaml
+      if: >-
+        inputs.mode == 'maintain'
+        && inputs.regenerate-index == 'true'
+        && steps.check-existing.outputs.needs-setup == 'false'
+      shell: bash
+      env:
+        PROJECT_PATH: ${{ inputs.project-path }}
+      run: |
+        cd "$PROJECT_PATH"
+        python ${{ github.action_path }}/scripts/generate_index.py .
+
     # MAINTAIN MODE - Validate and update
     - name: Check AICaC compliance
       if: inputs.mode == 'maintain' || inputs.mode == 'validate'
@@ -340,19 +354,6 @@ runs:
       with:
         commit_message: 'docs: update AICaC badge to reflect ${{ steps.check-compliance.outputs.level }} compliance'
         file_pattern: README.md
-
-    # INDEX REGENERATION - Keep .ai/index.yaml in sync
-    - name: Regenerate .ai/index.yaml
-      if: >-
-        inputs.mode == 'maintain'
-        && inputs.regenerate-index == 'true'
-        && steps.check-existing.outputs.needs-setup == 'false'
-      shell: bash
-      env:
-        PROJECT_PATH: ${{ inputs.project-path }}
-      run: |
-        cd "$PROJECT_PATH"
-        python ${{ github.action_path }}/scripts/generate_index.py .
 
     - name: Check for index changes
       if: >-

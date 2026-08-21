@@ -25,7 +25,7 @@ components:
       - anthropic
   adoption_action:
     location: .github/actions/aicac-adoption/
-    purpose: Bootstrap .ai/, validate compliance, update badge, optionally generate TOON.
+    purpose: Bootstrap .ai/, regenerate the optional index before maintain-mode validation, validate compliance, update badge, optionally generate TOON.
     files:
       - .github/actions/aicac-adoption/action.yml: Composite action definition
       - .github/actions/aicac-adoption/scripts/bootstrap.py: Bootstrap .ai/ scaffolding

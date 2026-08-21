@@ -73,8 +73,9 @@ Validator checks, in order:
 3. Cross-reference integrity (components referenced by workflows/decisions must exist)
 4. Content-quality heuristics (no all-TODO files, minimum populated entries)
 
-Schema errors identify the deepest useful field path from the best matching
-`oneOf`/`anyOf` branch instead of printing the whole parent mapping.
+Schema errors identify leaf paths from the structurally closest `oneOf`/`anyOf`
+branch. If two shapes remain equally plausible, the validator keeps the parent
+combinator error instead of prescribing an arbitrary representation.
 
 ## New in v2.0
 
