@@ -29,7 +29,7 @@ components:
     files:
       - .github/actions/aicac-adoption/action.yml: Composite action definition
       - .github/actions/aicac-adoption/scripts/bootstrap.py: Bootstrap .ai/ scaffolding
-      - .github/actions/aicac-adoption/scripts/validate.py: Schema + xref + quality validator
+      - .github/actions/aicac-adoption/scripts/validate.py: Schema (including optional index.yaml) + xref + quality validator with leaf-path diagnostics
       - .github/actions/aicac-adoption/scripts/update_badge.py: README badge updater
       - .github/actions/aicac-adoption/scripts/generate_toon.py: Optional TOON generator
       - .github/actions/aicac-adoption/scripts/generate_index.py: Optional index.yaml generator

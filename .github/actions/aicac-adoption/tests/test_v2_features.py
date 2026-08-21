@@ -22,6 +22,40 @@ import install_shims
 # ---------------------------------------------------------------- schema
 
 class TestSchemaValidation:
+    def test_nested_schema_error_reports_leaf_path(self, aicac_project):
+        decisions_path = aicac_project / ".ai" / "decisions.yaml"
+        decisions_path.write_text(
+            'version: "2.0"\n'
+            "decisions:\n"
+            "  ADR-001:\n"
+            "    title: Use Validator\n"
+            "    status: accepted\n"
+            "    context: Need precise diagnostics for invalid nested values.\n"
+            "    decision: Report the invalid field instead of the whole decisions map.\n"
+            "    rationale:\n"
+            "      - bad: mapping\n"
+        )
+
+        result = AICaCValidator(str(aicac_project)).validate()
+
+        assert any(
+            "schema[decisions.ADR-001.rationale.0]" in error
+            for error in result["errors"]
+        )
+        assert all("not valid under any of the given schemas" not in error for error in result["errors"])
+
+    def test_optional_index_is_validated_when_present(self, aicac_project):
+        (aicac_project / ".ai" / "index.yaml").write_text(
+            'version: "2.0"\n'
+            "summary: Routing index for the test project.\n"
+            "keys: []\n"
+        )
+
+        result = AICaCValidator(str(aicac_project)).validate()
+
+        assert result["found_files"]["index.yaml"] is True
+        assert any(".ai/index.yaml: schema[keys]" in error for error in result["errors"])
+
     def test_enum_project_type_rejected(self, aicac_project):
         """Unknown project.type values are rejected by v2.0 schema."""
         ctx_path = aicac_project / ".ai" / "context.yaml"

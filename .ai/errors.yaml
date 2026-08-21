@@ -14,7 +14,7 @@ errors:
       - "Validate with: python -c \"import yaml; yaml.safe_load(open('.ai/context.yaml'))\""
       - "Use online validator: https://www.yamllint.com/"
   SCHEMA_VALIDATION_ERROR:
-    symptom: "jsonschema.ValidationError: ... failed validating '...' in schema"
+    symptom: "Validator output names the invalid file and leaf path, for example .ai/decisions.yaml: schema[decisions.ADR-001.rationale.0]."
     common_causes:
       - Required field missing (e.g. project.description)
       - Wrong type (string vs list)
@@ -22,6 +22,7 @@ errors:
       - v1.x list form encountered — migrate to v2.0 dict form
     solutions:
       - "Run: python .github/actions/aicac-adoption/scripts/validate.py ."
+      - Fix the reported leaf path first; parent oneOf/anyOf failures are reduced to the best matching branch.
       - Consult spec/v2/*.schema.json for the required shape
       - "If migrating v1.x: python .github/actions/aicac-adoption/scripts/migrate_v2.py ."
     reference: spec/README.md

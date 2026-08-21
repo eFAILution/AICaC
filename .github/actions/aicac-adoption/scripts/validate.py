@@ -45,6 +45,7 @@ SCHEMA_FILES = {
     "workflows.yaml": "workflows.schema.json",
     "decisions.yaml": "decisions.schema.json",
     "errors.yaml": "errors.schema.json",
+    "index.yaml": "index.schema.json",
 }
 
 # Required vs optional files
@@ -69,6 +70,7 @@ class AICaCValidator:
         "workflows.yaml": False,
         "decisions.yaml": False,
         "errors.yaml": False,
+        "index.yaml": False,
     }
 
     def __init__(self, project_path: str = ".", schema_dir: Path | None = None,
@@ -183,14 +185,48 @@ class AICaCValidator:
             validator = Draft202012Validator(schema)
             errs = sorted(validator.iter_errors(self._parsed[filename]),
                           key=lambda e: list(e.absolute_path))
+            reported: set[tuple[str, str]] = set()
             for err in errs:
-                loc = ".".join(str(p) for p in err.absolute_path) or "<root>"
-                self._error(f".ai/{filename}: schema[{loc}] {err.message}")
+                for specific in self._specific_schema_errors(err):
+                    loc = ".".join(str(p) for p in specific.absolute_path) or "<root>"
+                    key = (loc, specific.message)
+                    if key in reported:
+                        continue
+                    reported.add(key)
+                    self._error(f".ai/{filename}: schema[{loc}] {specific.message}")
 
             # version check
             version = self._parsed[filename].get("version", "")
             if isinstance(version, str) and version.startswith("1."):
                 self._warn(f".ai/{filename}: declares v{version}; v2.0 is current canonical")
+
+    @classmethod
+    def _specific_schema_errors(cls, error: Any) -> list[Any]:
+        """Return actionable errors from the best matching oneOf/anyOf branch.
+
+        jsonschema reports a combinator failure at its parent path and includes
+        the useful field errors in ``context``. Select the branch that reached
+        deepest into the instance, then keep every error from that branch so a
+        missing sibling field is not hidden by a deeper type error.
+        """
+        if not error.context:
+            return [error]
+
+        branches: dict[Any, list[Any]] = {}
+        for child in error.context:
+            relative_schema_path = list(child.relative_schema_path)
+            branch = relative_schema_path[0] if relative_schema_path else None
+            branches.setdefault(branch, []).append(child)
+
+        selected = max(
+            branches.values(),
+            key=lambda children: max(len(child.absolute_path) for child in children),
+        )
+        return [
+            specific
+            for child in selected
+            for specific in cls._specific_schema_errors(child)
+        ]
 
     # ------------------------------------------------------------------ xref
 
