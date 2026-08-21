@@ -8,7 +8,7 @@ branding:
 
 inputs:
   mode:
-    description: 'Operation mode: "setup" to bootstrap AICaC, "maintain" to validate and update badge'
+    description: 'Operation mode: "setup" to bootstrap, "maintain" to validate and update, or "validate" for a read-only compliance check'
     required: false
     default: 'maintain'
 
@@ -38,13 +38,13 @@ inputs:
     default: 'true'
 
   strict:
-    description: 'Pass --strict to the validator so warnings and errors fail maintain or validate mode.'
+    description: 'Pass --strict to the validator so warnings and errors always fail maintain or validate mode, including during migration.'
     required: false
     default: 'false'
 
   auto-migrate:
     description: >-
-      If v1.x .ai/ shape is detected: stage the v2.0 migration in the CI working tree
+      In maintain mode, if v1.x .ai/ shape is detected: stage the v2.0 migration in the CI working tree
       so validation passes (no commits to non-default branches), and on the default
       branch open an aicac/migrate-v2 PR with the migrated files. Set to false to
       keep validation fail-fast on v1.x.
@@ -225,7 +225,7 @@ runs:
     # peter-evans step below on the default branch and discarded otherwise.
     - name: Stage v2.0 migration in working tree
       if: >-
-        (inputs.mode == 'maintain' || inputs.mode == 'validate')
+        inputs.mode == 'maintain'
         && inputs.auto-migrate == 'true'
         && steps.check-migration.outputs.needed == 'true'
       shell: bash
@@ -243,6 +243,7 @@ runs:
       shell: bash
       env:
         PROJECT_PATH: ${{ inputs.project-path }}
+        MODE: ${{ inputs.mode }}
         STRICT: ${{ inputs.strict }}
         MIGRATION_NEEDED: ${{ steps.check-migration.outputs.needed }}
         AUTO_MIGRATE: ${{ inputs.auto-migrate }}
@@ -254,10 +255,17 @@ runs:
           VALIDATE_ARGS+=(--strict)
         fi
 
-        # Run once in human-readable form for the log
+        VALIDATION_OUTPUT=$(mktemp "${RUNNER_TEMP:-/tmp}/aicac-validation-output.XXXXXX")
+        VALIDATION_JSON=$(mktemp "${RUNNER_TEMP:-/tmp}/aicac-validation-json.XXXXXX")
+        trap 'rm -f "$VALIDATION_OUTPUT" "$VALIDATION_JSON"' EXIT
+
+        # One canonical validation result drives the log, outputs, and exit status.
         HUMAN_RC=0
-        python "${{ github.action_path }}/scripts/validate.py" . "${VALIDATE_ARGS[@]}" > validation_output.txt 2>&1 || HUMAN_RC=$?
-        cat validation_output.txt
+        python "${{ github.action_path }}/scripts/validate.py" . "${VALIDATE_ARGS[@]}" --json-output "$VALIDATION_JSON" > "$VALIDATION_OUTPUT" 2>&1 || HUMAN_RC=$?
+        cat "$VALIDATION_OUTPUT"
+
+        LEVEL=$(python -c "import json, sys; print(json.load(open(sys.argv[1])).get('compliance_level') or 'Unknown')" "$VALIDATION_JSON")
+        VIOLATIONS=$(python -c "import json, sys; print(len(json.load(open(sys.argv[1])).get('errors', [])))" "$VALIDATION_JSON")
 
         if [ "$HUMAN_RC" -ne 0 ]; then
           # If a migration is staged, validation may still fail on issues
@@ -265,24 +273,20 @@ runs:
           # missing required fields). Surface them as warnings instead of
           # killing the job, so the aicac/migrate-v2 PR still opens for
           # human review and other branches don't block on schema cleanup.
-          if [ "$MIGRATION_NEEDED" = "true" ] && [ "$AUTO_MIGRATE" = "true" ]; then
+          if [ "$MODE" = "maintain" ] && [ "$STRICT" != "true" ] && [ "$MIGRATION_NEEDED" = "true" ] && [ "$AUTO_MIGRATE" = "true" ]; then
             echo "::warning::AICaC validation reported errors after staging the v1.x → v2.0 migration. The migrate_v2 PR (default branch) or your bump PR will need manual cleanup of remaining schema issues."
             echo "level=None" >> $GITHUB_OUTPUT
             echo "badge=https://img.shields.io/badge/AICaC-Migrating-yellow.svg" >> $GITHUB_OUTPUT
-            echo "schema-violations=0" >> $GITHUB_OUTPUT
+            echo "schema-violations=$VIOLATIONS" >> $GITHUB_OUTPUT
             exit 0
           fi
           echo "level=None" >> $GITHUB_OUTPUT
           echo "badge=https://img.shields.io/badge/AICaC-Not%20Adopted-red.svg" >> $GITHUB_OUTPUT
-          echo "schema-violations=0" >> $GITHUB_OUTPUT
+          echo "schema-violations=$VIOLATIONS" >> $GITHUB_OUTPUT
           echo "❌ AICaC not adopted"
           exit 1
         fi
 
-        # Run again in JSON mode for structured counts
-        python "${{ github.action_path }}/scripts/validate.py" . "${VALIDATE_ARGS[@]}" --json > validation.json 2>/dev/null || true
-        LEVEL=$(python -c "import json; print(json.load(open('validation.json')).get('compliance_level') or 'Unknown')")
-        VIOLATIONS=$(python -c "import json; print(len(json.load(open('validation.json')).get('errors', [])))")
         echo "level=$LEVEL" >> $GITHUB_OUTPUT
         echo "schema-violations=$VIOLATIONS" >> $GITHUB_OUTPUT
 
