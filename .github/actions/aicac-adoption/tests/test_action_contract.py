@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -162,6 +163,58 @@ def test_validate_mode_does_not_stage_migration() -> None:
 
     assert "inputs.mode == 'maintain'" in stage_migration["if"]
     assert "inputs.mode == 'validate'" not in stage_migration["if"]
+
+
+def test_validate_mode_keeps_local_action_checkout_clean(tmp_path: Path) -> None:
+    repo = tmp_path / "consumer"
+    local_action = repo / ".github" / "actions" / "aicac-adoption"
+    local_scripts = local_action / "scripts"
+    local_scripts.mkdir(parents=True)
+    shutil.copy2(ACTION_PATH, local_action / "action.yml")
+    for source in ACTION_PATH.parent.joinpath("scripts").glob("*.py"):
+        target = local_scripts / source.name
+        shutil.copy2(source, target)
+        target.chmod(0o644)
+
+    subprocess.run(["git", "init", "--quiet", str(repo)], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.name", "Action Contract Test"],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.email", "action@example.test"],
+        check=True,
+    )
+    subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "commit", "--quiet", "-m", "fixture"],
+        check=True,
+    )
+
+    action = yaml.safe_load((local_action / "action.yml").read_text())
+    for step in action["runs"]["steps"]:
+        script = step.get("run", "")
+        if "chmod " not in script or "${{ github.action_path }}" not in script:
+            continue
+        result = subprocess.run(
+            [
+                "bash",
+                "-c",
+                script.replace("${{ github.action_path }}", str(local_action)),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert result.returncode == 0, result.stderr
+
+    status = subprocess.run(
+        ["git", "-C", str(repo), "status", "--porcelain"],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert status.stdout == ""
 
 
 def test_validator_can_write_json_sidecar_with_human_report(

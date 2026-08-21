@@ -119,18 +119,6 @@ runs:
           pip install git+https://github.com/toon-format/toon-python.git
         fi
 
-    - name: Make scripts executable
-      shell: bash
-      run: |
-        chmod +x ${{ github.action_path }}/scripts/bootstrap.py
-        chmod +x ${{ github.action_path }}/scripts/validate.py
-        chmod +x ${{ github.action_path }}/scripts/update_badge.py
-        chmod +x ${{ github.action_path }}/scripts/generate_toon.py
-        chmod +x ${{ github.action_path }}/scripts/toon_migration.py
-        chmod +x ${{ github.action_path }}/scripts/migrate_v2.py
-        chmod +x ${{ github.action_path }}/scripts/generate_index.py
-        chmod +x ${{ github.action_path }}/scripts/install_shims.py
-
     - name: Check if .ai/ exists
       id: check-existing
       shell: bash
