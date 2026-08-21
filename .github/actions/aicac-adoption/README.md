@@ -108,7 +108,7 @@ This will:
 | `github-token` | GitHub token for creating PRs | `${{ github.token }}` | No |
 | `project-path` | Path to project directory | `.` | No |
 | `update-badge` | Auto-update badge in README | `true` | No |
-| `strict` | Fail on any schema violation (maintain mode) | `false` | No |
+| `strict` | Pass `--strict` to the validator so warnings and errors fail (`maintain` or `validate` mode) | `false` | No |
 | `auto-migrate` | Open a PR with v1.x → v2.0 migration when v1.x shape is detected | `true` | No |
 | `regenerate-index` | Keep `.ai/index.yaml` in sync each maintain run | `true` | No |
 | `install-shims` | Comma-separated platforms to scaffold in setup mode: `cursor`, `copilot`, `windsurf`, `aider`, or `all`. **Transitional** — see note below. | `""` | No |

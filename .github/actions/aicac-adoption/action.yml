@@ -38,7 +38,7 @@ inputs:
     default: 'true'
 
   strict:
-    description: 'Fail the action on any schema violation in maintain mode (useful as a pre-merge gate).'
+    description: 'Pass --strict to the validator so warnings and errors fail maintain or validate mode.'
     required: false
     default: 'false'
 
@@ -249,9 +249,14 @@ runs:
       run: |
         cd "$PROJECT_PATH"
 
+        VALIDATE_ARGS=()
+        if [ "$STRICT" = "true" ]; then
+          VALIDATE_ARGS+=(--strict)
+        fi
+
         # Run once in human-readable form for the log
         HUMAN_RC=0
-        python ${{ github.action_path }}/scripts/validate.py . > validation_output.txt 2>&1 || HUMAN_RC=$?
+        python "${{ github.action_path }}/scripts/validate.py" . "${VALIDATE_ARGS[@]}" > validation_output.txt 2>&1 || HUMAN_RC=$?
         cat validation_output.txt
 
         if [ "$HUMAN_RC" -ne 0 ]; then
@@ -275,7 +280,7 @@ runs:
         fi
 
         # Run again in JSON mode for structured counts
-        python ${{ github.action_path }}/scripts/validate.py . --json > validation.json 2>/dev/null || true
+        python "${{ github.action_path }}/scripts/validate.py" . "${VALIDATE_ARGS[@]}" --json > validation.json 2>/dev/null || true
         LEVEL=$(python -c "import json; print(json.load(open('validation.json')).get('compliance_level') or 'Unknown')")
         VIOLATIONS=$(python -c "import json; print(len(json.load(open('validation.json')).get('errors', [])))")
         echo "level=$LEVEL" >> $GITHUB_OUTPUT
@@ -287,11 +292,6 @@ runs:
           Minimal)       echo "badge=https://img.shields.io/badge/AICaC-Minimal-green.svg" >> $GITHUB_OUTPUT ;;
           *)             echo "badge=https://img.shields.io/badge/AICaC-Unknown-lightgrey.svg" >> $GITHUB_OUTPUT ;;
         esac
-
-        if [ "$STRICT" = "true" ] && [ "$VIOLATIONS" -gt 0 ]; then
-          echo "❌ strict mode: $VIOLATIONS schema violation(s) found — failing"
-          exit 1
-        fi
 
     # Skip the badge writer while a migration is staged: the level reported
     # by validate.py on the v1.x tree (or partially-migrated tree) doesn't
