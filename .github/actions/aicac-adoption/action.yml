@@ -57,7 +57,7 @@ inputs:
     default: 'true'
 
   install-shims:
-    description: 'Comma-separated list of platform shims to scaffold in setup mode (cursor,copilot,windsurf,aider) or "all". Each shim points at AGENTS.md.'
+    description: 'Comma-separated list of platform shims to scaffold in setup mode (cursor,grok,copilot,windsurf,aider) or "all". Each shim points at AGENTS.md.'
     required: false
     default: ''
 

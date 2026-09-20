@@ -41,6 +41,9 @@ confirm you've picked the right file before loading the rest. The optional
 - **Claude Code skill**: [`.claude/skills/aicac/SKILL.md`](.claude/skills/aicac/SKILL.md)
   — the on-ramp for Claude Code users to route, bootstrap, validate, and keep
   `.ai/` in sync.
+- **Grok Bot skill**: [`.grok/skills/aicac/SKILL.md`](.grok/skills/aicac/SKILL.md)
+  — the on-ramp for Grok Bot / Grok-in-Cursor users (same recipes as Claude,
+  shares core content from `skills/aicac/`).
 
 ## Quick facts
 

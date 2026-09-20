@@ -479,3 +479,15 @@ class TestInstallShims:
         rel, wrote = install_shims.write_shim(tmp_path, "copilot", dry_run=True)
         assert wrote is True  # returns "would write" for contract consistency
         assert not (tmp_path / rel).exists()
+
+    def test_grok_shim_points_at_agents_md(self, tmp_path):
+        install_shims.write_shim(tmp_path, "grok", dry_run=False)
+        content = (tmp_path / ".grok/rules/aicac.md").read_text()
+        assert "AGENTS.md" in content
+        assert "Grok Bot" in content
+        assert ".ai/" in content
+
+    def test_grok_platform_in_platforms_dict(self):
+        assert "grok" in install_shims.PLATFORMS
+        path, content = install_shims.PLATFORMS["grok"]
+        assert path == ".grok/rules/aicac.md"

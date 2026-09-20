@@ -52,9 +52,22 @@ alwaysApply: true
     return frontmatter + SHIM_BODY
 
 
+def _grok_shim() -> str:
+    """Grok Bot uses .grok/rules/*.md (markdown with no special frontmatter for rules)."""
+    preamble = "# AICaC Router for Grok Bot / Cursor\n\n"
+    note = """\
+This rule teaches Grok Bot and Grok-in-Cursor to use AGENTS.md + `.ai/*.yaml`
+for selective context loading. Read AGENTS.md at the repository root for the
+router table, then load ONLY the one `.ai/` file relevant to the current intent.
+
+"""
+    return preamble + note + SHIM_BODY
+
+
 PLATFORMS: dict[str, tuple[str, str]] = {
     # name -> (relative_path, content)
     "cursor":   (".cursor/rules/aicac.mdc",           _cursor_shim()),
+    "grok":     (".grok/rules/aicac.md",              _grok_shim()),
     "copilot":  (".github/copilot-instructions.md",   SHIM_BODY),
     "windsurf": (".windsurfrules",                    SHIM_BODY),
     "aider":    ("CONVENTIONS.md",                    SHIM_BODY),

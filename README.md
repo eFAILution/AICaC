@@ -150,6 +150,31 @@ cp -r AICaC/.claude/skills/aicac ~/.claude/skills/aicac
 
 Restart Claude Code after installing globally.
 
+**Option 1b: Grok Bot / Cursor (Grok)**
+
+The skill at `.grok/skills/aicac/` works with Grok Bot and Grok-in-Cursor
+(Cursor's native Grok integration). When Grok sees `.ai/` or is asked to adopt
+AICaC, it loads the skill and keeps the files in sync.
+
+Installation:
+
+```bash
+# Per-project: clone AICaC — the skill is at .grok/skills/aicac/
+git clone https://github.com/eFAILution/AICaC
+
+# User-global (available in every project): symlink from a clone
+ln -s "$(pwd)/AICaC/.grok/skills/aicac" ~/.grok/skills/aicac
+
+# Or copy (frozen snapshot, no auto-update)
+cp -r AICaC/.grok/skills/aicac ~/.grok/skills/aicac
+
+# Install the router shim (points Grok at AGENTS.md)
+python3 AICaC/.github/actions/aicac-adoption/scripts/install_shims.py . --platforms=grok
+```
+
+The Grok skill shares the same recipes as the Claude skill. Both are thin
+wrappers around `skills/aicac/SKILL.md`.
+
 **Option 2: GitHub Action (automated)**
 
 ```yaml
