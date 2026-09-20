@@ -15,6 +15,7 @@ shapes (list form, common_commands) but does not fail on them.
 Usage:
     python validate.py [path_to_project]
     python validate.py . --json          # machine-readable output
+    python validate.py . --json-output validation.json  # human report + JSON sidecar
     python validate.py . --strict        # treat warnings as errors
 """
 
@@ -30,8 +31,11 @@ import yaml
 
 try:
     from jsonschema import Draft202012Validator
+    from jsonschema.exceptions import ValidationError, best_match
     HAS_JSONSCHEMA = True
 except ImportError:
+    ValidationError = Any  # type: ignore[misc, assignment]
+    best_match = None
     HAS_JSONSCHEMA = False
 
 
@@ -45,6 +49,7 @@ SCHEMA_FILES = {
     "workflows.yaml": "workflows.schema.json",
     "decisions.yaml": "decisions.schema.json",
     "errors.yaml": "errors.schema.json",
+    "index.yaml": "index.schema.json",
 }
 
 # Required vs optional files
@@ -69,6 +74,7 @@ class AICaCValidator:
         "workflows.yaml": False,
         "decisions.yaml": False,
         "errors.yaml": False,
+        "index.yaml": False,
     }
 
     def __init__(self, project_path: str = ".", schema_dir: Path | None = None,
@@ -183,14 +189,81 @@ class AICaCValidator:
             validator = Draft202012Validator(schema)
             errs = sorted(validator.iter_errors(self._parsed[filename]),
                           key=lambda e: list(e.absolute_path))
+            reported: set[tuple[str, str]] = set()
             for err in errs:
-                loc = ".".join(str(p) for p in err.absolute_path) or "<root>"
-                self._error(f".ai/{filename}: schema[{loc}] {err.message}")
+                for specific in self._specific_schema_errors(err):
+                    loc = ".".join(str(p) for p in specific.absolute_path) or "<root>"
+                    key = (loc, specific.message)
+                    if key in reported:
+                        continue
+                    reported.add(key)
+                    self._error(f".ai/{filename}: schema[{loc}] {specific.message}")
 
             # version check
-            version = self._parsed[filename].get("version", "")
+            document = self._parsed[filename]
+            version = document.get("version", "") if isinstance(document, dict) else ""
             if isinstance(version, str) and version.startswith("1."):
                 self._warn(f".ai/{filename}: declares v{version}; v2.0 is current canonical")
+
+    @classmethod
+    def _specific_schema_errors(cls, error: ValidationError) -> list[ValidationError]:
+        """Return actionable errors from the best matching oneOf/anyOf branch.
+
+        jsonschema reports a combinator failure at its parent path and includes
+        useful field errors in ``context``. Rank its branches by how far they
+        match the instance, prefer structural type matches and fewer leaf
+        failures, then keep every leaf from the selected branch. If equally
+        plausible branches remain and jsonschema cannot choose one, keep the
+        parent combinator error instead of prescribing an arbitrary shape.
+        """
+        if not error.context:
+            return [error]
+
+        branches: dict[Any, list[ValidationError]] = {}
+        for child in error.context:
+            relative_schema_path = list(child.relative_schema_path)
+            branch = relative_schema_path[0] if relative_schema_path else None
+            branches.setdefault(branch, []).append(child)
+
+        leaves_by_branch = {
+            branch: [
+                leaf
+                for child in children
+                for leaf in cls._specific_schema_errors(child)
+            ]
+            for branch, children in branches.items()
+        }
+
+        def score(leaves: list[ValidationError]) -> tuple[int, int, int]:
+            return (
+                max(len(leaf.absolute_path) for leaf in leaves),
+                -len(leaves),
+                -sum(leaf.validator == "type" for leaf in leaves),
+            )
+
+        best_score = max(score(leaves) for leaves in leaves_by_branch.values())
+        candidates = [
+            branch
+            for branch, leaves in leaves_by_branch.items()
+            if score(leaves) == best_score
+        ]
+        if len(candidates) == 1:
+            return leaves_by_branch[candidates[0]]
+
+        ranked = best_match([error]) if best_match is not None else error
+        if ranked is error:
+            return [error]
+        ranked_schema_path = list(ranked.absolute_schema_path)
+        for branch in candidates:
+            children = branches[branch]
+            if any(
+                ranked_schema_path[:len(child.absolute_schema_path)]
+                == list(child.absolute_schema_path)
+                for child in children
+            ):
+                return leaves_by_branch[branch]
+
+        return [error]
 
     # ------------------------------------------------------------------ xref
 
@@ -431,13 +504,26 @@ def main() -> int:
     parser.add_argument("project_path", nargs="?", default=".")
     parser.add_argument("--strict", action="store_true", help="Treat warnings as errors")
     parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON only")
+    parser.add_argument(
+        "--json-output",
+        type=Path,
+        help="Write machine-readable JSON to this file while retaining normal stdout",
+    )
     args = parser.parse_args()
 
     validator = AICaCValidator(args.project_path, strict=args.strict)
     results = validator.validate()
 
+    serialized = json.dumps(results, indent=2, default=str)
+    if args.json_output is not None:
+        try:
+            args.json_output.write_text(serialized + "\n", encoding="utf-8")
+        except OSError as exc:
+            print(f"Could not write JSON output to {args.json_output}: {exc}", file=sys.stderr)
+            return 2
+
     if args.json:
-        print(json.dumps(results, indent=2, default=str))
+        print(serialized)
     else:
         validator.print_report(results)
 

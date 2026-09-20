@@ -52,7 +52,7 @@ workflows:
     reference: README.md
     touches_components: [adoption_action]
   validate_compliance:
-    description: Check a project meets AICaC v2.0 schema, cross-references, and quality heuristics.
+    description: Check every present canonical file, including optional index.yaml, against AICaC v2.0 schemas, cross-references, and quality heuristics.
     command: python .github/actions/aicac-adoption/scripts/validate.py .
     touches_components: [adoption_action]
   update_badge:

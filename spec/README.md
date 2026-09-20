@@ -69,9 +69,13 @@ python .github/actions/aicac-adoption/scripts/validate.py .
 
 Validator checks, in order:
 1. Required files present
-2. JSON Schema conformance per file
+2. JSON Schema conformance for each present canonical file, including optional `index.yaml`
 3. Cross-reference integrity (components referenced by workflows/decisions must exist)
 4. Content-quality heuristics (no all-TODO files, minimum populated entries)
+
+Schema errors identify leaf paths from the structurally closest `oneOf`/`anyOf`
+branch. If two shapes remain equally plausible, the validator keeps the parent
+combinator error instead of prescribing an arbitrary representation.
 
 ## New in v2.0
 

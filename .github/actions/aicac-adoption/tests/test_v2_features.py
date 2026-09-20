@@ -5,6 +5,7 @@ content-quality heuristics, migration helper, and index generator.
 
 from __future__ import annotations
 
+import subprocess
 import sys
 from pathlib import Path
 
@@ -22,6 +23,119 @@ import install_shims
 # ---------------------------------------------------------------- schema
 
 class TestSchemaValidation:
+    def test_nested_schema_error_reports_leaf_path(self, aicac_project):
+        decisions_path = aicac_project / ".ai" / "decisions.yaml"
+        decisions_path.write_text(
+            'version: "2.0"\n'
+            "decisions:\n"
+            "  ADR-001:\n"
+            "    title: Use Validator\n"
+            "    status: accepted\n"
+            "    context: Need precise diagnostics for invalid nested values.\n"
+            "    decision: Report the invalid field instead of the whole decisions map.\n"
+            "    rationale:\n"
+            "      - bad: mapping\n"
+        )
+
+        result = AICaCValidator(str(aicac_project)).validate()
+
+        assert any(
+            "schema[decisions.ADR-001.rationale.0]" in error
+            for error in result["errors"]
+        )
+        assert all("not valid under any of the given schemas" not in error for error in result["errors"])
+
+    def test_optional_index_is_validated_when_present(self, aicac_project):
+        (aicac_project / ".ai" / "index.yaml").write_text(
+            'version: "2.0"\n'
+            "summary: Routing index for the test project.\n"
+            "keys: []\n"
+        )
+
+        result = AICaCValidator(str(aicac_project)).validate()
+
+        assert result["found_files"]["index.yaml"] is True
+        assert any(".ai/index.yaml: schema[keys]" in error for error in result["errors"])
+
+    def test_non_object_index_reports_root_error_without_crashing(self, aicac_project):
+        (aicac_project / ".ai" / "index.yaml").write_text("- invalid\n")
+
+        result = AICaCValidator(str(aicac_project)).validate()
+
+        assert result["valid"] is False
+        assert result["compliance_level"] == "None"
+        assert any(".ai/index.yaml: schema[<root>]" in error for error in result["errors"])
+
+    def test_structured_alternative_missing_name_reports_required_field(self, aicac_project):
+        decisions_path = aicac_project / ".ai" / "decisions.yaml"
+        decisions_path.write_text(
+            'version: "2.0"\n'
+            "decisions:\n"
+            "  ADR-001:\n"
+            "    title: Use Validator\n"
+            "    status: accepted\n"
+            "    context: Need precise diagnostics for invalid alternatives.\n"
+            "    decision: Prefer the structurally matching schema branch.\n"
+            "    alternatives_considered:\n"
+            "      - rejected_because: It lacks a stable name.\n"
+        )
+
+        result = AICaCValidator(str(aicac_project)).validate()
+
+        decision_errors = [error for error in result["errors"] if "decisions" in error]
+        assert any(
+            "schema[decisions.ADR-001.alternatives_considered.0] "
+            "'name' is a required property" in error
+            for error in decision_errors
+        )
+        assert all("is not of type 'string'" not in error for error in decision_errors)
+
+    def test_mostly_structured_alternatives_select_object_branch(self, aicac_project):
+        decisions_path = aicac_project / ".ai" / "decisions.yaml"
+        decisions_path.write_text(
+            'version: "2.0"\n'
+            "decisions:\n"
+            "  ADR-001:\n"
+            "    title: Use Validator\n"
+            "    status: accepted\n"
+            "    context: Need precise diagnostics for mixed alternatives.\n"
+            "    decision: Prefer the branch with fewer structural failures.\n"
+            "    alternatives_considered:\n"
+            "      - name: First option\n"
+            "      - name: Second option\n"
+            "      - legacy string\n"
+        )
+
+        result = AICaCValidator(str(aicac_project)).validate()
+
+        decision_errors = [error for error in result["errors"] if "decisions" in error]
+        assert any(
+            "schema[decisions.ADR-001.alternatives_considered.2] "
+            "'legacy string' is not of type 'object'" in error
+            for error in decision_errors
+        )
+        assert all(
+            "schema[decisions.ADR-001.alternatives_considered.0]" not in error
+            for error in decision_errors
+        )
+
+    def test_workflow_missing_command_and_steps_keeps_combinator_error(self, aicac_project):
+        (aicac_project / ".ai" / "workflows.yaml").write_text(
+            'version: "2.0"\n'
+            "workflows:\n"
+            "  incomplete:\n"
+            "    description: This workflow has no executable form.\n"
+        )
+
+        result = AICaCValidator(str(aicac_project)).validate()
+
+        workflow_errors = [error for error in result["errors"] if "workflows" in error]
+        assert any(
+            "schema[workflows.incomplete]" in error
+            and "not valid under any of the given schemas" in error
+            for error in workflow_errors
+        )
+
     def test_enum_project_type_rejected(self, aicac_project):
         """Unknown project.type values are rejected by v2.0 schema."""
         ctx_path = aicac_project / ".ai" / "context.yaml"
@@ -424,6 +538,42 @@ class TestGenerateIndex:
         idx = generate_index.build_index(ai_dir)
         assert "project_overview" in idx["routing"]
         assert idx["routing"]["project_overview"] == ["context.yaml"]
+
+    def test_maintain_regenerates_invalid_index_before_validation(
+        self, comprehensive_aicac_project
+    ):
+        ai_dir = comprehensive_aicac_project / ".ai"
+        index_path = ai_dir / "index.yaml"
+        index_path.unlink(missing_ok=True)
+        baseline = AICaCValidator(str(comprehensive_aicac_project)).validate()
+        index_path.write_text('version: "2.0"\nsummary: Broken index\nkeys: []\n')
+
+        broken = AICaCValidator(str(comprehensive_aicac_project)).validate()
+        assert broken["compliance_level"] == "None"
+
+        action = yaml.safe_load(
+            (Path(__file__).parent.parent / "action.yml").read_text()
+        )
+        step_names = [step["name"] for step in action["runs"]["steps"]]
+        assert step_names.index("Regenerate .ai/index.yaml") < step_names.index(
+            "Check AICaC compliance"
+        )
+
+        generated = subprocess.run(
+            [
+                sys.executable,
+                str(Path(generate_index.__file__)),
+                str(comprehensive_aicac_project),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert generated.returncode == 0, generated.stderr
+
+        repaired = AICaCValidator(str(comprehensive_aicac_project)).validate()
+        assert repaired["valid"] is True
+        assert repaired["compliance_level"] == baseline["compliance_level"]
 
 
 # ---------------------------------------------------------------- migrate --check
