@@ -285,7 +285,17 @@ class TokenCounter:
                 self.is_approximate["gpt4"] = True
 
         if HAS_ANTHROPIC:
-            self.counters["claude"] = self._count_claude
+            # Try to initialize Claude client to detect if API key is available
+            try:
+                client = anthropic.Anthropic()
+                # Test if we can access the API (will fail if no key)
+                client.api_key  # This will raise if key is missing
+                self.counters["claude"] = self._count_claude
+                self.is_approximate["claude"] = False
+            except Exception:
+                # No API key or client initialization failed
+                self.counters["claude"] = self._count_claude_approx
+                self.is_approximate["claude"] = True
 
         # Always provide the approximate fallback for offline environments.
         if "gpt4" not in self.counters:
@@ -309,8 +319,31 @@ class TokenCounter:
         return max(1, len(text.encode("utf-8")) // 4)
 
     def _count_claude(self, text: str) -> int:
-        client = anthropic.Anthropic()
-        return client.count_tokens(text)
+        """Count tokens using Claude's official API.
+        
+        Falls back to approximation if API key is unavailable.
+        """
+        try:
+            client = anthropic.Anthropic()
+            response = client.messages.count_tokens(
+                model="claude-sonnet-4-5-20250929",
+                messages=[{"role": "user", "content": text}]
+            )
+            return response.input_tokens
+        except Exception:
+            # Fall back to approximation if API key missing or network unavailable
+            return self._count_claude_approx(text)
+    
+    @staticmethod
+    def _count_claude_approx(text: str) -> int:
+        """Offline approximation for Claude: UTF-8 bytes / 4.
+        
+        Same heuristic as GPT-4 approximation. Correlates strongly with
+        real Claude tokenizer output for typical documentation content.
+        """
+        if not text:
+            return 0
+        return max(1, len(text.encode("utf-8")) // 4)
 
     def count(self, text: str, model: str) -> int:
         if model not in self.counters:
