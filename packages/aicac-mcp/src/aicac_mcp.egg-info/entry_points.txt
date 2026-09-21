@@ -1,0 +1,2 @@
+[console_scripts]
+aicac-mcp = aicac_mcp.server:main

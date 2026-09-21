@@ -1,0 +1,56 @@
+[project]
+name = "aicac-mcp"
+version = "2.0.0"
+description = "MCP server for AI Context as Code (AICaC) v2.0"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "AICaC Contributors" },
+]
+keywords = ["ai", "mcp", "model-context-protocol", "ai-context", "documentation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Documentation",
+]
+
+dependencies = [
+    "mcp>=1.0.0",
+    "pyyaml>=6.0",
+    "jsonschema>=4.17.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/eFAILution/AICaC"
+Documentation = "https://github.com/eFAILution/AICaC/blob/main/ai-context-as-code-whitepaper.md"
+Repository = "https://github.com/eFAILution/AICaC"
+Issues = "https://github.com/eFAILution/AICaC/issues"
+
+[project.scripts]
+aicac-mcp = "aicac_mcp.server:main"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+aicac_mcp = ["data/schemas/*.json", "data/skills/*.md", "data/scripts/*.py"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

@@ -231,6 +231,23 @@ deprecation warning. `migrate_v2.py` rewrites them automatically.
 
 Files that are majority-TODO don't count. See [BADGES.md](BADGES.md).
 
+## MCP Server
+
+The **aicac-mcp** package provides a Model Context Protocol (MCP) server that makes AICaC capabilities available to any MCP-compatible AI tool (Claude Code, Cursor, Windsurf, Continue, Zed, Aider, etc.).
+
+**Tools:**
+- `aicac_validate` — validate `.ai/` compliance
+- `aicac_bootstrap` — create initial `.ai/` structure
+- `aicac_generate_index` — regenerate `.ai/index.yaml`
+- `aicac_migrate` — migrate v1.x to v2.0
+- `aicac_sync_suggest` — suggest which `.ai/` files need updates
+
+**Resources:**
+- JSON Schemas (`aicac://spec/v2/*.schema.json`)
+- Skill content (`aicac://skill/{router,bootstrap,validate,sync,migrate}`)
+
+See [`packages/aicac-mcp/README.md`](packages/aicac-mcp/README.md) for installation and usage.
+
 ## Documentation
 
 - **[Whitepaper](ai-context-as-code-whitepaper.md)** — full narrative

@@ -1,7 +1,7 @@
 # AICaC MCP server — design sketch
 
-Design for a cross-platform AICaC MCP server. Status: **draft, not
-implemented**. Companion to `in-harness-eval-protocol.md`.
+Design for a cross-platform AICaC MCP server. Status: **MVP implemented** (see
+`packages/aicac-mcp/`). Companion to `in-harness-eval-protocol.md`.
 
 ## Goal
 
@@ -376,3 +376,24 @@ Without the MCP server, the procedural knowledge that lives in
 `.claude/skills/aicac/*.md` only reaches Claude Code. With it, the same
 content reaches every MCP-capable client — and no new adapter is needed
 as new tools come online.
+
+## Implementation notes (v2.0 MVP)
+
+**Delivered** (see `packages/aicac-mcp/`):
+
+- All 5 tools (`validate`, `bootstrap`, `generate_index`, `migrate`, `sync_suggest`)
+- All resources (6 JSON schemas, 5 skill markdown files)
+- Stdio transport via official `mcp` Python SDK
+- Dry-run-by-default (`apply: false` for write operations)
+- 25 passing unit/integration tests
+- Package README with install/usage examples
+
+**Deviations from design:**
+
+- None — implementation follows the design doc directly.
+
+**Future work (not blocking MVP):**
+
+- PyPI publication (currently install via git URL)
+- Registry listings (Anthropic, Cursor, Continue, Windsurf)
+- Performance testing with real MCP clients

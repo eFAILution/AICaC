@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eFAILution/AICaC/spec/v2/errors.schema.json",
+  "title": "AICaC errors.yaml",
+  "description": "Error-pattern to solution mappings. Canonical form: dict keyed by stable error id.",
+  "type": "object",
+  "required": ["version", "errors"],
+  "properties": {
+    "version": { "type": "string", "pattern": "^(1|2)\\.[0-9]+(\\.[0-9]+)?$" },
+    "summary": { "type": "string", "maxLength": 280 },
+    "errors": {
+      "description": "Canonical (v2.0+) dict keyed by error id; or deprecated list form.",
+      "oneOf": [
+        {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "object",
+            "required": ["symptom"],
+            "properties": {
+              "symptom": { "type": "string", "minLength": 5 },
+              "context": { "type": "string" },
+              "common_causes": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "root_cause": { "type": "string" },
+              "solutions": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "oneOf": [
+                    { "type": "string" },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "description": { "type": "string" },
+                        "command": { "type": "string" },
+                        "warning": { "type": "string" },
+                        "requires_restart": { "type": "boolean" }
+                      }
+                    }
+                  ]
+                }
+              },
+              "solution": {
+                "description": "Legacy single-solution form. Prefer solutions (array).",
+                "oneOf": [
+                  { "type": "string" },
+                  { "type": "object" }
+                ]
+              },
+              "reference": { "type": "string" },
+              "related_issues": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        {
+          "type": "array",
+          "description": "Deprecated list form (v1.x).",
+          "deprecated": true
+        }
+      ]
+    },
+    "error_patterns": {
+      "deprecated": true,
+      "description": "DEPRECATED in v2.0: use top-level 'errors' dict.",
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "troubleshooting_workflow": {
+      "type": "array",
+      "items": { "type": "object" }
+    }
+  },
+  "additionalProperties": true
+}
