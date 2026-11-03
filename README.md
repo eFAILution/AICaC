@@ -264,7 +264,8 @@ Files that are majority-TODO don't count. See [BADGES.md](BADGES.md).
 ## Status & roadmap
 
 **v0.4.0 — Spec v2.0** (current): JSON Schemas, cross-ref validator, honest
-empirical framing, Claude Code skill.
+empirical framing, harness-neutral skill (`skills/aicac/` with Claude Code
+and `.agents/skills` adapters).
 
 **Near-term:**
 - Cross-repository measurement (≥5 production projects)

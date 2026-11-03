@@ -174,5 +174,5 @@ decisions:
         - Existing v1.x adopters see deprecation warnings
         - One-time migration of whitepaper/sample examples
     implementation: spec/v2/
-    affects_components: [specification, adoption_action, claude_code_skill]
+    affects_components: [specification, adoption_action, aicac_skill]
     superseded_by: null

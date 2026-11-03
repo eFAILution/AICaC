@@ -36,7 +36,7 @@ components:
     external_dependencies:
       - pyyaml
       - jsonschema
-  claude_code_skill:
+  aicac_skill:
     location: skills/aicac/
     purpose: Bridge the gap before native AI-tool support — harness-neutral recipes with thin adapters for Claude Code (.claude/skills/aicac/) and .agents/skills/aicac/.
     files:
@@ -70,5 +70,5 @@ layers:
     components: [validation_framework]
     description: Empirical measurement and publication artifacts.
   - name: Tooling Layer
-    components: [adoption_action, badging_system, claude_code_skill]
+    components: [adoption_action, badging_system, aicac_skill]
     description: Makes adoption and maintenance frictionless.
