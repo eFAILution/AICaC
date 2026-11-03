@@ -12,8 +12,8 @@ keys:
   - summary
   architecture:
   - adoption_action
+  - aicac_skill
   - badging_system
-  - claude_code_skill
   - specification
   - validation_framework
   workflows:

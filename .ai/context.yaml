@@ -3,7 +3,7 @@ summary: AICaC — the .ai/ directory convention + JSON schemas + tooling for to
 project:
   name: AICaC
   type: specification
-  description: Structured YAML context for AI coding assistants, with JSON Schema validation, a Claude Code skill, and a GitHub Action for adoption and maintenance.
+  description: Structured YAML context for AI coding assistants, with JSON Schema validation, a harness-neutral skill (Claude Code and .agents/skills adapters), and a GitHub Action for adoption and maintenance.
   repository: https://github.com/eFAILution/AICaC
   primary_language: python
   languages:
@@ -14,7 +14,7 @@ entrypoints:
   whitepaper: ai-context-as-code-whitepaper.md
   spec: spec/README.md
   schemas: spec/v2/
-  skill: .claude/skills/aicac/SKILL.md
+  skill: skills/aicac/SKILL.md
   validation_scripts: validation/scripts/token_measurement.py
   adoption_action: .github/actions/aicac-adoption/action.yml
   badge_guide: BADGES.md

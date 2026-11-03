@@ -38,9 +38,10 @@ confirm you've picked the right file before loading the rest. The optional
 - **Token measurements**: `make measure-all`. Results go to
   `experiments/results.json`. Checked-in reference: `validation/examples/results/`.
 - **Tests**: `cd .github/actions/aicac-adoption && pytest`
-- **Claude Code skill**: [`.claude/skills/aicac/SKILL.md`](.claude/skills/aicac/SKILL.md)
-  — the on-ramp for Claude Code users to route, bootstrap, validate, and keep
-  `.ai/` in sync.
+- **AICaC skill**: canonical body [`skills/aicac/SKILL.md`](skills/aicac/SKILL.md);
+  Claude Code adapter [`.claude/skills/aicac/`](.claude/skills/aicac/);
+  `.agents/skills` adapter [`.agents/skills/aicac/`](.agents/skills/aicac/)
+  — on-ramp to route, bootstrap, validate, and keep `.ai/` in sync.
 
 ## Quick facts
 
