@@ -23,9 +23,11 @@ files (`.ai/context.yaml`, `.ai/architecture.yaml`, `.ai/workflows.yaml`,
 current query needs.
 
 **Current status:** Specification v2.0, JSON Schemas, a validator with
-cross-reference checks, a bootstrap/maintenance GitHub Action, and a Claude
-Code skill at [`.claude/skills/aicac/`](.claude/skills/aicac/) that teaches
-agents to route instead of loading everything.
+cross-reference checks, a bootstrap/maintenance GitHub Action, and a
+harness-neutral skill at [`skills/aicac/`](skills/aicac/) (adapters under
+[`.claude/skills/aicac/`](.claude/skills/aicac/) and
+[`.agents/skills/aicac/`](.agents/skills/aicac/)) that teaches agents to
+route instead of loading everything.
 
 ## Does it actually save tokens?
 
@@ -111,7 +113,9 @@ AICaC/
 ├── .ai/                                # This repo's own .ai/ (v2.0)
 ├── spec/
 │   └── v2/                             # JSON Schemas for every file
-├── .claude/skills/aicac/               # Claude Code skill: router / bootstrap / validate / sync
+├── skills/aicac/                       # Canonical skill body (harness-neutral)
+├── .claude/skills/aicac/               # Claude Code adapter → skills/aicac/
+├── .agents/skills/aicac/               # .agents/skills adapter → skills/aicac/
 ├── .github/
 │   ├── actions/aicac-adoption/         # Composite action: bootstrap, validate, badge, TOON
 │   └── workflows/validate-aicac.yml    # CI for this repo
@@ -129,26 +133,43 @@ AICaC/
 
 ### Use AICaC in your project
 
-**Option 1: Claude Code skill (interactive)**
+**Option 1: Interactive skill (Claude Code or `.agents/skills/` harnesses)**
 
-The skill at `.claude/skills/aicac/` handles bootstrap, validate, sync, and
-routing. When Claude Code sees `.ai/` or is asked to adopt AICaC, it loads
-the skill and keeps the files in sync.
-
-Installation depends on scope:
+Canonical recipes live in [`skills/aicac/`](skills/aicac/). Thin adapters
+ship at [`.claude/skills/aicac/`](.claude/skills/aicac/) (Claude Code) and
+[`.agents/skills/aicac/`](.agents/skills/aicac/) (Gemini CLI, Cursor via
+`.agents/skills/`, and similar AGENTS.md ecosystems). Prefer the adapter
+path your harness discovers; both resolve to the same body.
 
 ```bash
-# Per-project: clone AICaC — the skill is already at .claude/skills/aicac/
 git clone https://github.com/eFAILution/AICaC
+cd AICaC
 
-# User-global (available in every project): symlink from a clone
-ln -s "$(pwd)/AICaC/.claude/skills/aicac" ~/.claude/skills/aicac
+# Claude Code — per-project: adapter already at .claude/skills/aicac/
+# Claude Code — user-global:
+mkdir -p ~/.claude/skills
+ln -s "$(pwd)/.claude/skills/aicac" ~/.claude/skills/aicac
+# Or copy: cp -rL .claude/skills/aicac ~/.claude/skills/aicac
 
-# Or copy (frozen snapshot, no auto-update)
-cp -r AICaC/.claude/skills/aicac ~/.claude/skills/aicac
+# .agents/skills/ (Gemini CLI, Cursor, etc.) — per-project:
+#   adapter already at .agents/skills/aicac/
+# user-global (or into another repo):
+mkdir -p ~/.agents/skills   # or: mkdir -p /path/to/project/.agents/skills
+ln -s "$(pwd)/.agents/skills/aicac" ~/.agents/skills/aicac
+# Or copy: cp -rL .agents/skills/aicac ~/.agents/skills/aicac
 ```
 
-Restart Claude Code after installing globally.
+`cp -rL` follows symlinks so the destination gets a frozen file snapshot.
+Restart the harness after a user-global install.
+
+##### Installing for non-Claude harnesses
+
+If your tool only scans `.agents/skills/` (or you already mirror skills
+there), use the `.agents/skills/aicac` adapter above — do not expect it to
+load `.claude/skills/` unless the tool documents that path. The skill body
+itself is harness-neutral; only the install directory differs. Additional
+harness adapters (for example Grok under `.grok/skills/`) can follow the
+same thin-entrypoint pattern without duplicating recipes.
 
 **Option 2: GitHub Action (automated)**
 
@@ -238,7 +259,7 @@ Files that are majority-TODO don't count. See [BADGES.md](BADGES.md).
 - **[Validation methodology](validation/docs/testing-framework.md)**
 - **[Quick start](validation/docs/quick-start.md)**
 - **[Publication roadmap](validation/docs/publication-roadmap.md)**
-- **[Claude Code skill](.claude/skills/aicac/SKILL.md)**
+- **[AICaC skill](skills/aicac/SKILL.md)** (adapters: [Claude Code](.claude/skills/aicac/), [`.agents/skills`](.agents/skills/aicac/))
 
 ## Status & roadmap
 

@@ -1,5 +1,5 @@
 version: '2.0'
-summary: Four components — the spec (schemas + whitepaper), validation harness, GitHub Action tooling, and the Claude Code skill — layered as spec / validation / tooling.
+summary: Four components — the spec (schemas + whitepaper), validation harness, GitHub Action tooling, and the harness-neutral AICaC skill — layered as spec / validation / tooling.
 components:
   specification:
     location: ai-context-as-code-whitepaper.md
@@ -37,14 +37,16 @@ components:
       - pyyaml
       - jsonschema
   claude_code_skill:
-    location: .claude/skills/aicac/
-    purpose: Bridge the gap before native AI-tool support — teach Claude Code to route, bootstrap, validate, and keep .ai/ in sync.
+    location: skills/aicac/
+    purpose: Bridge the gap before native AI-tool support — harness-neutral recipes with thin adapters for Claude Code (.claude/skills/aicac/) and .agents/skills/aicac/.
     files:
-      - .claude/skills/aicac/SKILL.md: Skill frontmatter and quick-reference
-      - .claude/skills/aicac/router.md: Query-type to file mapping
-      - .claude/skills/aicac/bootstrap.md: Bootstrap recipes per project type
-      - .claude/skills/aicac/validate.md: Validation checklist + schema refs
-      - .claude/skills/aicac/sync.md: How to keep .ai/ in sync with code changes
+      - skills/aicac/SKILL.md: Skill frontmatter and quick-reference
+      - skills/aicac/router.md: Query-type to file mapping
+      - skills/aicac/bootstrap.md: Bootstrap recipes per project type
+      - skills/aicac/validate.md: Validation checklist + schema refs
+      - skills/aicac/sync.md: How to keep .ai/ in sync with code changes
+      - .claude/skills/aicac/: Claude Code adapter (symlinks to skills/aicac/)
+      - .agents/skills/aicac/: .agents/skills adapter (symlinks to skills/aicac/)
   badging_system:
     location: BADGES.md
     purpose: Visual indicators of AICaC adoption level, driven by validator output.
